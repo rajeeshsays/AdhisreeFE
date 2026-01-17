@@ -17,9 +17,6 @@ export async function getParty() {
     throw ex; // optional
   }
 }
-
-
-
 export async function parseContent(content : any) {
 
   console.log('Sending email content :', content);

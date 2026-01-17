@@ -1,12 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getTransportAll, createTransport, updateTransport} from "@/app/services/transportService";
+import { getTransportAll, createTransport, updateTransport,deleteTransport} from "@/app/services/transportService";
 import styles from "./transportListPage.module.css";
 
 
 export default function TransportListPage() {
   const [transportList, setTransportList] = useState<any[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTransport, setSelectedTransport] = useState<any | null>(null);
+
 
   useEffect(() => {
     async function fetchTransportList() {
