@@ -44,7 +44,7 @@ const TransportEntryForm = ({transport, onClose, onSave}) => {
       vehicleTypeId: "",
       driverId: "",
       party1: "",
-      party2: [],
+      destinationGroups: [],
       from: "",
       to: "",
       startKM: "",
@@ -74,14 +74,14 @@ const [loading, setLoading] = useState(true);
 }[] = [
   { name: "id", type: "number", label: "ID" },
   { name: "date", type: "date", label: "Date" },
-  { name: "vehicleNo", type: "select", label: "Vehicle No" , options: vehicleOptions },
+  { name: "vehicleId", type: "select", label: "Vehicle No" , options: vehicleOptions },
   { name: "vehicleTypeId", type: "select", label: "Vehicle Type" , options: vehicleTypeOptions },
   { name: "driverId", type: "select", label: "Driver ID", options: driverOptions },
   { name: "party1", type: "select", label: "Party 1" , options: partyOptions },
   {
-    name: "party2",
+    name: "destinationGroups",
     type: "multiselect",
-    label: "Party 2",
+    label: "Destination Group",
     options: party2GroupOptions,
       
     
@@ -177,20 +177,27 @@ useEffect(() => {   console.log("Fetching form data...");
 
 
 
+const handleClose = () => {
+  console.log("Closing form...");
+  onClose();
+}
 
 
-  const fetchFormData = async () => {         
+
+const fetchFormData = async () => {         
    getTransport().then((res) => res?.json()).then((data)=>{
    console.log(data);
    console.log("Fields :", fields);
 
    let updatedData = fields.reduce((acc : any, field) => {
-    console.log("Processing field:", field.name, "of type:", field.type);
+    console.log("Processing field:", field.name, "of type:", field.type, "with data:", data[field.name]);
      if (data[field.name] !== undefined) {
        if (field.type === "multiselect" && Array.isArray(data[field.name])) {
+        console.log("Setting multiselect field:", field.name, "with data:", data[field.name]);
          acc[field.name] = data[field.name];
        } 
        if (field.type === "select" && Number.isNaN(data[field.name])) {
+        console.log("Setting select field:", field.name, "with data:", data[field.name]);
          acc[field.name] = data[field.name];
        } 
        else {
@@ -250,7 +257,6 @@ useEffect(() => {
           label: l.name,
         }))
       );
-
       setVehicleOptions(
         vehicles.map((v: any) => ({
           value: v.id,
@@ -289,6 +295,21 @@ useEffect(() => {
 fetchFormData();
   },[]);
 
+const handleSelectChange = (name: string, isMulti = false) => (selected: any) => {
+  setFormData((prev: any) => ({
+    ...prev,
+    [name]: isMulti
+      ? selected?.map((item: any) => item.value) || []
+      : selected?.value ?? null,
+  }));
+};
+
+
+
+
+
+
+
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
@@ -317,6 +338,7 @@ fetchFormData();
             inputId={name}
             classNamePrefix="react-select"
             options={options}
+            onChange={handleSelectChange(name,false)}
             value={options.find(o => o.value == formData[name])}
             />
         ) : type === "multiselect" && options ? (
@@ -326,6 +348,7 @@ fetchFormData();
             classNamePrefix="react-select"
             isMulti
             options={options}
+            onChange={handleSelectChange(name,true)}
             value={options.filter(o =>
               formData[name]?.includes(o.value)
             )}
@@ -345,7 +368,7 @@ fetchFormData();
   })}
 </div>
 <div className="form-actions">
-  <button type="button" onClick={onClose}>Cancel</button>
+  <button type="button" onClick={handleClose}>Cancel</button>
 <button type="submit">Submit</button>
 
 </div>
