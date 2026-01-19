@@ -2,12 +2,12 @@ import { baseUrl } from '../configs/apiConfig';
 
 
 
-export async function getTransport() {
+export async function getTransport(id: number) {
   console.log('Reached get transport :');
 
   try {
-    console.log("Calling:", `${baseUrl}/api/TransportEntryApi/get/1`);
-    const res = await fetch(`${baseUrl}/api/TransportEntryApi/get/1`, {
+    console.log("Calling:", `${baseUrl}/api/TransportEntryApi/get/${id}`);
+    const res = await fetch(`${baseUrl}/api/TransportEntryApi/get/${id}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -20,12 +20,12 @@ export async function getTransport() {
   }
 }
 
-export async function getTransportAll() {
+export async function getTransportAll(pageNumber: number, pageSize: number) {
   console.log('Reached get transport :');
 
   try {
-    console.log("Calling:", `${baseUrl}/api/TransportEntryApi/getall/1/10`);
-    const res = await fetch(`${baseUrl}/api/TransportEntryApi/getall/1/10`, {
+    console.log("Calling:", `${baseUrl}/api/TransportEntryApi/getall/${pageNumber}/${pageSize}`);
+    const res = await fetch(`${baseUrl}/api/TransportEntryApi/getall/${pageNumber}/${pageSize}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
