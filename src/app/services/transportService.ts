@@ -46,7 +46,7 @@ export async function createTransport(transportData: any) {
     const res = await fetch(`${baseUrl}/api/TransportEntryApi/create`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transportEntry:transportData,destinationGroup : {} }),
+      body: JSON.stringify({ transportEntry:transportData }),
     });
 
     return res; // <-- FIX
