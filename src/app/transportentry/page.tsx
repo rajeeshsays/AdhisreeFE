@@ -8,16 +8,17 @@ import { getLocation } from "../services/locationService";
 import { getVehicle } from "../services/vehicleService";
 import { getVehicleType } from "../services/vehicleTypeService";
 import { getParty } from "../services/partyService";
+import styles from "./transport.module.css";
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
 type TransportEntryFormData = {
   id: string;
   date: string;
-  vehicleNo: string;
+  vehicleId: string;
   vehicleTypeId: string;
   driverId: string;
   party1: string;
-  party2: string[];
+  destinationGroups: string[];
   from: string;
   to: string;
   startKM: string;
@@ -33,25 +34,29 @@ interface FieldOption {
   value: string;
   label: string;
 }
-const TransportEntryForm = () => {
-  const [formData, setFormData] = useState<TransportEntryFormData>({
-    id: "",
-    date: "",
-    vehicleNo: "",
-    vehicleTypeId: "",
-    driverId: "",
-    party1: "",
-    party2: [],
-    from: "",
-    to: "",
-    startKM: "",
-    closeKM: "",
-    total: "",
-    loading: "",
-    unloading: "",
-    loadingCommision: "",
-    unloadingCommision: "",
-  });
+const TransportEntryForm = ({transport, onClose, onSave,operationMode}) => {
+
+  if (!transport) {
+    transport = {
+      id: "",
+      date: "",
+      vehicleId: "",
+      vehicleTypeId: "",
+      driverId: "",
+      party1: "",
+      destinationGroups: [],
+      from: "",
+      to: "",
+      startKM: "",
+      closeKM: "",
+      total: "",
+      loading: "",
+      unloading: "",
+      loadingCommision: "",
+      unloadingCommision: "",
+    };
+  }   
+const [formData, setFormData] = useState<TransportEntryFormData>(transport as TransportEntryFormData);
 const [driverOptions, setDriverOptions] = useState<FieldOption[]>([]);
 const [locationOptions, setLocationOptions] = useState<FieldOption[]>([]);
 const [vehicleOptions, setVehicleOptions] = useState<FieldOption[]>([]);
@@ -68,14 +73,14 @@ const [loading, setLoading] = useState(true);
 }[] = [
   { name: "id", type: "number", label: "ID" },
   { name: "date", type: "date", label: "Date" },
-  { name: "vehicleNo", type: "select", label: "Vehicle No" , options: vehicleOptions },
+  { name: "vehicleId", type: "select", label: "Vehicle No" , options: vehicleOptions },
   { name: "vehicleTypeId", type: "select", label: "Vehicle Type" , options: vehicleTypeOptions },
   { name: "driverId", type: "select", label: "Driver ID", options: driverOptions },
   { name: "party1", type: "select", label: "Party 1" , options: partyOptions },
   {
-    name: "party2",
+    name: "destinationGroups",
     type: "multiselect",
-    label: "Party 2",
+    label: "Destination Group",
     options: party2GroupOptions,
   },
   { name: "from", type: "select", label: "From", options: locationOptions },
@@ -92,7 +97,10 @@ const [loading, setLoading] = useState(true);
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
   };
-
+const handleClose = () => {
+  console.log("Closing form...");
+  onClose();
+}
 
 useEffect(() => {   console.log("Fetching form data..."); 
  const fetchDropdownData = async () => {
@@ -167,41 +175,52 @@ useEffect(() => {   console.log("Fetching form data...");
   fetchDropdownData();
 }, []);
 
-
-
-
-
-  const fetchFormData = async () => {         
-   getTransport().then((res) => res?.json()).then((data)=>{
-   console.log(data);
-   console.log("Fields :", fields);
-
+const populateFields :any = (data : TransportEntryFormData) => {
+    console.log("Populating fields with data:", data);
    let updatedData = fields.reduce((acc : any, field) => {
-    console.log("Processing field:", field.name, "of type:", field.type);
-     if (data[field.name] !== undefined) {
+    console.log("Processing field:", field.name, "of type:", field.type, "with data:", data[field.name]);
+     if (data[field.name] !== undefined || operationMode.toLowerCase() ==='add') {
+      console.log("Operation mode:", operationMode);
        if (field.type === "multiselect" && Array.isArray(data[field.name])) {
+        console.log("Setting multiselect field:", field.name, "with data:", data[field.name]);
          acc[field.name] = data[field.name];
        } 
        if (field.type === "select" && Number.isNaN(data[field.name])) {
+        console.log("Setting select field:", field.name, "with data:", data[field.name]);
          acc[field.name] = data[field.name];
        } 
        else {
          acc[field.name] = data[field.name]?.toString();
        }
      }
-
+   
       return acc;
     }
     ,{});
 
     console.log("Updated Data:", updatedData);
+    setFormData((prev) => ({ ...prev, ...updatedData }));
+  }
+  
+const fetchFormData = async () => {         
+    if(operationMode?.toLowerCase() !== 'edit'){
+      console.log("Not in edit mode, skipping data fetch.",transport);
+      populateFields(transport);
+      
+    }
+    else {
+    getTransport().then((res) => res?.json()).catch(async (err) => {
+      console.error("Error fetching transport data:", err);
+    }).then((data) => {
+      console.log("Fetched transport data:", data);   
+      populateFields(data);
+      
+    });
 
-    setFormData((p) => ({ ...p, ...updatedData }));
-   }).catch((err)=>{
-     console.error("Failed to fetch transport data:", err);
-   });
+  }
 
   };
+
 useEffect(() => {
   console.log("Fetching dropdown data...");
   const fetchDropdownData = async () => {
@@ -241,7 +260,6 @@ useEffect(() => {
           label: l.name,
         }))
       );
-
       setVehicleOptions(
         vehicles.map((v: any) => ({
           value: v.id,
@@ -280,61 +298,103 @@ useEffect(() => {
 fetchFormData();
   },[]);
 
-  return (
-    <form className="transport-form">
-      <h2>Transport Entry Form</h2>
+const handleSelectChange = (name: string, isMulti = false) => (selected: any) => {
+  setFormData((prev: any) => ({
+    ...prev,
+    [name]: isMulti
+      ? selected?.map((item: any) => item.value) || []
+      : selected?.value ?? null,
+  }));
+};
+const handleSave = async (e: React.FormEvent) => {
 
-  <div className="form-grid">
-  {fields.map(({ name, type, label, options }) => {
-    // ❌ Skip fields with no data
-    if (formData[name] === "" || typeof formData[name] === "object" && (formData[name] as any).length === 0) {
-      return null;
-    }
+  e.preventDefault();
+  console.log("Saving form data...", formData);
+  if(operationMode === 'Edit'){
+    console.log("Updating transport entry...");
+    onSave(formData.id,formData);
 
-    return (
-      <div key={name}>
-        {/* Show current value 
-        <pre>{JSON.stringify(formData[name], null, 2)}</pre>*/}
+  } else {
+    console.log("Creating new transport entry...");
+    onSave(formData);
+  }
+  };
 
-        <label htmlFor={name}>{label}</label>
 
-        {type === "select" && options ? (
+return (
+  <div className={styles.overlay}>
+    <div className={styles.modal}>
+      <form className="transport-form">
+        <h2>Transport Entry Form</h2>
 
-          <Select
-            instanceId={name}
-            inputId={name}
-            classNamePrefix="react-select"
-            options={options}
-            value={options.find(o => o.value == formData[name])}
-            />
-        ) : type === "multiselect" && options ? (
-          <Select
-            instanceId={name}
-            inputId={name}
-            classNamePrefix="react-select"
-            isMulti
-            options={options}
-            value={options.filter(o =>
-              formData[name]?.includes(o.value)
-            )}
+        <div className="form-grid">
+          {fields.map(({ name, type, label, options }) => {
+            // Skip empty fields in edit mode
+            if (
+              operationMode.toLowerCase() === "edit" &&
+              (formData[name] === "" ||
+                (Array.isArray(formData[name]) &&
+                  formData[name].length === 0))
+            ) {
+              return null;
+            }
 
-          />
-        ) : (
-          <input
-            id={name}
-            name={name}
-            type={type}
-            value={formData[name]}
-            onChange={handleInputChange}
-          />
-        )}
-      </div>
-    );
-  })}
-</div>
-<button type="submit">Submit</button>
-</form>
-      );
+            if (name === "id") return null;
+
+            return (
+              <div key={name}>
+                <label htmlFor={name}>{label}</label>
+
+                {type === "select" && options ? (
+                  <Select
+                    instanceId={name}
+                    inputId={name}
+                    classNamePrefix="react-select"
+                    options={options}
+                    onChange={handleSelectChange(name, false)}
+                    value={options.find(
+                      o => o.value == formData[name]
+                    )}
+                  />
+                ) : type === "multiselect" && options ? (
+                  <Select
+                    instanceId={name}
+                    inputId={name}
+                    classNamePrefix="react-select"
+                    isMulti
+                    options={options}
+                    onChange={handleSelectChange(name, true)}
+                    value={options.filter(o =>
+                      formData[name]?.includes(o.value)
+                    )}
+                  />
+                ) : (
+                  <input
+                    id={name}
+                    name={name}
+                    type={type}
+                    value={formData[name] ?? ""}
+                    onChange={handleInputChange}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="form-actions">
+          <button type="button" onClick={handleClose}>
+            Cancel
+          </button>
+          <button type="submit" onClick={handleSave}>
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+);
+
 };
 
 export default TransportEntryForm;

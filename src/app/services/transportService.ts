@@ -65,6 +65,40 @@ export async function deleteTransport(id: number) {
   console.log('Transport deleted:', id);
 };
 
+export async function updateTransport(id: number, transportData : any) {
+
+  console.log('Sending email content :', transportData);
+  try {
+    const res = await fetch(`${baseUrl}/api/TransportEntryApi/update/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model:transportData}),
+    });
+
+    const contentType = res.headers.get('content-type');
+    const responseBody = contentType?.includes('application/json')
+      ? await res.json()
+      : await res.text();
+     console.log(JSON.stringify(responseBody))
+
+    if (!res.ok) {
+      // Handle Badrequest error from api
+      let errorMessage = '';
+
+      if (responseBody?.error) {
+        throw new Error(responseBody?.error + '. Request failed!');
+      }
+      throw new Error(errorMessage || 'Request failed! for unknown reason, need investigation');
+    }
+
+    console.log('Success response:', responseBody);
+    return responseBody; //return parsed response
+
+  } catch (err : any) {
+    console.error('Error from service ', err.message);
+    throw err; // re-throw for component to handle
+  }
+}
 
 export async function parseContent(content : any) {
 
@@ -105,11 +139,4 @@ export async function parseContent(content : any) {
 const API_URL = "https://localhost:5001/api/transport";
 
 
-
-export const updateTransport = (id: number, data: any) =>
-  fetch(`${API_URL}/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
 

@@ -1,12 +1,17 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getTransportAll, createTransport, updateTransport} from "@/app/services/transportService";
+import { getTransportAll, createTransport, updateTransport,deleteTransport} from "@/app/services/transportService";
 import styles from "./transportListPage.module.css";
+import TransportEntryForm from "../../transportentry/page";
 
 
 export default function TransportListPage() {
   const [transportList, setTransportList] = useState<any[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTransport, setSelectedTransport] = useState<any | null>(null);
+  const [operationMode , setOperationMode] = useState('');
+
 
   useEffect(() => {
     async function fetchTransportList() {
@@ -26,11 +31,14 @@ export default function TransportListPage() {
 const handleAdd = () => {
   setSelectedTransport(null);
   setIsModalOpen(true);
+  setOperationMode('Add');
 };
 
 const handleEdit = (transport: any) => {
+  console.log('Editing transport:', transport);
   setSelectedTransport(transport);
   setIsModalOpen(true);
+  setOperationMode('Edit');
 };
 
 const handleDelete = async (id: number) => {
@@ -39,6 +47,33 @@ const handleDelete = async (id: number) => {
   await deleteTransport(id);
   setTransportList(prev => prev.filter(t => t.id !== id));
 };
+
+const handleSave = async () => {
+  try {
+    const response = selectedTransport?.id
+      ? await updateTransport(selectedTransport.id, selectedTransport)
+      : await createTransport(selectedTransport);
+
+    if (response.ok) {
+      const savedTransport = await response.json();
+      setTransportList(prev => {
+        const existingIndex = prev.findIndex(t => t.id === savedTransport.id);
+        if (existingIndex !== -1) {
+          const updatedList = [...prev];
+          updatedList[existingIndex] = savedTransport;
+          return updatedList;
+        } else {
+          return [...prev, savedTransport];
+        }
+      });
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
+
 
 
   return (
@@ -106,6 +141,23 @@ const handleDelete = async (id: number) => {
             )}
           </tbody>
         </table>
+{isModalOpen && (
+  <TransportEntryForm
+    transport={selectedTransport}
+    onClose={() => setIsModalOpen(false)}
+    operationMode={operationMode}
+    onSave={() => {
+      setIsModalOpen(false);
+      handleSave();
+      getTransportAll();
+    }}
+  />
+)}
+
+
+
+
+
       </div>
     </div>
   );

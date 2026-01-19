@@ -1,6 +1,6 @@
-/* Container */
+/* ================= Container ================= */
 .transport-form {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 40px auto;
   padding: 30px;
   background-color: #f9f9f9;
@@ -10,7 +10,7 @@
   font-family: Arial, sans-serif;
 }
 
-/* Form Title */
+/* ================= Title ================= */
 .transport-form h2 {
   text-align: center;
   font-size: 24px;
@@ -18,14 +18,14 @@
   color: #333;
 }
 
-/* Grid Layout */
+/* ================= Grid ================= */
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr); /* Desktop: 3 columns */
   gap: 20px;
 }
 
-/* Label */
+/* ================= Fields ================= */
 .form-grid label {
   display: block;
   margin-bottom: 6px;
@@ -34,14 +34,12 @@
   font-size: 14px;
 }
 
-/* Input Fields */
 .form-grid input {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 14px;
-  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .form-grid input:focus {
@@ -50,7 +48,7 @@
   outline: none;
 }
 
-/* React Select Container Override */
+/* ================= React Select ================= */
 .form-grid .react-select__control {
   border-radius: 6px;
   border-color: #ccc;
@@ -62,11 +60,11 @@
   box-shadow: 0 0 4px rgba(0, 123, 255, 0.4);
 }
 
-/* Button */
+/* ================= Button (Desktop) ================= */
 .transport-form button {
-  display: block;
-  width: 100%;
-  padding: 12px 0;
+  grid-column: 3 / 4;       /* right column */
+  justify-self: end;        /* right aligned */
+  padding: 12px 32px;
   margin-top: 20px;
   background-color: #007bff;
   color: white;
@@ -75,7 +73,15 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
+
+}
+
+.form-actions {
+  grid-column: 1 / -1;     /* span full row */
+  display: flex;
+  justify-content: flex-end; /* 🔥 pushes buttons to right */
+  gap: 12px;
+  margin-top: 20px;
 }
 
 .transport-form button:hover {
@@ -83,9 +89,32 @@
   transform: translateY(-2px);
 }
 
-/* Responsive */
+/* ================= Tablet (≤1024px) ================= */
+@media (max-width: 1024px) {
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+  }
+
+
+  .transport-form button {
+    grid-column: 2 / 3;   /* right column */
+    justify-self: end;
+  }
+}
+
+/* ================= Mobile (≤600px) ================= */
 @media (max-width: 600px) {
   .form-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* 1 column */
   }
+
+ .form-actions {
+    justify-content: stretch;
+  }
+
+  .form-actions button {
+    flex: 1;
+  }
+
+
 }
