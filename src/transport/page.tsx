@@ -22,7 +22,7 @@ const TransportList = () => {
 
   const fetchTransports = async () => {
     try {
-      const res = await getTransportAll();
+      const res = await getTransportAll(1,100);
 
       if (!res.ok) {
         throw new Error('Failed to fetch transports');

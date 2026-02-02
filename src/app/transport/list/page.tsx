@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { getTransportAll, createTransport, updateTransport,deleteTransport} from "@/app/services/transportService";
-import styles from "./transportListPage.module.css";
-import TransportEntryForm from "../../transportentry/page";
+import styles from "./transportList.module.css";
+import TransportEntryForm from "../edit/page";
+import { TransportEntryFormData } from "@/app/types/types";
 
 
 export default function TransportListPage() {
@@ -16,7 +17,7 @@ export default function TransportListPage() {
   useEffect(() => {
     async function fetchTransportList() {
       try {
-        const response = await getTransportAll();
+        const response = await getTransportAll(1,100);
         if (response.ok) {
           const data = await response.json();
           setTransportList(data);
@@ -48,11 +49,15 @@ const handleDelete = async (id: number) => {
   setTransportList(prev => prev.filter(t => t.id !== id));
 };
 
-const handleSave = async () => {
+const handleSave = async (id : number,formData : TransportEntryFormData) => {
   try {
+
+  console.log("formdata te list " +formData)
+
+   //const response =  await createTransport(formData);
     const response = selectedTransport?.id
-      ? await updateTransport(selectedTransport.id, selectedTransport)
-      : await createTransport(selectedTransport);
+      ? await updateTransport(selectedTransport.id, formData)
+      : await createTransport(formData);
 
     if (response.ok) {
       const savedTransport = await response.json();
@@ -146,10 +151,10 @@ const handleSave = async () => {
     transport={selectedTransport}
     onClose={() => setIsModalOpen(false)}
     operationMode={operationMode}
-    onSave={() => {
+    onSave={(id : number,formData : any) => {
       setIsModalOpen(false);
-      handleSave();
-      getTransportAll();
+      handleSave(id, formData);
+      getTransportAll(1,100);
     }}
   />
 )}

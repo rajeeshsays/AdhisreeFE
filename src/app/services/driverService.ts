@@ -1,11 +1,26 @@
 import { baseUrl } from '../configs/apiConfig';
 
+  interface DriverFormData  {
+    name: String,
+    age: String,
+    dob: String,
+    adhaarNo: String,
+    addressLine1: String,
+    addressLine2: String,
+    mobile1: String,
+    mobile2: String,
+    licenseNo: String,
+    isActive: String,
+    
+  }
+
+
+
 export async function getDriver() {
   console.log('Reached get driver :');
-
   try {
-    console.log("Calling:", `${baseUrl}/api/DriverApi`);
-    const res = await fetch(`${baseUrl}/api/DriverApi`, {
+    console.log("Calling:", `${baseUrl}/api/DriverApi/getdriver`);
+    const res = await fetch(`${baseUrl}/api/DriverApi/getdriver`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -20,7 +35,99 @@ export async function getDriver() {
 
 
 
-export async function parseContent(content : any) {No
+export async function getDriverAll(pageNumber: number, pageSize: number) {
+  console.log('Reached get driver :');
+
+  try {
+    console.log("Calling:", `${baseUrl}/api/DriverApi/getall/${pageNumber}/${pageSize}`);
+    const res = await fetch(`${baseUrl}/api/DriverApi/getall/${pageNumber}/${pageSize}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+
+    return res; // <-- FIX
+  } 
+  catch (ex: any) {
+    console.log(JSON.stringify(ex));
+    throw ex; // optional
+  }
+}
+
+export async function createDriver(driverFormData : DriverFormData) {
+  console.log('Reached create driver :'+ JSON.stringify(driverFormData));
+  driverFormData.id = "0";
+
+  try {
+    console.log("Calling:", `${baseUrl}/api/DriverApi/create`);
+    const res = await fetch(`${baseUrl}/api/DriverApi/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(driverFormData),
+    });
+
+    return res; // <-- FIX
+  } 
+  catch (ex: any) {
+    console.log(JSON.stringify(ex));
+    throw ex; // optional
+  }
+}
+export async function deleteDriver(id: number) {
+  if (!window.confirm('Are you sure?')) return;
+
+  await fetch(`${baseUrl}/api/DriverApi/${id}`, {
+    method: 'DELETE'
+  });
+  console.log('Driver deleted:', id);
+};
+
+export async function updateDriver(id: number, driverData : DriverFormData,) {
+
+
+
+  console.log('inside updateDriver ...Sending email content :', driverData);
+  try {
+    const res = await fetch(`${baseUrl}/api/DriverApi/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(driverData),
+    });
+
+    const contentType = res.headers.get('content-type');
+    const responseBody = contentType?.includes('application/json')
+      ? await res.json()
+      : await res.text();
+     console.log(JSON.stringify(responseBody))
+
+    if (!res.ok) {
+      // Handle Badrequest error from api
+      let errorMessage = '';
+
+      if (responseBody?.error) {
+        throw new Error(responseBody?.error + '. Request failed!');
+      }
+      throw new Error(errorMessage || 'Request failed! for unknown reason, need investigation');
+    }
+
+    console.log('Success response:', responseBody);
+    return responseBody; //return parsed response
+
+  } catch (err : any) {
+    console.error('Error from service ', err.message);
+    throw err; // re-throw for component to handle
+  }
+}
+
+
+
+
+
+
+
+
+
+export async function parseContent(content : any) {
 
   console.log('Sending email content :', content);
   try {

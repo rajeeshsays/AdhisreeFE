@@ -4,8 +4,8 @@ export async function getLocation() {
   console.log('Reached get location :');
 
   try {
-    console.log("Calling:", `${baseUrl}/api/LocationApi`);
-    const res = await fetch(`${baseUrl}/api/LocationApi`, {
+    console.log("Calling:", `${baseUrl}/api/LocationApi/getlocation`);
+    const res = await fetch(`${baseUrl}/api/LocationApi/getlocation`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });

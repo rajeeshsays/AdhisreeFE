@@ -1,14 +1,15 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { getTransport } from "../services/transportService";
-import "./transportentryform.css";
-import { getDriver } from "../services/driverService";
-import { getLocation } from "../services/locationService";
-import { getVehicle } from "../services/vehicleService";
-import { getVehicleType } from "../services/vehicleTypeService";
-import { getParty } from "../services/partyService";
+import { getTransport } from "../../services/transportService";
+import "../edit/transportEdit.css";
+import { getDriver } from "../../services/driverService";
+import { getLocation } from "../../services/locationService";
+import { getVehicle } from "../../services/vehicleService";
+import { getVehicleType } from "../../services/vehicleTypeService";
+import { getParty } from "../../services/partyService";
 import styles from "./transport.module.css";
+
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
 type TransportEntryFormData = {
@@ -209,7 +210,8 @@ const fetchFormData = async () => {
       
     }
     else {
-    getTransport().then((res) => res?.json()).catch(async (err) => {
+    console.log("In edit mode, fetching data for transport ID:", transport.id);
+    getTransport(transport.id).then((res) => res?.json()).catch(async (err) => {
       console.error("Error fetching transport data:", err);
     }).then((data) => {
       console.log("Fetched transport data:", data);   
@@ -311,7 +313,7 @@ const handleSave = async (e: React.FormEvent) => {
   e.preventDefault();
   console.log("Saving form data...", formData);
   if(operationMode === 'Edit'){
-    console.log("Updating transport entry...");
+    console.log("Updating transport entry..."+formData.id);
     onSave(formData.id,formData);
 
   } else {
@@ -330,33 +332,35 @@ return (
         <div className="form-grid">
           {fields.map(({ name, type, label, options }) => {
             // Skip empty fields in edit mode
-            if (
-              operationMode.toLowerCase() === "edit" &&
-              (formData[name] === "" ||
-                (Array.isArray(formData[name]) &&
-                  formData[name].length === 0))
-            ) {
-              return null;
-            }
+            // if (
+            //   operationMode.toLowerCase() === "edit" &&
+            //   (formData[name] === "" ||
+            //     (Array.isArray(formData[name]) &&
+            //       formData[name].length === 0))
+            // ) {
+            //   return null;
+            // }
 
             if (name === "id") return null;
 
             return (
               <div key={name}>
                 <label htmlFor={name}>{label}</label>
-
-                {type === "select" && options ? (
+                 {/* {<pre>{type}</pre>}
+                {<pre>options={type === "multiselect" ? JSON.stringify(options?.length) : "not multiselect"}</pre>} */}
+                {
+                type === "select" && options ? (
                   <Select
                     instanceId={name}
                     inputId={name}
                     classNamePrefix="react-select"
                     options={options}
                     onChange={handleSelectChange(name, false)}
-                    value={options.find(
+                    value={options?.find(
                       o => o.value == formData[name]
                     )}
                   />
-                ) : type === "multiselect" && options ? (
+                ) : type === "multiselect" && options  ? (
                   <Select
                     instanceId={name}
                     inputId={name}
@@ -364,7 +368,7 @@ return (
                     isMulti
                     options={options}
                     onChange={handleSelectChange(name, true)}
-                    value={options.filter(o =>
+                    value={options?.filter(o =>
                       formData[name]?.includes(o.value)
                     )}
                   />

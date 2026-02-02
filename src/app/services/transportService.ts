@@ -1,4 +1,5 @@
 import { baseUrl } from '../configs/apiConfig';
+import { TransportEntryFormData } from '../types/types';
 
 
 
@@ -39,14 +40,16 @@ export async function getTransportAll(pageNumber: number, pageSize: number) {
   }
 }
 
-export async function createTransport(transportData: any) {
-  console.log('Reached get transport :');
+export async function createTransport(transportData : TransportEntryFormData) {
+  console.log('Reached get transport :'+ console.log(transportData));
+  transportData.id = "0";
+
   try {
     console.log("Calling:", `${baseUrl}/api/TransportEntryApi/create`);
     const res = await fetch(`${baseUrl}/api/TransportEntryApi/create`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transportEntry:transportData }),
+      body: JSON.stringify({ transportEntry:transportData,destinationGroup : {destinationIds : transportData.destinationGroups} }),
     });
 
     return res; // <-- FIX
@@ -65,14 +68,17 @@ export async function deleteTransport(id: number) {
   console.log('Transport deleted:', id);
 };
 
-export async function updateTransport(id: number, transportData : any) {
+export async function updateTransport(id: number, transportData : TransportEntryFormData,) {
 
-  console.log('Sending email content :', transportData);
+  transportData.destinationGroups =  transportData.destinationGroups.toString().split(',');
+   console.log('destination groups :' + transportData.destinationGroups);
+    console.log('destination groups :' + transportData.destinationGroups.toString().split(','));
+  console.log('inside updateTransport ...Sending email content :', transportData);
   try {
-    const res = await fetch(`${baseUrl}/api/TransportEntryApi/update/${id}`, {
+    const res = await fetch(`${baseUrl}/api/TransportEntryApi/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model:transportData}),
+      body: JSON.stringify({ transportEntry:transportData,destinationGroup : { destinationIds : transportData.destinationGroups} }),
     });
 
     const contentType = res.headers.get('content-type');
