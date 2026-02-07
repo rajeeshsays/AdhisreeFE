@@ -33,6 +33,8 @@ export default function LocationEntryForm({location, onClose, onSave,operationMo
   };
 
    useEffect(() => {
+    console.log("selected location in form:", location);
+    setFormData(location || locationData);
     let isMounted = true;
      let fetchDistricts =  async () => {
      let districts =  await getDistrict(12).then(res => res.json());

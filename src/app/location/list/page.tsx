@@ -91,13 +91,12 @@ const handleSave = async (id : number,formData : LocationFormData) => {
             <tr>
               <th>ID</th>
               <th>Name</th>
-              <th>Age</th>
-              <th>Adhaar No</th>
-              <th>Mobile 1</th>
-              <th>Mobile 2</th>
-              <th>License No</th>
-              <th>Is Active</th>
+              <th>Code</th>
+              <th>Description</th>
+              <th>District ID</th>
+              <th>IsActive</th>
               <th>Actions</th>
+
             </tr>
           </thead>
 
@@ -115,11 +114,9 @@ const handleSave = async (id : number,formData : LocationFormData) => {
                      
                   <td>{location.id}</td>
                    <td>{location.name}</td>
-                   <td>{location.age}</td>
-                   <td>{location.adhaarNo}</td>
-                   <td>{location.mobile1}</td>
-                   <td>{location.mobile2}</td>
-                   <td>{location.licenseNo}</td>
+                   <td>{location.code}</td>
+                  <td>{location.districtId}</td>
+                   <td>{location.description}</td>           
                    <td className={location.isActive === "1" ? styles.active : styles.inactive}>
                      {location.isActive ? "Active" : "Inactive"}                    
                    
@@ -146,8 +143,11 @@ onClick={() => handleEdit(location)}
  </tbody>
              
         </table>
-
+ {
+   <pre>{JSON.stringify(selectedLocation, null, 2)}</pre>
+ }
  {isModalOpen && (
+ 
    <LocationEntryForm
      location={selectedLocation}
      onClose={() => setIsModalOpen(false)}
