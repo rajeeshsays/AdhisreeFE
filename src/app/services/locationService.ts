@@ -45,14 +45,16 @@ export async function getLocationAll(pageNumber: number, pageSize: number) {
 
 export async function createLocation(locationFormData : LocationFormData) {
   console.log('Reached create location :'+ JSON.stringify(locationFormData));
-  locationFormData.id = "0";
+  //object destructuring 
+  const { id, ...payload } = locationFormData;
+
 
   try {
     console.log("Calling:", `${baseUrl}/api/LocationApi`);
     const res = await fetch(`${baseUrl}/api/LocationApi`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(locationFormData),
+      body: JSON.stringify(payload),
     });
 
     return res; // <-- FIX

@@ -52,7 +52,8 @@ const handleDelete = async (id: number) => {
 const handleSave = async (id : number,formData : LocationFormData) => {
   try {
 
-  console.log("formdata te list " +formData)
+  
+  console.log("formdata te list " +JSON.stringify(formData))
 
    //const response =  await createTransport(formData);
     const response = selectedLocation?.id
@@ -63,6 +64,7 @@ const handleSave = async (id : number,formData : LocationFormData) => {
       const savedLocation = await response.json();
       setLocationList(prev => {
         const existingIndex = prev.findIndex(t => t.id === savedLocation.id);
+        
         if (existingIndex !== -1) {
           const updatedList = [...prev];
           updatedList[existingIndex] = savedLocation;

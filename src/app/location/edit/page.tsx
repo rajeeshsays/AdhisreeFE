@@ -1,5 +1,4 @@
 'use client'
-
 import React, { useState } from "react";
 import  './locationEdit.css';
 import Select from 'react-select';
@@ -10,9 +9,7 @@ import { getDistrict  } from "../../services/utilityService"
 import { get } from "http";
 
 export default function LocationEntryForm({location, onClose, onSave,operationMode})  {
-  
-
-
+ 
   let locationData : LocationFormData = {
     id: location?.id || "",
     name: "",
@@ -49,8 +46,8 @@ export default function LocationEntryForm({location, onClose, onSave,operationMo
         
 
   const actives = [
-    { value: 'true', label: 'Active' },
-    { value: 'false', label: 'Inactive' },
+    { value: true, label: 'Active' },
+    { value: false, label: 'Inactive' },
   ];
 
   const handleClose = () => {
@@ -111,12 +108,14 @@ const handleSelectChange = (name: string) => (selected: any) => {
       {/* <pre>{JSON.stringify(districts, null, 2)}</pre> */}
 
       <div>
+     
+
         <label>District:</label>
         <Select
           name="districtId"
-          value={districts.find(option => option.value === 12)}
+          value={districts.find(option=> option.value === formData.districtId)}
           onChange={handleSelectChange("districtId")}
-          options={districts.map(d => ({ value: d.id, label: d.name }))}
+          options={districts.map(d => ({ value: d.value, label: d.label }))}
           required
         />
       </div>
