@@ -74,19 +74,39 @@ export async function createDriver(driverFormData : DriverFormData) {
   }
 }
 export async function deleteDriver(id: number) {
-  if (!window.confirm('Are you sure?')) return;
 
-  await fetch(`${baseUrl}/api/DriverApi/${id}`, {
+  const response = await fetch(`${baseUrl}/api/DriverApi/${id}`, {
     method: 'DELETE'
   });
+  console.log('Driver deleted:', id);
+
+
+    if (!response.ok) {
+      console.log(response)
+    
+  const contentType = response.headers.get("content-type");
+
+  
+  let message = "Internal server error";
+  let detail;
+
+  if (contentType && contentType.includes("application/json")) {
+    const body = await response.json();
+    message = body.message ?? message;
+    detail = body.detail;
+  } else {
+    // 🔥 plain text fallback
+    message = await response.text();
+  }
+
+  throw { status: response.status, message, detail };
+  }
+  // 204 No Content → nothing to return
   console.log('Driver deleted:', id);
 };
 
 export async function updateDriver(id: number, driverData : DriverFormData,) {
-
-
-
-  console.log('inside updateDriver ...Sending email content :', driverData);
+console.log('inside updateDriver ...Sending email content :', driverData);
   try {
     const res = await fetch(`${baseUrl}/api/DriverApi/${id}`, {
       method: 'PUT',

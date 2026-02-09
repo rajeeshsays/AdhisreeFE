@@ -66,7 +66,7 @@ export async function createDistrict(driverFormData : DistrictFormData) {
   }
 }
 export async function deleteDistrict(id: number) {
-  if (!window.confirm('Are you sure?')) return;
+  
 
   await fetch(`${baseUrl}/api/UtilityApi/${id}`, {
     method: 'DELETE'

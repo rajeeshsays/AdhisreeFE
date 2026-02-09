@@ -65,7 +65,6 @@ export async function createLocation(locationFormData : LocationFormData) {
   }
 }
 export async function deleteLocation(id: number) {
-  if (!window.confirm('Are you sure?')) return;
 
   await fetch(`${baseUrl}/api/LocationApi/${id}`, {
     method: 'DELETE'

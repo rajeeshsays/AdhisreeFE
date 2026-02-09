@@ -1,16 +1,12 @@
 'use client'
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import  './driverEdit.css';
 import Select from 'react-select';
 import { DriverFormData } from "@/app/types/types";
 import styles from "./driver.module.css";
 
 export default function DriverEntryForm({driver, onClose, onSave,operationMode})  {
-  
-
-
-  let driverData = {
+  let driverData : DriverFormData= {
     name: "",
     age: "",
     dob: "",
@@ -23,16 +19,21 @@ export default function DriverEntryForm({driver, onClose, onSave,operationMode})
     isActive: "true",
 
   }
+  console.log(driver);
   const [formData, setFormData] = useState<DriverFormData>(driver || driverData);
 
   const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    console.log("name=",name,"value=",value)
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
+useEffect(()=>{
+console.log(formData);
 
+},[formData])
   const actives = [
     { value: true, label: 'Active' },
     { value: false, label: 'Inactive' },
@@ -72,7 +73,6 @@ export default function DriverEntryForm({driver, onClose, onSave,operationMode})
 
              <div className="form-grid">
 
-  
 
       <div>
         <label>Name:</label>
@@ -101,7 +101,7 @@ export default function DriverEntryForm({driver, onClose, onSave,operationMode})
         <label>Adhaar no</label>
         <input
           type="text"
-          name="dob"
+          name="adhaarNo"
           value={formData.adhaarNo}
           onChange={handleChange}
           required

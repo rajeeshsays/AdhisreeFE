@@ -64,7 +64,7 @@ export async function createParty(partyFormData : PartyFormData) {
   }
 }
 export async function deleteParty(id: number) {
-  if (!window.confirm('Are you sure?')) return;
+  
 
   await fetch(`${baseUrl}/api/PartyApi/${id}`, {
     method: 'DELETE'

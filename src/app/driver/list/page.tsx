@@ -47,13 +47,17 @@ if(operationMode=='Edit')
 }
 },[selectedDriver])
 
-
-
 const handleDelete = async (id: number) => {
   if (!confirm("Are you sure you want to delete this driver?")) return;
-
+  try{
   await deleteDriver(id);
   setDriverList(prev => prev.filter(t => t.id !== id));
+  }
+  catch(error)
+  {
+  alert(error.message);
+  }
+
 };
 
 const handleSave = async (id : number,formData : DriverFormData) => {

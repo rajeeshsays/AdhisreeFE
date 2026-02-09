@@ -60,7 +60,7 @@ export async function createTransport(transportData : TransportEntryFormData) {
   }
 }
 export async function deleteTransport(id: number) {
-  if (!window.confirm('Are you sure?')) return;
+  
 
   await fetch(`${baseUrl}/api/transports/${id}`, {
     method: 'DELETE'

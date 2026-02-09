@@ -86,6 +86,7 @@ const handleSave = async (id : number,formData : PartyFormData) => {
       });
     }
   } catch (error) {
+    alert(error);
     console.error(error);
   }
 };
