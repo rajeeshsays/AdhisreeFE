@@ -16,7 +16,7 @@ export default function DriverEntryForm({driver, onClose, onSave,operationMode})
     mobile1: "",
     mobile2: "",
     licenseNo: "",
-    isActive: "true",
+    isActive: true,
 
   }
   console.log(driver);
@@ -48,7 +48,7 @@ console.log(formData);
   const changeActives = () => {
    setFormData(prevData => ({
         ...prevData,
-        isActive: prevData.isActive === "true" ? "false" : "true"
+        isActive: prevData.isActive === true ? false: true
       }));
   }
   const handleSave = async (e: React.FormEvent) => {

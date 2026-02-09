@@ -29,7 +29,7 @@ export type TransportEntryFormData = {
     mobile1: String,
     mobile2: String,
     licenseNo: String,
-    isActive: String,
+    isActive: boolean,
     
   };
 
