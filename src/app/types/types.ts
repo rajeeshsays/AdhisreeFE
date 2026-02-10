@@ -20,58 +20,80 @@ export type TransportEntryFormData = {
 };
 
   export type DriverFormData =   {
-    name: String,
-    age: String,
-    dob: String,
-    adhaarNo: String,
-    addressLine1: String,
-    addressLine2: String,
-    mobile1: String,
-    mobile2: String,
-    licenseNo: String,
+    id?:string,
+    name: string,
+    age: string,
+    dob: string,
+    adhaarNo: string,
+    addressLine1: string,
+    addressLine2: string,
+    mobile1: string,
+    mobile2: string,
+    licenceNo: string,
     isActive: boolean,
     
   };
 
   export type LocationFormData = {
-    id :String,
-    name: String,
-    code: String,
-    description: String,
-    districtId : String,
-    isActive: String,
+    id :string,
+    name: string,
+    code: string,
+    description: string,
+    districtId : string,
+    isActive: string,
     
   }
 
   export type PartyFormData  = {
 
-    id : String,
-    name : String,
-    code : String,
-    gstNo : String,
-    addressLine1 : String,
-    addressLine2 : String,
-    mobile : String,
-    email : String,
-    officePhone : String,
-    contactPerson : String,
-    pincode : String,
-    accountId : String,
-    isActive : String,
+    id : string,
+    name : string,
+    code : string,
+    gstNo : string,
+    addressLine1 : string,
+    addressLine2 : string,
+    mobile : string,
+    email : string,
+    officePhone : string,
+    contactPerson : string,
+    pincode : string,
+    accountId : string,
+    isActive : string,
   } 
 
   export type DistrictFormData  = {
-    name: String,
-    code: String,
-    stateId: String,
-    isActive: String,
+    name: string,
+    code: string,
+    stateId: string,
+    isActive: string,
   }
 
 
   export type StateFormData  = {
-    name: String,
-    code: String,
-    isActive: String,
+    name: string,
+    code: string,
+    isActive: string,
   }
 
-  
+ export type Vehicle  = 
+    {
+        
+         id : number,
+       
+         model : string, 
+        
+        registration : string,
+
+        typeId : number
+
+    }
+
+    export type  VehicleType = 
+    {
+        id : string,
+     
+        desc : string,
+
+        accountId : number
+
+    }

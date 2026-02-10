@@ -1,18 +1,5 @@
 import { baseUrl } from '../configs/apiConfig';
-
-  interface DriverFormData  {
-    name: String,
-    age: String,
-    dob: String,
-    adhaarNo: String,
-    addressLine1: String,
-    addressLine2: String,
-    mobile1: String,
-    mobile2: String,
-    licenseNo: String,
-    isActive: String,
-    
-  }
+import { DriverFormData } from '../types/types';
 
 
 
@@ -73,6 +60,7 @@ export async function createDriver(driverFormData : DriverFormData) {
     throw ex; // optional
   }
 }
+
 export async function deleteDriver(id: number) {
 
   const response = await fetch(`${baseUrl}/api/DriverApi/${id}`, {

@@ -1,19 +1,7 @@
 import { baseUrl } from '../configs/apiConfig';
 import { DistrictFormData } from '../types/types';
 
-  interface DriverFormData  {
-    name: String,
-    age: String,
-    dob: String,
-    adhaarNo: String,
-    addressLine1: String,
-    addressLine2: String,
-    mobile1: String,
-    mobile2: String,
-    licenseNo: String,
-    isActive: String,
-    
-  }
+
 export async function getState() {
   console.log('Reached get state :');
   try {

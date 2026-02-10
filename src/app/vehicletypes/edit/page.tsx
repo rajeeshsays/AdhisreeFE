@@ -1,44 +1,50 @@
 'use client'
-import React, { useEffect, useState } from "react";
-import  './driverEdit.css';
-import Select from 'react-select';
-import { DriverFormData } from "@/app/types/types";
-import styles from "./driver.module.css";
 
-export default function DriverEntryForm({driver , onClose, onSave,operationMode})  {
-  let driverData : DriverFormData= {
-    id:"",
-    name :"",
-    age: "",
-    dob: "",
-    adhaarNo: "",
-    addressLine1: "",
+import React, { useState } from "react";
+import  './partyEdit.css';
+import Select from 'react-select';
+import { PartyFormData } from "@/app/types/types";
+import styles from "./party.module.css";
+
+export default function PartyEntryForm({party, onClose, onSave,onDelete,operationMode})  {
+  
+  let partyData : PartyFormData = {
+    id:  "",
+    name: "",
+    code : "",
+    gstNo : "",
+    addressLine1:  "",
     addressLine2: "",
-    mobile1: "",
-    mobile2: "",
-    licenceNo: "",
-    isActive: true,
+    mobile: "",
+    officePhone :  "",
+    email:  "",
+    contactPerson : "",
+    pincode: "",
+    accountId: "",  
+    isActive:"true"
   }
 
-  console.log(driver);
-  const [formData, setFormData] = useState<DriverFormData>(driver || driverData);
+  const [formData, setFormData] = useState<PartyFormData>(party || partyData);
 
   const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    console.log("name=",name,"value=",value)
+    console.log("Form data---->>>",formData);
+    console.log("Changing field:", name, "to value:", value);
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
-useEffect(()=>{
-console.log(formData);
 
-},[formData])
   const actives = [
     { value: true, label: 'Active' },
     { value: false, label: 'Inactive' },
   ];
+
+  const handleDelete = () => {
+    console.log("Deleting party...", formData.id);
+    onDelete(formData.id);
+  }
 
   const handleClose = () => {
   console.log("Closing form...");
@@ -46,22 +52,23 @@ console.log(formData);
 }
 
 
-  const changeActives = () => {
-   setFormData(prevData => ({
-        ...prevData,
-        isActive: prevData.isActive === true ? false: true
-      }));
-  }
+const handleSelectChange = (name: string) => (selected: any) => {
+  setFormData((prev: any) => ({
+    ...prev,
+    [name]: selected?.value ?? null,
+      
+  }));
+};
   const handleSave = async (e: React.FormEvent) => {
   
     e.preventDefault();
     console.log("Saving form data...", formData);
     if(operationMode === 'Edit'){
-      console.log("Updating transport entry..."+formData.id);
+      console.log("Updating party entry..."+formData.id);
       onSave(formData.id,formData);
   
     } else {
-      console.log("Creating new transport entry...");
+      console.log("Creating new party entry..."+formData.name);
       onSave(0,formData);
     }
     };
@@ -69,12 +76,10 @@ console.log(formData);
      <div className={styles.overlay}>
         <div className={styles.modal}>
 
-  <form onSubmit = {handleSave} className="driver-form">
-            <h2>Driver Entry Form</h2>
+    <form onSubmit = {handleSave} className="party-form">
+            <h2>party Entry Form</h2>
 
-             <div className="form-grid">
-
-
+    <div className="form-grid">
       <div>
         <label>Name:</label>
         <input
@@ -86,30 +91,31 @@ console.log(formData);
         />
       </div>
 
-    
-
       <div>
-        <label>Date of Birth:</label>
-        <input
-          type="date"
-          name="dob"
-          value={formData.dob}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <label>Adhaar no</label>
+        <label>Code:</label>
         <input
           type="text"
-          name="adhaarNo"
-          value={formData.adhaarNo}
+          name="code"
+          value={formData.code}
           onChange={handleChange}
           required
         />
-
-
       </div>
+    
+
+
+      <div>
+        <label>GST No:</label>
+        <input
+          type="text"
+          name="gstNo"
+          value={formData.gstNo}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
+      
 
       <div>
         <label>Address Line 1</label>
@@ -136,51 +142,65 @@ console.log(formData);
 
         
       </div>
-      <div>
-        <label>Mobile 1</label>
+            <div>
+        <label>Pincode</label>
         <input
           type="text"
-          name="mobile1"
-          value={formData.mobile1}
+          name="pincode"
+          value={formData.pincode}
+          onChange={handleChange}
+          required
+        />
+
+        
+      </div>
+
+      <div>
+        <label>Mobile</label>
+        <input
+          type="text"
+          name="mobile"
+          value={formData.mobile}
           onChange={handleChange}
           required
         />
       </div>
       <div>
-        <label>Mobile 2</label>
+        <label>Office Phone</label>
         <input
           type="text"
-          name="mobile2"
-          value={formData.mobile2}
+          name="officePhone"
+          value={formData.officePhone}
           onChange={handleChange}
           required
         />
       </div>
+  <div>
+        <label>Contact Person</label>
+        <input
+          type="text"
+          name="contactPerson"
+          value={formData.contactPerson}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
       <div>
-        <label>License No</label>
-        <input
-          type="text"
-          name="licenceNo"
-          value={formData.licenceNo}
-          onChange={handleChange}
-          required
-        />
-      </div>
-<div>
   <label>Is Active</label>
-  
+  <pre>{formData.isActive}</pre>
   <Select
     name="isActive"
     value={actives.find(option => option.value === formData.isActive)}
-    onChange={changeActives}
+    onChange={handleSelectChange("isActive")}
     options={actives}
     required
   >
 
   
   </Select>
-</div>
       </div>
+      
       <div className="form-actions">
           <button type="button" onClick={handleClose}>
             Cancel
@@ -189,12 +209,13 @@ console.log(formData);
             Submit
           </button>
       </div>
+       
+
+    </div>
     </form>
     </div>
     </div>
-    
   );
-
 }
 
 

@@ -1,0 +1,121 @@
+/* ================= Container ================= */
+.vehicle-form {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  font-family: Arial, sans-serif;
+  width:850px;
+}
+
+/* ================= Title ================= */
+.vehicle-form h2 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+/* ================= Grid ================= */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Desktop: 3 columns */
+  gap: 20px;
+}
+
+/* ================= Fields ================= */
+.form-grid label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #555;
+  font-size: 14px;
+}
+
+.form-grid input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.form-grid input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.4);
+  outline: none;
+}
+
+/* ================= React Select ================= */
+.form-grid .react-select__control {
+  border-radius: 6px;
+  border-color: #ccc;
+  min-height: 40px;
+}
+
+.form-grid .react-select__control--is-focused {
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.4);
+}
+
+/* ================= Button (Desktop) ================= */
+.vehicle-form button {
+  grid-column: 3 / 4;       /* right column */
+  justify-self: end;        /* right aligned */
+  padding: 12px 32px;
+  margin-top: 20px;
+  background-color: #007bff;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+
+}
+
+.form-actions {
+  grid-column: 1 / -1;     /* span full row */
+  display: flex;
+  justify-content: flex-end; /* 🔥 pushes buttons to right */
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.vehicle-form button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+/* ================= Tablet (≤1024px) ================= */
+@media (max-width: 1024px) {
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+  }
+
+
+  .vehicle-form button {
+    grid-column: 2 / 3;   /* right column */
+    justify-self: end;
+  }
+}
+
+/* ================= Mobile (≤600px) ================= */
+@media (max-width: 600px) {
+  .form-grid {
+    grid-template-columns: 1fr; /* 1 column */
+  }
+
+ .form-actions {
+    justify-content: stretch;
+  }
+
+  .form-actions button {
+    flex: 1;
+  }
+
+
+}
