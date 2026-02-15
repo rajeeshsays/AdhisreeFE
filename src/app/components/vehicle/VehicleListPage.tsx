@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import styles from "./vehicleList.module.css";
-import { VehicleFormData } from "@/app/types/types";
-import { createVehicle, deleteVehicle, getVehicleAll, updateVehicle } from "@/app/services/vehicleService";
+import {  deleteVehicle, getVehicleAll} from "@/app/services/vehicleService";
 import VehicleEntryForm from "@/app/components/vehicle/VehicleEntryForm";
 
 export default function VehicleList() {
@@ -36,14 +35,14 @@ export default function VehicleList() {
 const handleAdd = () => {
   setSelectedVehicleId(null);
   setIsModalOpen(true);
-  setOperationMode('Add');
+  
 };
 
 const handleEdit = (vehicle: any) => {
   console.log('Editing vehicle:', vehicle);
   setSelectedVehicleId(vehicle.id);
   setIsModalOpen(true)
-  setOperationMode('Edit');
+  
 };
   const closeModal = ()=>
   {
@@ -64,34 +63,7 @@ const handleDelete = async (id: number) => {
 };
 
 
-const handleSave = async (id : number,formData : VehicleFormData) => {
-  try {
 
-  console.log("formdata te list " +formData)
-
-   //const response =  await createTransport(formData);
-    const response = selectedVehicleId
-      ? await updateVehicle(selectedVehicleId, formData)
-      : await createVehicle(formData);
-
-    if (response.ok) {
-      const savedVehicle = await response.json();
-      setVehicleList(prev => {
-        const existingIndex = prev.findIndex(t => t.id === savedVehicle.id);
-        if (existingIndex !== -1) {
-          const updatedList = [...prev];
-          updatedList[existingIndex] = savedVehicle;
-          return updatedList;
-        } else {
-          return [...prev, savedVehicle];
-        }
-      });
-    }
-  } catch (error) {
-    alert(error);
-    console.error(error);
-  }
-};
 
   return (
     <div className={styles.page}>

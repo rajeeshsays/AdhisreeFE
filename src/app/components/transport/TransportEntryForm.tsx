@@ -3,33 +3,16 @@ import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { createTransport,updateTransport } from "../../services/transportService";
 import "./transportEdit.css";
-import { getDriver } from "../../services/driverService";
-import { getLocation } from "../../services/locationService";
-import { getVehicle } from "../../services/vehicleService";
-import { getVehicleType } from "../../services/vehicleTypeService";
-import { getParty } from "../../services/partyService";
+import { getDrivers } from "../../services/driverService";
+import { getLocations } from "../../services/locationService";
+import { getVehicles } from "../../services/vehicleService";
+import { getVehicleTypes} from "../../services/vehicleTypeService";
+import { getParties } from "../../services/partyService";
 import styles from "./transport.module.css";
-
+import { TransportEntryFormData } from "@/app/types/types";
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
-type TransportEntryFormData = {
-  id: string;
-  date: string;
-  vehicleId: string;
-  vehicleTypeId: string;
-  driverId: string;
-  party1: string;
-  destinationGroups: string[];
-  from: string;
-  to: string;
-  startKM: string;
-  closeKM: string;
-  total: string;
-  loading: string;
-  unloading: string;
-  loadingCommision: string;
-  unloadingCommision: string;
-};
+
 
 interface FieldOption {
   value: string;
@@ -39,7 +22,7 @@ const TransportEntryForm = ({id,closeModal}:{id:number,closeModal:()=>void}) => 
 
   
     const transportData : TransportEntryFormData = {
-      id: "",
+      id: 0,
       date: "",
       vehicleId: "",
       vehicleTypeId: "",
@@ -103,77 +86,79 @@ const handleClose = () => {
   closeModal();
 }
 
-useEffect(() => {   console.log("Fetching form data..."); 
- const fetchDropdownData = async () => {
-    try {
-      //setLoading(true);
+useEffect(() => {  
+   console.log("Fetching form data..."); 
+//  const fetchDropdownData = async () => {
+//     try {
+//       //setLoading(true);
 
-      const [driverRes, locationRes, vehicleRes, vehicleTypeRes, partyRes] = await Promise.all([
-        getDriver(),
-        getLocation(),
-        getVehicle(),
-        getVehicleType(),
-        getParty(),
-      ]);
+//       const [driverRes, locationRes, vehicleRes, vehicleTypeRes, partyRes] = await Promise.all([
+//         getDrivers(),
+//         getLocations(),
+//         getVehicle(),
+//         getVehicleType(),
+//         getParty(),
+//       ]);
 
-      if (!driverRes.ok || !locationRes.ok || !vehicleRes.ok) {
-        throw new Error("One or more API calls failed");
-      }
+//       if (!driverRes.ok || !locationRes.ok || !vehicleRes.ok) {
+//         throw new Error("One or more API calls failed");
+//       }
 
-      const [drivers, locations, vehicles, vehicleTypes, parties] = await Promise.all([
-        driverRes.json(),
-        locationRes.json(),
-        vehicleRes.json(),
-        vehicleTypeRes.json(),
-        partyRes.json(),
-      ]);
+//       const [drivers, locations, vehicles, vehicleTypes, parties] = await Promise.all([
+//         driverRes.json(),
+//         locationRes.json(),
+//         vehicleRes.json(),
+//         vehicleTypeRes.json(),
+//         partyRes.json(),
+//       ]);
 
-      setDriverOptions(
-        drivers.map((d: any) => ({
-          value: d.value,
-          label: d.label,
-        }))
-      );
+//       setDriverOptions(
+//         drivers.map((d: any) => ({
+//           value: d.value,
+//           label: d.label,
+//         }))
+//       );
 
-      setLocationOptions(
-        locations.map((l: any) => ({
-          value: l.value,
-          label: l.label,
-        }))
-      );
+//       setLocationOptions(
+//         locations.map((l: any) => ({
+//           value: l.value,
+//           label: l.label,
+//         }))
+//       );
 
-      setVehicleOptions(
-        vehicles.map((v: any) => ({
-          value: v.value,
-          label: v.label,
-        }))
-      );
-         setVehicleTypeOptions(
-        vehicleTypes.map((v: any) => ({
-          value: v.value,
-          label: v.label,
-        })));
+//       setVehicleOptions(
+//         vehicles.map((v: any) => ({
+//           value: v.value,
+//           label: v.label,
+//         }))
+//       );
+//          setVehicleTypeOptions(
+//         vehicleTypes.map((v: any) => ({
+//           value: v.value,
+//           label: v.label,
+//         })));
 
-        setParty2GroupOptions(
-        parties.map((v: any) => ({
-          value: v.value,
-          label: v.label,
-        })));
+//         setParty2GroupOptions(
+//         parties.map((v: any) => ({
+//           value: v.value,
+//           label: v.label,
+//         })));
 
-        setPartyOptions(
-        parties.map((v: any) => ({
-          value: v.value,
-          label: v.label,
-        }))
+//         setPartyOptions(
+//         parties.map((v: any) => ({
+//           value: v.value,
+//           label: v.label,
+//         }))
 
-      );
-    } catch (err) {
-      console.error("Dropdown load failed:", err);
-    } finally {
-      //setLoading(false);
-    }
-  };
-  fetchDropdownData();
+//       );
+//     } catch (err) {
+//       console.error("Dropdown load failed:", err);
+//     } finally {
+//       //setLoading(false);
+//     }
+//   };
+//   fetchDropdownData();
+// 
 }, []);
 
 
@@ -189,7 +174,7 @@ const handleSave = async () => {
 
     if (response.ok) {
       const resText = await response.json();
-      alert()
+      alert(resText)
     }
   } catch (error) {
     console.error(error);
@@ -206,11 +191,11 @@ useEffect(() => {
       //setLoading(true);
 
       const [driverRes, locationRes, vehicleRes, vehicleTypeRes, partyRes] = await Promise.all([
-        getDriver(),
-        getLocation(),
-        getVehicle(),
-        getVehicleType(),
-        getParty(),
+        getDrivers(),
+        getLocations(),
+        getVehicles(),
+        getVehicleTypes(),
+        getParties(),
       ]);
 
       if (!driverRes.ok || !locationRes.ok || !vehicleRes.ok) {
@@ -270,11 +255,9 @@ useEffect(() => {
     }
   };
   fetchDropdownData();
-  },[operationMode]);
+  },[]);
 
-useEffect(() => {
-fetchFormData();
-  });
+
 
 const handleSelectChange = (name: string, isMulti = false) => (selected: any) => {
   setFormData((prev: any) => ({
@@ -284,20 +267,6 @@ const handleSelectChange = (name: string, isMulti = false) => (selected: any) =>
       : selected?.value ?? null,
   }));
 };
-
-const handleSave = async (e: React.FormEvent) => {
-
-  e.preventDefault();
-  console.log("Saving form data...", formData);
-  if(operationMode === 'Edit'){
-    console.log("Updating transport entry..."+formData.id);
-    onSave(formData.id,formData);
-
-  } else {
-    console.log("Creating new transport entry...");
-    onSave(formData);
-  }
-  };
 
 
 return (

@@ -54,7 +54,6 @@ export async function getVehicleType() {
 
 export async function createDistrict(driverFormData : DistrictFormData) {
   console.log('Reached create district :'+ JSON.stringify(driverFormData));
-  driverFormData.id = "0";
 
   try {
     console.log("Calling:", `${baseUrl}/api/UtilityApi/create`);

@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getTransportAll, createTransport, updateTransport,deleteTransport} from "@/app/services/transportService";
+import { getTransportAll,deleteTransport} from "@/app/services/transportService";
 import styles from "./transportList.module.css";
 import TransportEntryForm from "@/app/components/transport/TransportEntryForm";
-import {TransportEntryFormData } from "@/app/types/types";
+
 
 
 export default function TransportList() {

@@ -5,7 +5,7 @@ import  './vehicleEdit.css';
 import Select from 'react-select';
 import { VehicleFormData } from "@/app/types/types";
 import styles from "./vehicle.module.css";
-import {getVehicleType} from '../../services/vehicleTypeService'
+import {getVehicle,createVehicle,updateVehicle} from '../../services/vehicleService'
 
 export default function VehicleEntryForm({id,closeModal}:{id:number,closeModal:()=>void})  {
   
@@ -32,13 +32,13 @@ export default function VehicleEntryForm({id,closeModal}:{id:number,closeModal:(
   useEffect(()=>
   {
   let data;
-  getVehicleType().then((res)=>{
+  getVehicle(id).then((res)=>{
    data = res.json();
    console.log(data);
    return data;
 
   }).then(data=>setVehicleTypes(data));
-  },[])
+  },[id])
 
   useEffect(()=>{
     if(vehicleTypes.length > 0)
@@ -69,24 +69,31 @@ const handleSelectChange = (name: string) => (selected: any) => {
       
   }));
 };
-  const handleSave = async (e: React.FormEvent) => {
-  
-    e.preventDefault();
-    console.log("Saving form data...", formData);
-    if(operationMode === 'Edit'){
-      console.log("Updating party entry..."+formData.id);
-      onSave(formData.id,formData);
-  
-    } else {
-      console.log("Creating new vehicle entry..."+formData.model);
-      onSave(0,formData);
-    }
-    };
+const handleSave = async () => {
+  try {
+
+  console.log("formdata te list " +formData)
+
+   //const response =  await createTransport(formData);
+    const response = id
+      ? await updateVehicle(id, formData)
+      : await createVehicle(formData);
+
+    if (response.ok) {
+      const resText = await response.text();
+      alert(resText)
+  } 
+}catch(error:unknown) {
+    if(error instanceof Error)
+    alert(error.message);
+    console.error(error);
+  }
+};
     return (
      <div className={styles.overlay}>
         <div className={styles.modal}>
 
-    <form onSubmit = {handleSave} className="vehicle-form">
+    <form className="vehicle-form">
             <h2>Vehicle Entry Form</h2>
 
     <div className="form-grid">

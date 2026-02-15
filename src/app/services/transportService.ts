@@ -42,7 +42,7 @@ export async function getTransportAll(pageNumber: number, pageSize: number) {
 
 export async function createTransport(transportData : TransportEntryFormData) {
   console.log('Reached get transport :'+ console.log(transportData));
-  transportData.id = "0";
+
 
   try {
     console.log("Calling:", `${baseUrl}/api/TransportEntryApi/create`);

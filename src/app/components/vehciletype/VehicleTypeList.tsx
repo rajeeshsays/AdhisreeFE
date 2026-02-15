@@ -36,14 +36,13 @@ export default function VehcileList() {
 const handleAdd = () => {
   setSelectedVehicleTypeId(null);
   setIsModalOpen(true);
-  setOperationMode('Add');
+  
 };
 
 const handleEdit = (party: any) => {
   console.log('Editing VehicleType:', party);
   setSelectedVehicleTypeId(party.id);
   setIsModalOpen(true)
-  setOperationMode('Edit');
 };
   const closeModal = ()=>
   {

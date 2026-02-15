@@ -6,8 +6,8 @@ import { DriverFormData } from '../types/types';
 export async function getDriver(id :number) {
   console.log('Reached get driver :');
   try {
-    console.log("Calling:", `${baseUrl}/api/DriverApi/getdriver/${id}`);
-    const res = await fetch(`${baseUrl}/api/DriverApi/getdriver/${id}`, {
+    console.log("Calling:", `${baseUrl}/api/DriverApi/${id}`);
+    const res = await fetch(`${baseUrl}/api/DriverApi/${id}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -19,7 +19,22 @@ export async function getDriver(id :number) {
     throw ex; // optional
   }
 }
+export async function getDrivers() {
+  console.log('Reached get driver :');
+  try {
+    console.log("Calling:", `${baseUrl}/api/DriverApi/getdrivers`);
+    const res = await fetch(`${baseUrl}/api/DriverApi/getdrivers`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
 
+    return res; // <-- FIX
+  } 
+  catch (ex: any) {
+    console.log(JSON.stringify(ex));
+    throw ex; // optional
+  }
+}
 
 
 export async function getDriverAll(pageNumber: number, pageSize: number) {
@@ -43,7 +58,7 @@ export async function getDriverAll(pageNumber: number, pageSize: number) {
 
 export async function createDriver(driverFormData : DriverFormData) {
   console.log('Reached create driver :'+ JSON.stringify(driverFormData));
-  driverFormData.id = "0";
+
 
   try {
     console.log("Calling:", `${baseUrl}/api/DriverApi/create`);

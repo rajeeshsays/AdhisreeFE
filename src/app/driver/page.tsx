@@ -1,6 +1,6 @@
 
 import React from "react";
-import DriverEntryList from "./page";
+import DriverEntryList from "@/app/components/driver/DriverList"
 
 export default function DriverListPage() {
 

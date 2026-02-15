@@ -1,12 +1,12 @@
 import { baseUrl } from '../configs/apiConfig';
 import { PartyFormData } from '../types/types';
 
-export async function getParty() {
+export async function getParties() {
   console.log('Reached get party :');
 
   try {
-    console.log("Calling:", `${baseUrl}/api/partyApi/getparty`);
-    const res = await fetch(`${baseUrl}/api/partyApi/getparty`, {
+    console.log("Calling:", `${baseUrl}/api/partyApi/getparties`);
+    const res = await fetch(`${baseUrl}/api/partyApi/getparties`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -18,7 +18,23 @@ export async function getParty() {
     throw ex; // optional
   }
 }
-                                                                                                                                    
+    export async function getParty(id : number) {
+  console.log('Reached get party :');
+
+  try {
+    console.log("Calling:", `${baseUrl}/api/partyApi/${id}`);
+    const res = await fetch(`${baseUrl}/api/partyApi/${id}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    return res; // <-- FIX
+  } 
+  catch (ex: any) {
+    console.log(JSON.stringify(ex));
+    throw ex; // optional
+  }
+}                                                                                                                                
 
 export async function getPartyAll(pageNumber: number, pageSize: number) {
   console.log('Reached get party :');
@@ -41,7 +57,7 @@ export async function getPartyAll(pageNumber: number, pageSize: number) {
 
 export async function createParty(partyFormData : PartyFormData) {
   console.log('Reached create party :'+ JSON.stringify(partyFormData));
-  partyFormData.id = "0";
+
 
   if (!partyFormData.accountId || partyFormData.accountId === "0") {
     partyFormData.accountId = "0";

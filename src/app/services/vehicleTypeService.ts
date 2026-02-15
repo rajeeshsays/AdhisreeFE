@@ -1,13 +1,30 @@
 import { baseUrl } from '../configs/apiConfig';
 import { VehicleTypeFormData } from '../types/types';
 
-
-
-export async function getVehicleType() {
+export async function getVehicleType(id:number) {
   console.log('Reached get vehicle :');
   try {
-    console.log("Calling:", `${baseUrl}/api/VehicleTypeApi/getVehicleType`);
-    const res = await fetch(`${baseUrl}/api/VehicleTypeApi/getVehicleType`, {
+    console.log("Calling:", `${baseUrl}/api/VehicleTypeApi/${id}`);
+    const res = await fetch(`${baseUrl}/api/VehicleTypeApi/${id}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    return res; // <-- FIX
+  } 
+  catch (ex: any) {
+    console.log(JSON.stringify(ex));
+    throw ex; // optional
+  }
+}
+
+
+
+export async function getVehicleTypes() {
+  console.log('Reached get vehicle :');
+  try {
+    console.log("Calling:", `${baseUrl}/api/VehicleTypeApi/getVehicleTypes`);
+    const res = await fetch(`${baseUrl}/api/VehicleTypeApi/getVehicleTypes`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -42,7 +59,7 @@ export async function getVehicleTypeAll(pageNumber: number, pageSize: number) {
 
 export async function createVehicleType(vehicleTypeFormData : VehicleTypeFormData) {
   console.log('Reached create vehicle :'+ JSON.stringify(vehicleTypeFormData));
-  vehicleTypeFormData.id = 0;
+
 
   try {
     console.log("Calling:", `${baseUrl}/api/VehicleTypeApi`);

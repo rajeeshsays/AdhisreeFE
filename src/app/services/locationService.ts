@@ -1,15 +1,31 @@
 import { baseUrl } from '../configs/apiConfig';
 import {LocationFormData } from '../types/types';
 
-
-
-
-
-export async function getLocation(id :number) {
+export async function getLocation(id? :number) {
   console.log('Reached get location :');
   try {
-    console.log("Calling:", `${baseUrl}/api/LocationApi/getlocation/${id}`);
-    const res = await fetch(`${baseUrl}/api/LocationApi/getlocation/${id}`, {
+    console.log("Calling:", `${baseUrl}/api/LocationApi/${id}`);
+    const res = await fetch(`${baseUrl}/api/LocationApi/${id}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    return res; // <-- FIX
+  } 
+  catch (ex: any) {
+    console.log(JSON.stringify(ex));
+    throw ex; // optional
+  }
+}
+
+
+
+
+export async function getLocations() {
+  console.log('Reached get location :');
+  try {
+    console.log("Calling:", `${baseUrl}/api/LocationApi/getlocations`);
+    const res = await fetch(`${baseUrl}/api/LocationApi/getlocations`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
