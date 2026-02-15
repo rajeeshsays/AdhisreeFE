@@ -1,9 +1,9 @@
 'use client'
 import React, {  useEffect, useState } from "react";
-import  '@/app/driver/edit/driverEdit.css';
+import  './driverEdit.css';
 import Select from 'react-select';
 import { DriverFormData } from "@/app/types/types";
-import styles from "@/app/driver/edit/driver.module.css";
+import styles from "./driver.module.css";
 import { useRouter } from "next/navigation";
 import { createDriver,updateDriver,getDriver } from "../../services/driverService";
 

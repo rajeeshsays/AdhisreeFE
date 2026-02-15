@@ -8,12 +8,12 @@ export default function DashboardMenu() {
 
     const s = 30;
   const menuItems = [
-    { key:"vehicle", name: "Vehicle", path: "/vehicle/list", icon: <FaTruck size={s} /> },
-    { key:"vehicleType", name: "Vehicle Type", path: "/vehicletype/list", icon: <FaList size={40} /> },
-    { key:"transport",name: "Transport", path: "/transport/list", icon: <FaRoute size={40} /> },
-    { key:"driver",name: "Driver", path: "/driver/list", icon: <FaUser size={40} /> },
-    { key:"party",name: "Party", path: "/party/list", icon: <FaTruck size={40} /> },
-    { key:"location", name: "Location", path: "/location/list", icon: <FaRoute size={40} /> },
+    { key:"vehicle", name: "Vehicle", path: "/vehicle", icon: <FaTruck size={s} /> },
+    { key:"vehicleType", name: "Vehicle Type", path: "/vehicletype", icon: <FaList size={40} /> },
+    { key:"transport",name: "Transport", path: "/transport", icon: <FaRoute size={40} /> },
+    { key:"driver",name: "Driver", path: "/driver", icon: <FaUser size={40} /> },
+    { key:"party",name: "Party", path: "/party", icon: <FaTruck size={40} /> },
+    { key:"location", name: "Location", path: "/location", icon: <FaRoute size={40} /> },
   ];
 
   return (
