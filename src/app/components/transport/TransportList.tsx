@@ -10,7 +10,7 @@ import TransportEntryForm from "@/app/components/transport/TransportEntryForm";
 export default function TransportList() {
   const [transportList, setTransportList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTransportId, setSelectedTransportId] = useState<any | null>(null);
+  const [selectedTransport, setSelectedTransport] = useState<any | null>(null);
   useEffect(() => {
     async function fetchTransportList() {
       try {
@@ -27,19 +27,19 @@ export default function TransportList() {
   }, []);
 
 const handleAdd = () => {
-  setSelectedTransportId(null);
+  setSelectedTransport(null);
   setIsModalOpen(true);
 };
 
 const handleEdit = (transport: any) => {
   console.log('Editing transport:', transport);
-  setSelectedTransportId(transport.id);
+  setSelectedTransport(transport);
   setIsModalOpen(true);
 };
   const closeModal = ()=>
   {
   setIsModalOpen(false);
-  selectedTransportId(null);
+  setSelectedTransport(null);
   }
 const handleDelete = async (id: number) => {
   if (!confirm("Are you sure you want to delete this transport?")) return;
@@ -120,7 +120,7 @@ const handleDelete = async (id: number) => {
         </table>
 {isModalOpen && (
   <TransportEntryForm
-    id={selectedTransportId}
+    transport={selectedTransport}
     closeModal={closeModal}
   />
 )}

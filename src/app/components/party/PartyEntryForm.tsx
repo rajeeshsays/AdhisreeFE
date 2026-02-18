@@ -1,13 +1,14 @@
 'use client'
 
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import  './partyEdit.css';
 import Select from 'react-select';
 import { PartyFormData } from "@/app/types/types";
 import styles from "./party.module.css";
 import { createParty,updateParty } from "@/app/services/partyService";
 
-export default function PartyEntryForm({id,closeModal}:{id:number,closeModal:()=>void})  {  
+
+export default function PartyEntryForm({party,closeModal}:{party : PartyFormData,closeModal:()=>void})  {  
   const partyData : PartyFormData = {
     id:  0,
     name: "",
@@ -24,7 +25,14 @@ export default function PartyEntryForm({id,closeModal}:{id:number,closeModal:()=
     isActive:true
   }
 
-  const [formData, setFormData] = useState<PartyFormData>(partyData);
+
+  const [formData, setFormData] = useState<PartyFormData>(party ?? partyData);
+  
+  useEffect(()=>{
+  console.log(party);
+  
+  },[formData])
+
   
   const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -62,8 +70,8 @@ const handleSave = async () => {
   console.log("formdata te list " +formData)
 
    //const response =  await createTransport(formData);
-    const response = id
-      ? await updateParty(id, formData)
+    const response = formData.id
+      ? await updateParty(formData.id, formData)
       : await createParty(formData);
 
     if (response.ok) {
@@ -79,7 +87,7 @@ const handleSave = async () => {
      <div className={styles.overlay}>
         <div className={styles.modal}>
 
-    <form onSubmit = {handleSave} className="party-form">
+    <form onSubmit={handleSave}  className="party-form">
             <h2>party Entry Form</h2>
 
     <div className="form-grid">
@@ -208,13 +216,11 @@ const handleSave = async () => {
           <button type="button" onClick={handleClose}>
             Cancel
           </button>
-          <button type="submit" onClick={handleSave}>
+          <button type="submit">
             Submit
           </button>
       </div>
-       
-
-    </div>
+     </div>
     </form>
     </div>
     </div>

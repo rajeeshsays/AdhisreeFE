@@ -1,16 +1,27 @@
-# Stage 1: Build the React application
-FROM node:20-alpine AS build
+# 1️⃣ Install dependencies
+FROM node:18-alpine AS deps
 WORKDIR /app
-# Copy package files first to leverage Docker's layer caching
-COPY package*.json ./
+COPY package.json package-lock.json ./
 RUN npm install
-# Copy the rest of the application code
+
+# 2️⃣ Build app
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
-# Stage 2: Serve the app with Nginx
-FROM nginx:alpine
-# Copy the build artifacts from the build stage to Nginx's public folder
-COPY --from=build /app/build /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# 3️⃣ Production image
+FROM node:18-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+
+EXPOSE 3000
+
+CMD ["npm", "start"]

@@ -1,12 +1,12 @@
 'use client'
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import  './vehicleTypeEdit.css';
 import Select from 'react-select';
 import { VehicleTypeFormData } from "@/app/types/types";
 import styles from "./vehicleType.module.css";
 import { createVehicleType,updateVehicleType } from "@/app/services/vehicleTypeService";
-export default function VehicleTypeEntryForm({id,closeModal}:{id:number,closeModal:()=>void})  {
+export default function VehicleTypeEntryForm({vehicleType,closeModal}:{vehicleType:VehicleTypeFormData,closeModal:()=>void})  {
   
   const vehicleTypeData : VehicleTypeFormData = {
         id : 0,
@@ -14,7 +14,7 @@ export default function VehicleTypeEntryForm({id,closeModal}:{id:number,closeMod
         isActive : true,
   }
 
-  const [formData, setFormData] = useState<VehicleTypeFormData>(vehicleTypeData);
+  const [formData, setFormData] = useState<VehicleTypeFormData>(vehicleType ?? vehicleTypeData);
 
   const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -26,6 +26,7 @@ export default function VehicleTypeEntryForm({id,closeModal}:{id:number,closeMod
     }));
   };
 
+   useEffect(()=>console.log(formData),[formData])
   const actives = [
     { value: true, label: 'Active' },
     { value: false, label: 'Inactive' },
@@ -50,8 +51,8 @@ const handleSave = async () => {
   console.log("formdata te list " +formData)
 
    //const response =  await createTransport(formData);
-    const response = id
-      ? await updateVehicleType(id, formData)
+    const response = formData.id
+      ? await updateVehicleType(formData.id, formData)
       : await createVehicleType(formData);
 
     if (response.ok) {
@@ -99,7 +100,7 @@ const handleSave = async () => {
           <button type="button" onClick={handleClose}>
             Cancel
           </button>
-          <button type="submit" onClick={handleSave}>
+          <button type="submit">
             Submit
           </button>
       </div>

@@ -4,11 +4,15 @@ import React, { useEffect, useState } from "react";
 import styles from "./partyList.module.css";
 import {deleteParty, getPartyAll } from "@/app/services/partyService";
 import PartyEntryForm from "@/app/components/party/PartyEntryForm";
+import {PartyFormData} from "@/app/types/types";
 
 export default function PartyList() {
+  
+
   const [partyList, setPartyList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPartyId, setSelectedPartyId] = useState<any | null>(null);
+
+  const [selectedParty, setSelectedParty] = useState<PartyFormData | undefined>(undefined);
 
 
   useEffect(() => {
@@ -34,37 +38,31 @@ export default function PartyList() {
   }, []);
 
 const handleAdd = () => {
-  setSelectedPartyId(null);
+  setSelectedParty(undefined);
   setIsModalOpen(true);
 };
 
 const handleEdit = (party: any) => {
   console.log('Editing party:', party);
-  setSelectedPartyId(party.id);
   setIsModalOpen(true)
+  setSelectedParty(party);
+ 
 };
 
   const closeModal = ()=>
   {
   setIsModalOpen(false);
-  selectedPartyId(null);
+  setSelectedParty(undefined);
   }
 
 
 const handleDelete = async (id: number) => {
   if (!confirm("Are you sure you want to delete this party?")) return;
-
   await deleteParty(id);
-  setPartyList(prev => prev.filter(t => t.id !== id));
-  
+  setPartyList(prev => prev.filter(t => t.id !== id)); 
 };
 
-
-
-
-
-
-  return (
+return (
     <div className={styles.page}>
       <h1 className={styles.title}>🚚 Party List</h1>
 
@@ -137,7 +135,7 @@ onClick={() => handleEdit(party)}
 
  {isModalOpen && (
    <PartyEntryForm
-     id={selectedPartyId}
+     party={selectedParty}
      closeModal= {closeModal}
      />
    

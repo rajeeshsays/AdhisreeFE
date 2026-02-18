@@ -9,18 +9,18 @@ import { getDistrict  } from "../../services/utilityService"
 import { getLocation,updateLocation,createLocation } from "@/app/services/locationService";
 
 
-export default function LocationEntryForm({id,closeModal}:{id:number,closeModal:()=>void})  {
+export default function LocationEntryForm({location,closeModal}:{location:LocationFormData,closeModal:()=>void})  {
  
   const locationData : LocationFormData = useMemo(()=> ({
-    id: id || 0,
-    name: "",
-    code: "",
+    id:  0,
+    name:  "",
+    code:  "",
     districtId: "",
     isActive: true,
     description: ""
-  }),[id]);
+  }),[]);
   
-  const [formData, setFormData] = useState<LocationFormData>(locationData);
+  const [formData, setFormData] = useState<LocationFormData>(location ?? locationData);
   const [districts, setDistricts] = useState<any[]>([]);
   const handleChange = (e : React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement> ) => {
     const { name, value } = e.target;
@@ -29,16 +29,7 @@ export default function LocationEntryForm({id,closeModal}:{id:number,closeModal:
       [name]: value,
     }));
   };
-  useEffect(()=> {
-    getLocation(id)
-    .then(response=>response.json())
-    .then(data=>setFormData(data))
-    .catch((error: any)=>
-    {
-      alert(error)
-    })
-    setFormData(formData)
-  },[id,formData]);
+
 
   useEffect(() => {
 
@@ -95,7 +86,7 @@ catch(error) {
      <div className={styles.overlay}>
         <div className={styles.modal}>
 
-       <form className="location-form">
+       <form onSubmit={handleSave} className="location-form">
         <h2>Location Entry Form</h2>
 
       <div className="form-grid"> 
@@ -168,7 +159,7 @@ catch(error) {
           <button type="button" onClick={handleClose}>
             Cancel
           </button>
-          <button type="submit" onClick={handleSave}>
+          <button type="submit">
             Submit
           </button>
       </div>

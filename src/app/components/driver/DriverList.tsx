@@ -3,11 +3,12 @@ import React, { useEffect, useState } from "react";
 import { getDriverAll, deleteDriver} from "@/app/services/driverService";
 import styles from "./driverList.module.css";
 import DriverEntryForm from "@/app/components/driver/DriverEntryForm";
+import { DriverFormData } from "@/app/types/types";
 
 export default function DriverList() {
   const [driverList, setDriverList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedDriverId, setSelectedDriverId] = useState<any | null>(null);
+  const [selectedDriver, setSelectedDriver] = useState<DriverFormData | undefined>(undefined);
   const [operationMode , setOperationMode] = useState('');
 
 
@@ -27,28 +28,29 @@ export default function DriverList() {
   }, []);
 
 const handleAdd = () => {
-  setSelectedDriverId(null);
+  setSelectedDriver(undefined);
   setIsModalOpen(true);
   setOperationMode('Add');
 };
 
 const handleEdit = (driver: any) => {
   console.log('Editing driver:', driver);
-  setSelectedDriverId(driver.id);
+  driver.dob = driver.dob ? driver.dob.split('T')[0] : undefined;
+  setSelectedDriver(driver);
   setOperationMode('Edit');
 };
 
 const closeModal = ()=>
 {
-  setIsModalOpen(true)
-  setSelectedDriverId(null);
+  setIsModalOpen(false)
+  setSelectedDriver(undefined);
 }
 useEffect(()=>{
-if(operationMode=='Edit' && selectedDriverId)
+if(operationMode=='Edit' && selectedDriver)
 {
  setIsModalOpen(true);
 }
-},[selectedDriverId,operationMode])
+},[selectedDriver,operationMode])
 
 const handleDelete = async (id: number) => {
   if (!confirm("Are you sure you want to delete this driver?")) return;
@@ -142,7 +144,7 @@ onClick={() => handleEdit(driver)}
 
  {isModalOpen && (
    <DriverEntryForm
-     id={selectedDriverId}
+     driver={selectedDriver}
      closeModal = {closeModal}
   
    />

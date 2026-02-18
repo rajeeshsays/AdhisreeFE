@@ -4,10 +4,9 @@ import  './driverEdit.css';
 import Select from 'react-select';
 import { DriverFormData } from "@/app/types/types";
 import styles from "./driver.module.css";
-import { useRouter } from "next/navigation";
-import { createDriver,updateDriver,getDriver } from "../../services/driverService";
+import { createDriver,updateDriver } from "../../services/driverService";
 
-export default function DriverEntryForm({id,closeModal}:{id:number,closeModal:()=>void})  {
+export default function DriverEntryForm({driver,closeModal}:{driver:DriverFormData,closeModal:()=>void})  {
   const driverData : DriverFormData= {
     id: 0,
     name :"",
@@ -22,20 +21,8 @@ export default function DriverEntryForm({id,closeModal}:{id:number,closeModal:()
     isActive: true,
   }
 
-  const[formData,setFormData] = useState<DriverFormData>(driverData)
-  useEffect(()=> {
-    getDriver(id)
-    .then(response=>response.json())
-    .then(data=>setFormData(data))
-    .catch((error: any)=>
-    {
-      alert(error)
-    })
-  });
-
-  console.log(formData);
-
-  const router = useRouter();
+  const[formData,setFormData] = useState<DriverFormData>(driver ?? driverData)
+  
   const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     console.log("name=",name,"value=",value)
@@ -44,7 +31,6 @@ export default function DriverEntryForm({id,closeModal}:{id:number,closeModal:()
       [name]: value,
     }));
   };
-
 
 useEffect(()=>{
 console.log(formData);
@@ -58,13 +44,10 @@ const actives = [
 
   const handleClose = () => {
   console.log("Closing form...");
-  router.back();
+  closeModal();
 }
 
-
-
-
-  const changeActives = () => {
+const changeActives = () => {
    setFormData(prevData => ({
         ...prevData,
         isActive: prevData.isActive === true ? false: true
@@ -98,7 +81,7 @@ const handleSave = async () => {
      <div className={styles.overlay}>
         <div className={styles.modal}>
 
-  <form  className="driver-form">
+  <form onSubmit={handleSave}  className="driver-form">
             <h2>Driver Entry Form</h2>
 
              <div className="form-grid">
@@ -214,7 +197,7 @@ const handleSave = async () => {
           <button type="button" onClick={handleClose}>
             Cancel
           </button>
-          <button type="submit" onClick={handleSave}>
+          <button type="submit" >
             Submit
           </button>
       </div>

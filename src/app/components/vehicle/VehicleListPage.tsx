@@ -8,7 +8,7 @@ import VehicleEntryForm from "@/app/components/vehicle/VehicleEntryForm";
 export default function VehicleList() {
   const [vehicleList, setVehicleList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedVehicleId, setSelectedVehicleId] = useState<any | null>(null);
+  const [selectedVehicle, setSelectedVehicle] = useState<any | null>(null);
   
   useEffect(() => {
     async function fetchVehicleList() {
@@ -33,25 +33,25 @@ export default function VehicleList() {
   }, []);
 
 const handleAdd = () => {
-  setSelectedVehicleId(null);
+  setSelectedVehicle(null);
   setIsModalOpen(true);
   
 };
 
 const handleEdit = (vehicle: any) => {
   console.log('Editing vehicle:', vehicle);
-  setSelectedVehicleId(vehicle.id);
+  setSelectedVehicle(vehicle);
   setIsModalOpen(true)
   
 };
   const closeModal = ()=>
   {
   setIsModalOpen(false);
-  selectedVehicleId(null);
+  setSelectedVehicle(null);
   }
 useEffect(()=>{
 
-},[selectedVehicleId])
+},[selectedVehicle])
 
 
 const handleDelete = async (id: number) => {
@@ -132,7 +132,7 @@ onClick={() => handleEdit(vehicle)}
 
  {isModalOpen && (
    <VehicleEntryForm
-     id={selectedVehicleId}
+     vehicle={selectedVehicle}
      closeModal={closeModal}
      />
    

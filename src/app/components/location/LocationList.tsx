@@ -10,12 +10,12 @@ import LocationEntryForm from "@/app/components/location/LocationEntryForm";
 export default function LocationList() {
   const [locationList, setLocationList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedLocationId, setSelectedLocationId] = useState<any | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<any | null>(null);
   
   const closeModal = ()=>
   {
   setIsModalOpen(false);
-  selectedLocationId(null);
+  selectedLocation(null);
   }
 
 
@@ -35,14 +35,14 @@ export default function LocationList() {
   }, []);
 
 const handleAdd = () => {
-  setSelectedLocationId(null);
+  setSelectedLocation(null);
   setIsModalOpen(true);
 
 };
 
 const handleEdit = (location: any) => {
   console.log('Editing location:', location);
-  setSelectedLocationId(location.id);
+  setSelectedLocation(location);
   setIsModalOpen(true);
 };
 
@@ -122,12 +122,12 @@ onClick={() => handleEdit(location)}
              
         </table>
  {
-   <pre>{JSON.stringify(selectedLocationId, null, 2)}</pre>
+   <pre>{JSON.stringify(selectedLocation, null, 2)}</pre>
  }
  {isModalOpen && (
  
    <LocationEntryForm
-     id={selectedLocationId}
+     location={selectedLocation}
      closeModal = {closeModal}
      
    />

@@ -23,7 +23,7 @@ export type TransportEntryFormData = {
     id?:number,
     name: string,
     age: string,
-    dob: string,
+    dob: string | undefined,
     adhaarNo: string,
     addressLine1: string,
     addressLine2: string,

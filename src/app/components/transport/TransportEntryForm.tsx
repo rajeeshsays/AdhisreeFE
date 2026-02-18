@@ -18,7 +18,7 @@ interface FieldOption {
   value: string;
   label: string;
 }
-const TransportEntryForm = ({id,closeModal}:{id:number,closeModal:()=>void}) => {
+const TransportEntryForm = ({transport,closeModal}:{transport:TransportEntryFormData,closeModal:()=>void}) => {
 
   
     const transportData : TransportEntryFormData = {
@@ -40,7 +40,7 @@ const TransportEntryForm = ({id,closeModal}:{id:number,closeModal:()=>void}) => 
       unloadingCommision: "",
     };
   
-const [formData, setFormData] = useState<TransportEntryFormData>(transportData as TransportEntryFormData);
+const [formData, setFormData] = useState<TransportEntryFormData>(transport ?? transportData);
 const [driverOptions, setDriverOptions] = useState<FieldOption[]>([]);
 const [locationOptions, setLocationOptions] = useState<FieldOption[]>([]);
 const [vehicleOptions, setVehicleOptions] = useState<FieldOption[]>([]);
@@ -168,8 +168,8 @@ const handleSave = async () => {
   console.log("formdata te list " +formData)
 
    //const response =  await createTransport(formData);
-    const response = id
-      ? await updateTransport(id, formData)
+    const response = formData.id
+      ? await updateTransport(formData.id, formData)
       : await createTransport(formData);
 
     if (response.ok) {
@@ -272,7 +272,7 @@ const handleSelectChange = (name: string, isMulti = false) => (selected: any) =>
 return (
   <div className={styles.overlay}>
     <div className={styles.modal}>
-      <form className="transport-form">
+      <form onSubmit={handleSave} className="transport-form">
         <h2>Transport Entry Form</h2>
 
         <div className="form-grid">
@@ -336,7 +336,7 @@ return (
           <button type="button" onClick={handleClose}>
             Cancel
           </button>
-          <button type="submit" onClick={handleSave}>
+          <button type="submit">
             Submit
           </button>
         </div>
