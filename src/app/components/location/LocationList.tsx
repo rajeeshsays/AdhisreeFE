@@ -1,17 +1,17 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import { getLocationAll, deleteLocation} from "@/app/services/locationService";
 import styles from "./locationList.module.css";
 import LocationEntryForm from "@/app/components/location/LocationEntryForm";
-
-
-
+import { useRouter } from "next/navigation";
+import {clsx} from 'clsx'
+import button from "../../css/button.module.css"
 export default function LocationList() {
   const [locationList, setLocationList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<any | null>(null);
-  
+  const router = useRouter();
   const closeModal = ()=>
   {
   setIsModalOpen(false);
@@ -60,9 +60,14 @@ const handleDelete = async (id: number) => {
       <h1 className={styles.title}>🚚 Location List</h1>
 
       <div className={styles.tableWrapper}>
-        <button className={styles.addBtn} onClick={handleAdd}>
+        <button className={clsx(styles.addBtn,button.primaryBtn)} onClick={handleAdd}>
   + Add Location
 </button>
+      <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
+  Home
+</button>
+
+
 {/* <pre>{JSON.stringify(driverList, null, 2) }</pre> */}
         <table className={styles.table}>
           <thead>

@@ -5,7 +5,9 @@ import styles from "./partyList.module.css";
 import {deleteParty, getPartyAll } from "@/app/services/partyService";
 import PartyEntryForm from "@/app/components/party/PartyEntryForm";
 import {PartyFormData} from "@/app/types/types";
-
+import { useRouter } from "next/navigation";
+import {clsx} from 'clsx'
+import button from "../../css/button.module.css"
 export default function PartyList() {
   
 
@@ -13,7 +15,7 @@ export default function PartyList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [selectedParty, setSelectedParty] = useState<PartyFormData | undefined>(undefined);
-
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchPartyList() {
@@ -67,8 +69,11 @@ return (
       <h1 className={styles.title}>🚚 Party List</h1>
 
       <div className={styles.tableWrapper}>
-        <button className={styles.addBtn} onClick={handleAdd}>
+        <button className={clsx(styles.addBtn,button.primaryBtn)} onClick={handleAdd}>
   + Add Party
+</button>
+     <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
+  Home
 </button>
 {/* <pre>{JSON.stringify(driverList, null, 2) }</pre> */}
         <table className={styles.table}>

@@ -4,12 +4,14 @@ import React, { useEffect, useState } from "react";
 import styles from "./vehicleList.module.css";
 import {  deleteVehicle, getVehicleAll} from "@/app/services/vehicleService";
 import VehicleEntryForm from "@/app/components/vehicle/VehicleEntryForm";
-
+import {clsx} from 'clsx'
+import button from "../../css/button.module.css"
+import { useRouter } from "next/navigation";
 export default function VehicleList() {
   const [vehicleList, setVehicleList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<any | null>(null);
-  
+  const router = useRouter();
   useEffect(() => {
     async function fetchVehicleList() {
       let isMounted = true;
@@ -70,8 +72,11 @@ const handleDelete = async (id: number) => {
       <h1 className={styles.title}>🚚 Vehicle List</h1>
 
       <div className={styles.tableWrapper}>
-        <button className={styles.addBtn} onClick={handleAdd}>
+        <button className={clsx(styles.addBtn,button.primaryBtn)} onClick={handleAdd}>
   + Add Vehicle
+</button>
+ <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
+  Home
 </button>
 {/* <pre>{JSON.stringify(driverList, null, 2) }</pre> */}
         <table className={styles.table}>

@@ -88,6 +88,7 @@ const handleClose = () => {
 
 useEffect(() => {  
    console.log("Fetching form data..."); 
+   console.log(transport);
 //  const fetchDropdownData = async () => {
 //     try {
 //       //setLoading(true);

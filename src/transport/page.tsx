@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import {getTransportAll } from '../app/services/transportService';
+import { useRouter } from "next/navigation";
 interface Transport {
   id: number;
   transportName: string;
@@ -14,6 +15,7 @@ const TransportList = () => {
   const [transports, setTransports] = useState<Transport[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     fetchTransports();

@@ -4,13 +4,15 @@ import React, { useEffect, useState } from "react";
 import { getTransportAll,deleteTransport} from "@/app/services/transportService";
 import styles from "./transportList.module.css";
 import TransportEntryForm from "@/app/components/transport/TransportEntryForm";
-
-
-
+import { useRouter } from "next/navigation";
+import button from "../../css/button.module.css"
+import clsx from "clsx"
+import { FaEdit,FaTrash } from "react-icons/fa";
 export default function TransportList() {
   const [transportList, setTransportList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTransport, setSelectedTransport] = useState<any | null>(null);
+  const router = useRouter();
   useEffect(() => {
     async function fetchTransportList() {
       try {
@@ -48,7 +50,7 @@ const handleDelete = async (id: number) => {
   setTransportList(prev => prev.filter(t => t.id !== id));
 };
 
-
+const goHome = ()=>{ }
 
 
 
@@ -58,8 +60,11 @@ const handleDelete = async (id: number) => {
       <h1 className={styles.title}>🚚 Transport List</h1>
 
       <div className={styles.tableWrapper}>
-        <button className={styles.addBtn} onClick={handleAdd}>
+        <button className={clsx(styles.addBtn,button.primaryBtn)} onClick={handleAdd}>
   + Add Location
+</button>
+  <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
+  Home
 </button>
         <table className={styles.table}>
           <thead>
@@ -99,7 +104,18 @@ const handleDelete = async (id: number) => {
                   <td>{transport.total}</td>
                   <td className={styles.amount}>₹ {transport.rent}</td>
                   <td>
-  <button
+     
+    <div className={button.actionIcons}>
+     <button className={button.actionEdit} onClick={() => handleEdit(transport)}>
+        <FaEdit />
+      </button>
+
+      <button className={button.btnDelete} onClick={() => handleDelete(transport.id)}>
+        <FaTrash />
+      </button>
+      </div>
+
+  {/* <button
     className={styles.editBtn}
     onClick={() => handleEdit(transport)}
   >
@@ -111,7 +127,7 @@ const handleDelete = async (id: number) => {
     onClick={() => handleDelete(transport.id)}
   >
     Delete
-  </button>
+  </button> */}
 </td>
                 </tr>
               ))

@@ -1,0 +1,94 @@
+/* ===============================
+   Button Group Layout
+================================= */
+.buttonGroup {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+/* ===============================
+   Base Button Style
+================================= */
+.primaryBtn,
+.secondaryBtn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: none;
+  letter-spacing: 0.5px;
+}
+
+/* ===============================
+   Primary Button (Add)
+================================= */
+.primaryBtn {
+  background-color:#434484;
+  color: #ffffff;
+
+}
+
+.primaryBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(79, 70, 229, 0.4);
+}
+
+.primaryBtn:active {
+  transform: scale(0.96);
+}
+
+/* ===============================
+   Secondary Button (Home)
+================================= */
+.secondaryBtn {
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.secondaryBtn:hover {
+  background-color: #e5e7eb;
+  transform: translateY(-2px);
+}
+
+.secondaryBtn:active {
+  transform: scale(0.96);
+}
+
+
+.actionIcons {
+  display: flex;
+  gap: 10px;
+}
+
+.editIcon {
+  color: #0d6efd;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+
+
+.deleteIcon {
+  color: #dc3545;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+
+.editIcon:hover {
+    background-color: #0d6efd;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+
+.deleteIcon:hover {
+    background-color: #dc3545;
+    color: #fff;
+    transform: scale(1.1);
+}

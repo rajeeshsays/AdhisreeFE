@@ -4,13 +4,16 @@ import { getDriverAll, deleteDriver} from "@/app/services/driverService";
 import styles from "./driverList.module.css";
 import DriverEntryForm from "@/app/components/driver/DriverEntryForm";
 import { DriverFormData } from "@/app/types/types";
+import {clsx} from 'clsx'
+import {useRouter} from 'next/navigation'
 
+import button from "../../css/button.module.css"
 export default function DriverList() {
   const [driverList, setDriverList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState<DriverFormData | undefined>(undefined);
   const [operationMode , setOperationMode] = useState('');
-
+    const router = useRouter();
 
   useEffect(() => {
     async function fetchDriverList() {
@@ -75,9 +78,12 @@ const handleDelete = async (id: number) => {
     <div className={styles.page}>
       <h1 className={styles.title}>🚚 Driver List</h1>
 
-      <div className={styles.tableWrapper}>
-        <button className={styles.addBtn} onClick={handleAdd}>
+    <div className={styles.tableWrapper}>
+        <button className={clsx(styles.addBtn,button.primaryBtn)} onClick={handleAdd}>
   + Add Driver
+</button>
+  <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
+  Home
 </button>
 {/* <pre>{JSON.stringify(driverList, null, 2) }</pre> */}
         <table className={styles.table}>
