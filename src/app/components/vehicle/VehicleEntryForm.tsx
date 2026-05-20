@@ -5,10 +5,10 @@ import  './vehicleEdit.css';
 import Select from 'react-select';
 import { VehicleFormData } from "@/app/types/types";
 import styles from "./vehicle.module.css";
-import {getVehicle,createVehicle,updateVehicle} from '../../services/vehicleService'
+import {createVehicle,updateVehicle} from '../../services/vehicleService'
 import { getVehicleTypes } from "@/app/services/vehicleTypeService";
 
-export default function VehicleEntryForm({vehicle,closeModal}:{vehicle:VehicleFormData,closeModal:()=>void})  {
+export default function VehicleEntryForm({vehicle,closeModal}:{vehicle:VehicleFormData | undefined,closeModal:()=>void})  {
   
   const vehicleData : VehicleFormData = {
          id : 0,     

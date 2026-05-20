@@ -10,6 +10,8 @@ export type TransportEntryFormData = {
   destinationGroups: string[];
   from: string;
   to: string;
+  fromText : string;
+  toText : string;
   startKM: string;
   closeKM: string;
   total: string;

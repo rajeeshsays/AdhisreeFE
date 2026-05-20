@@ -8,7 +8,7 @@ import styles from "./party.module.css";
 import { createParty,updateParty } from "@/app/services/partyService";
 
 
-export default function PartyEntryForm({party,closeModal}:{party : PartyFormData,closeModal:()=>void})  {  
+export default function PartyEntryForm({party,closeModal}:{party : PartyFormData | undefined,closeModal:()=>void})  {  
   const partyData : PartyFormData = {
     id:  0,
     name: "",
@@ -31,7 +31,7 @@ export default function PartyEntryForm({party,closeModal}:{party : PartyFormData
   useEffect(()=>{
   console.log(party);
   
-  },[formData])
+  },[formData,party])
 
   
   const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {

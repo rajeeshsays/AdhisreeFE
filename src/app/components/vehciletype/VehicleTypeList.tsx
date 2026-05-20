@@ -7,8 +7,9 @@ import VehicleTypeEntryForm from "@/app/components/vehciletype/VehicleTypeEntryF
 import {clsx} from 'clsx'
 import button from "../../css/button.module.css"
 import { useRouter } from "next/navigation"
+import { FaEdit,FaTrash } from "react-icons/fa";
 export default function VehcileList() {
-  const [partyList, setVehicleTypeList] = useState<any[]>([]);
+  const [vehicleTypeList, setVehicleTypeList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVehicleType, setSelectedVehicleType] = useState<any | null>(null);
     const router = useRouter();
@@ -42,9 +43,9 @@ const handleAdd = () => {
   
 };
 
-const handleEdit = (party: any) => {
-  console.log('Editing VehicleType:', party);
-  setSelectedVehicleType(party);
+const handleEdit = (vehicleType: any) => {
+  console.log('Editing VehicleType:', vehicleType);
+  setSelectedVehicleType(vehicleType);
   setIsModalOpen(true)
 };
   const closeModal = ()=>
@@ -92,37 +93,33 @@ const handleDelete = async (id: number) => {
 
           <tbody>
             {
-            partyList.length === 0 ? (
+            vehicleTypeList.length === 0 ? (
               <tr>
                 <td colSpan={8} className={styles.empty}>
-                  No party records found
+                  No vehicleType records found
                 </td>
               </tr>
            ) : (
-             partyList.map((party) => ( 
+             vehicleTypeList.map((vehicleType) => ( 
 
-                 <tr key={party.id}>
+                 <tr key={vehicleType.id}>
                      
-                  <td>{party.id}</td>
-                   <td>{party.desc}</td>
-                   <td className={party.isActive === "1" ? styles.active : styles.inactive}>
-                     {party.isActive ? "Active" : "Inactive"}                    
+                  <td>{vehicleType.id}</td>
+                   <td>{vehicleType.desc}</td>
+                   <td className={vehicleType.isActive === "1" ? styles.active : styles.inactive}>
+                     {vehicleType.isActive ? "Active" : "Inactive"}                    
                    
                     </td>
                     <td>
-<button
-className={styles.editBtn}
-onClick={() => handleEdit(party)}
-   >
-     Edit
-   </button>
+    <div className={button.actionIcons}>
+     <button className={button.actionEdit} onClick={() => handleEdit(vehicleType)}>
+        <FaEdit />
+      </button>
 
-   <button
-     className={styles.deleteBtn}
-     onClick={() => handleDelete(party.id)}
-   >
-     Delete
-   </button></td>
+      <button className={button.btnDelete} onClick={() => handleDelete(vehicleType.id)}>
+        <FaTrash />
+      </button>
+      </div></td>
   
   </tr>
   )))}

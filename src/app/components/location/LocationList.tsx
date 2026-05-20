@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect,useState } from "react";
 import { getLocationAll, deleteLocation} from "@/app/services/locationService";
 import styles from "./locationList.module.css";
 import LocationEntryForm from "@/app/components/location/LocationEntryForm";
 import { useRouter } from "next/navigation";
 import {clsx} from 'clsx'
 import button from "../../css/button.module.css"
+import { FaEdit,FaTrash } from "react-icons/fa";
 export default function LocationList() {
   const [locationList, setLocationList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -105,19 +106,15 @@ const handleDelete = async (id: number) => {
                    
                     </td>
                     <td>
-<button
-className={styles.editBtn}
-onClick={() => handleEdit(location)}
-   >
-     Edit
-   </button>
+    <div className={button.actionIcons}>
+     <button className={button.actionEdit} onClick={() => handleEdit(location)}>
+        <FaEdit />
+      </button>
 
-   <button
-     className={styles.deleteBtn}
-     onClick={() => handleDelete(location.id)}
-   >
-     Delete
-   </button></td>
+      <button className={button.btnDelete} onClick={() => handleDelete(location.id)}>
+        <FaTrash />
+      </button>
+      </div></td>
   
   </tr>
   )))}

@@ -6,7 +6,7 @@ import { DriverFormData } from "@/app/types/types";
 import styles from "./driver.module.css";
 import { createDriver,updateDriver } from "../../services/driverService";
 
-export default function DriverEntryForm({driver,closeModal}:{driver:DriverFormData,closeModal:()=>void})  {
+export default function DriverEntryForm({driver,closeModal}:{driver:DriverFormData | undefined,closeModal:()=>void})  {
   const driverData : DriverFormData= {
     id: 0,
     name :"",

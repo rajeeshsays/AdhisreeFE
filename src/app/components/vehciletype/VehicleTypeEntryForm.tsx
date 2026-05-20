@@ -6,7 +6,7 @@ import Select from 'react-select';
 import { VehicleTypeFormData } from "@/app/types/types";
 import styles from "./vehicleType.module.css";
 import { createVehicleType,updateVehicleType } from "@/app/services/vehicleTypeService";
-export default function VehicleTypeEntryForm({vehicleType,closeModal}:{vehicleType:VehicleTypeFormData,closeModal:()=>void})  {
+export default function VehicleTypeEntryForm({vehicleType,closeModal}:{vehicleType:VehicleTypeFormData | undefined,closeModal:()=>void})  {
   
   const vehicleTypeData : VehicleTypeFormData = {
         id : 0,

@@ -6,7 +6,7 @@ import DriverEntryForm from "@/app/components/driver/DriverEntryForm";
 import { DriverFormData } from "@/app/types/types";
 import {clsx} from 'clsx'
 import {useRouter} from 'next/navigation'
-
+import { FaEdit,FaTrash } from "react-icons/fa";
 import button from "../../css/button.module.css"
 export default function DriverList() {
   const [driverList, setDriverList] = useState<any[]>([]);
@@ -35,6 +35,7 @@ const handleAdd = () => {
   setIsModalOpen(true);
   setOperationMode('Add');
 };
+
 
 const handleEdit = (driver: any) => {
   console.log('Editing driver:', driver);
@@ -126,19 +127,15 @@ const handleDelete = async (id: number) => {
                    
                     </td>
                     <td>
-<button
-className={styles.editBtn}
-onClick={() => handleEdit(driver)}
-   >
-     Edit
-   </button>
+    <div className={button.actionIcons}>
+     <button className={button.actionEdit} onClick={() => handleEdit(driver)}>
+        <FaEdit />
+      </button>
 
-   <button
-     className={styles.deleteBtn}
-     onClick={() => handleDelete(driver.id)}
-   >
-     Delete
-   </button></td>
+      <button className={button.btnDelete} onClick={() => handleDelete(driver.id)}>
+        <FaTrash />
+      </button>
+      </div></td>
   
   </tr>
   )))}

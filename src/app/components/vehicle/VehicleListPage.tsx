@@ -7,6 +7,7 @@ import VehicleEntryForm from "@/app/components/vehicle/VehicleEntryForm";
 import {clsx} from 'clsx'
 import button from "../../css/button.module.css"
 import { useRouter } from "next/navigation";
+import { FaEdit,FaTrash } from "react-icons/fa";
 export default function VehicleList() {
   const [vehicleList, setVehicleList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -113,19 +114,15 @@ const handleDelete = async (id: number) => {
                    
                     </td>
                     <td>
-<button
-className={styles.editBtn}
-onClick={() => handleEdit(vehicle)}
-   >
-     Edit
-   </button>
+    <div className={button.actionIcons}>
+     <button className={button.actionEdit} onClick={() => handleEdit(vehicle)}>
+        <FaEdit />
+      </button>
 
-   <button
-     className={styles.deleteBtn}
-     onClick={() => handleDelete(vehicle.id)}
-   >
-     Delete
-   </button></td>
+      <button className={button.btnDelete} onClick={() => handleDelete(vehicle.id)}>
+        <FaTrash />
+      </button>
+      </div></td>
   
   </tr>
   )))}

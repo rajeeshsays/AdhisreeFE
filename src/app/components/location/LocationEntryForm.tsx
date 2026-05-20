@@ -6,10 +6,10 @@ import { LocationFormData } from "@/app/types/types";
 import styles from "./location.module.css";
 import { useEffect } from "react";
 import { getDistrict  } from "../../services/utilityService"
-import { getLocation,updateLocation,createLocation } from "@/app/services/locationService";
+import {updateLocation,createLocation } from "@/app/services/locationService";
 
 
-export default function LocationEntryForm({location,closeModal}:{location:LocationFormData,closeModal:()=>void})  {
+export default function LocationEntryForm({location,closeModal}:{location:LocationFormData | undefined,closeModal:()=>void})  {
  
   const locationData : LocationFormData = useMemo(()=> ({
     id:  0,

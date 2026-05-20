@@ -18,7 +18,7 @@ interface FieldOption {
   value: string;
   label: string;
 }
-const TransportEntryForm = ({transport,closeModal}:{transport:TransportEntryFormData,closeModal:()=>void}) => {
+const TransportEntryForm = ({transport,closeModal}:{transport:TransportEntryFormData | undefined,closeModal:()=>void}) => {
 
   
     const transportData : TransportEntryFormData = {
@@ -31,6 +31,8 @@ const TransportEntryForm = ({transport,closeModal}:{transport:TransportEntryForm
       destinationGroups: [],
       from: "",
       to: "",
+      fromText : "",
+      toText : "",
       startKM: "",
       closeKM: "",
       total: "",
@@ -160,7 +162,7 @@ useEffect(() => {
 //   };
 //   fetchDropdownData();
 // 
-}, []);
+}, [transport]);
 
 
 const handleSave = async () => {

@@ -50,7 +50,7 @@ const handleDelete = async (id: number) => {
   setTransportList(prev => prev.filter(t => t.id !== id));
 };
 
-const goHome = ()=>{ }
+
 
 
 
@@ -99,8 +99,8 @@ const goHome = ()=>{ }
                       {transport.vehicle?.registration}
                     </span>
                   </td>
-                  <td>{transport.from}</td>
-                  <td>{transport.to}</td>
+                  <td>{transport.fromText}</td>
+                  <td>{transport.toText}</td>
                   <td>{transport.total}</td>
                   <td className={styles.amount}>₹ {transport.rent}</td>
                   <td>
@@ -115,19 +115,7 @@ const goHome = ()=>{ }
       </button>
       </div>
 
-  {/* <button
-    className={styles.editBtn}
-    onClick={() => handleEdit(transport)}
-  >
-    Edit
-  </button>
 
-  <button
-    className={styles.deleteBtn}
-    onClick={() => handleDelete(transport.id)}
-  >
-    Delete
-  </button> */}
 </td>
                 </tr>
               ))

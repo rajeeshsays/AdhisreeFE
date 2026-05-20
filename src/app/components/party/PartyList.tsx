@@ -8,6 +8,7 @@ import {PartyFormData} from "@/app/types/types";
 import { useRouter } from "next/navigation";
 import {clsx} from 'clsx'
 import button from "../../css/button.module.css"
+import { FaEdit,FaTrash } from "react-icons/fa";
 export default function PartyList() {
   
 
@@ -116,19 +117,15 @@ return (
                    
                     </td>
                     <td>
-<button
-className={styles.editBtn}
-onClick={() => handleEdit(party)}
-   >
-     Edit
-   </button>
+    <div className={button.actionIcons}>
+     <button className={button.actionEdit} onClick={() => handleEdit(party)}>
+        <FaEdit />
+      </button>
 
-   <button
-     className={styles.deleteBtn}
-     onClick={() => handleDelete(party.id)}
-   >
-     Delete 
-   </button></td>
+      <button className={button.btnDelete} onClick={() => handleDelete(party.id)}>
+        <FaTrash />
+      </button>
+      </div></td>
   
   </tr>
   )))}
