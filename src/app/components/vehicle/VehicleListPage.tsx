@@ -8,6 +8,7 @@ import {clsx} from 'clsx'
 import button from "../../css/button.module.css"
 import { useRouter } from "next/navigation";
 import { FaEdit,FaTrash } from "react-icons/fa";
+
 export default function VehicleList() {
   const [vehicleList, setVehicleList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);

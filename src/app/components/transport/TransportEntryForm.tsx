@@ -65,7 +65,7 @@ const [partyOptions, setPartyOptions] = useState<FieldOption[]>([]);
   { name: "party1", type: "select", label: "Party 1" , options: partyOptions },
   {
     name: "destinationGroups",
-    type: "multiselect",
+    type: "multiselect2",
     label: "Destination Group",
     options: party2GroupOptions,
   },

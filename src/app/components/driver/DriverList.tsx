@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { getDriverAll, deleteDriver} from "@/app/services/driverService";
 import styles from "./driverList.module.css";
-import DriverEntryForm from "@/app/components/driver/DriverEntryForm";
+import DriverEntryForm from "@/app/components/driver/DriverEntry";
 import { DriverFormData } from "@/app/types/types";
 import {clsx} from 'clsx'
 import {useRouter} from 'next/navigation'

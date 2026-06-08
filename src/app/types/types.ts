@@ -36,6 +36,47 @@ export type TransportEntryFormData = {
     
   };
 
+export type DieselLogFormData = {
+  id?: number;                // optional, for new entries
+  vehicleId: number;    
+  driverId : number;      // reference to Vehicle
+  date: string;               // DateOnly from C# → ISO string
+  quantity: number;           // decimal → number
+  pricePerUnit: number;       // decimal → number
+  sourceId: number;           // reference to Party
+  odometerReading: number;    // int → number
+  totalCost: number;          // decimal → number
+  remarks?: string;           // optional string
+};
+
+export type VehicleAlertFormData = {
+  id?: number;                 // optional for new entries
+  vehicleId: number;           // reference to Vehicle
+  emi: number;                 // decimal → number
+  emiDueDate: string;          // DateOnly → string YYYY-MM-DD
+  emiDaysLeft: number;
+  insuranceExpiry: string;     // DateOnly → string
+  insuranceDaysLeft: number;
+  insuranceStatus: number;
+  pollutionExpiry: string;     // DateOnly → string
+  pollutionDaysLeft: number;
+  pollutionStatus: number;
+  fuelStationName?: string;    // optional
+  remarks?: string;            // optional
+};
+
+export type VehicleMaintenanceFormData ={
+    id?: number;
+    vehicleId: number;
+    driverId: number;
+    maintenanceDate: string; // ISO Date string
+    kilometers: number;
+    cost: number;
+    description: string;
+}
+
+
+
   export type LocationFormData = {
     id :number,
     name: string,
