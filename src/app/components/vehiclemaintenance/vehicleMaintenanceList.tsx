@@ -90,13 +90,12 @@ const handleDelete = async (id: number) => {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Name</th>
-              <th>Age</th>
-              <th>Adhaar No</th>
-              <th>Mobile 1</th>
-              <th>Mobile 2</th>
-              <th>License No</th>
-              <th>Is Active</th>
+              <th>Vehicle No</th>
+              <th>Driver</th>
+              <th>Maintenance Date</th>
+              <th>Kilometers</th>
+              <th>Cost</th>
+              <th>Discription</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -115,12 +114,12 @@ const handleDelete = async (id: number) => {
   <tr key={vehicleMaintenance.id}>
                      
                   <td>{vehicleMaintenance.id}</td>
-                   <td>{vehicleMaintenance.}</td>
-                   <td>{vehicleMaintenance.age}</td>
-                   <td>{vehicleMaintenance.adhaarNo}</td>
-                   <td>{vehicleMaintenance.mobile1}</td>
-                   <td>{vehicleMaintenance.mobile2}</td>
-                   <td>{vehicleMaintenance.licenseNo}</td>
+                   <td>{vehicleMaintenance.vehicle.registration}</td>
+                   <td>{vehicleMaintenance.driver.name}</td>
+                   <td>{vehicleMaintenance.maintenanceDate}</td>
+                   <td>{vehicleMaintenance.kilometers}</td>
+                   <td>{vehicleMaintenance.cost}</td>
+                   <td>{vehicleMaintenance.description}</td>
                    <td className={vehicleMaintenance.isActive === "1" ? styles.active : styles.inactive}>
                      {vehicleMaintenance.isActive ? "Active" : "Inactive"}                    
                    

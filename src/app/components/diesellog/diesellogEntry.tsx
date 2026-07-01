@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { createDieselLog,updateDieselLog } from "../../services/diesellogService";
-import   "./diesellogEntry.css";
+import   "./abc.css";
 import { getDrivers } from "../../services/driverService";
 import { getVehicles } from "../../services/vehicleService";
 import { getParties } from "../../services/partyService";
@@ -51,8 +51,8 @@ const [partyOptions, setPartyOptions] = useState<FieldOption[]>([]);
   {name: "quantity", type: "number", label: "Quantity"},
   {name: "pricePerUnit", type: "number", label: "Price Per Unit"},
   {name: "totalCost", type: "number", label: "Total Cost"},
-  { name: "sourceId", type: "number", label: "Source" , options: partyOptions },
-  { name: "driverId", type: "select", label: "Driver ID", options: driverOptions },
+  { name: "sourceId", type: "select", label: "Source" , options: partyOptions },
+  { name: "driverId", type: "select", label: "Driver", options: driverOptions },
  
  
 ];
@@ -73,9 +73,7 @@ useEffect(() => {
 const handleSave = async () => {
   try {
 
-  console.log("formdata te list " +formData)
-
-   //const response =  await createTransport(formData);
+  console.log("Diesel Log create/update form data:", formData);
     const response = formData.id
       ? await updateDieselLog(formData.id, formData)
       : await createDieselLog(formData);

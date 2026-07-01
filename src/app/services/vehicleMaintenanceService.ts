@@ -4,7 +4,7 @@ import { baseUrl } from "../configs/apiConfig";
 
 // Get all maintenance records
 export async function getAll() {
-    const response = await fetch(`${baseUrl}/api/vehicleMaintenance/getall`);
+    const response = await fetch(`${baseUrl}/api/vehicleMaintenanceApi/getall`);
 
     return response;
 }
@@ -14,7 +14,7 @@ export async function getAll() {
 export async function get(
     id: number
 ) {
-    const response = await fetch(`${baseUrl}/api/vehicleMaintenance/getbyid/${id}`);
+    const response = await fetch(`${baseUrl}/api/vehicleMaintenanceApi/getbyid/${id}`);
 
 return response;
 }
@@ -32,7 +32,7 @@ return response;
 export async function create(
     data: VehicleMaintenanceFormData
 ) {
-    const response = await fetch(`${baseUrl}/api/vehicleMaintenance/create`, {
+    const response = await fetch(`${baseUrl}/api/vehicleMaintenanceApi/create`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -50,7 +50,7 @@ export async function update(
     id: number,
     data: VehicleMaintenanceFormData
 ) {
-    const response = await fetch(`${baseUrl}/api/vehicleMaintenance/update/${id}`, {
+    const response = await fetch(`${baseUrl}/api/vehicleMaintenanceApi/update/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -66,7 +66,7 @@ export async function update(
 export async function remove(
     id: number
 ) {
-    const response = await fetch(`${baseUrl}/api/vehicleMaintenance/delete/${id}`, {
+    const response = await fetch(`${baseUrl}/api/vehicleMaintenanceApi/delete/${id}`, {
         method: "DELETE",
     });
 

@@ -4,8 +4,8 @@ import { DieselLogFormData } from '../types/types';
 
 export async function getDieselLog(id: number) {
   try {
-    console.log(`Calling: ${baseUrl}/api/DieselLog/${id}`);
-    const res = await fetch(`${baseUrl}/api/DieselLog/${id}`, {
+    console.log(`Calling: ${baseUrl}/api/DieselLogApi/${id}`);
+    const res = await fetch(`${baseUrl}/api/DieselLogApi/${id}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -18,8 +18,8 @@ export async function getDieselLog(id: number) {
 
 export async function getDieselLogs() {
   try {
-    console.log(`Calling: ${baseUrl}/api/DieselLog`);
-    const res = await fetch(`${baseUrl}/api/DieselLog`, {
+    console.log(`Calling: ${baseUrl}/api/DieselLogApi`);
+    const res = await fetch(`${baseUrl}/api/DieselLogApi`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -33,7 +33,7 @@ export async function getDieselLogs() {
 export async function createDieselLog(dieselLogData: DieselLogFormData) {
   try {
     console.log('Creating DieselLog:', dieselLogData);
-    const res = await fetch(`${baseUrl}/api/DieselLog`, {
+    const res = await fetch(`${baseUrl}/api/DieselLogApi`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(dieselLogData),
@@ -48,7 +48,7 @@ export async function createDieselLog(dieselLogData: DieselLogFormData) {
 export async function updateDieselLog(id: number, dieselLogData: DieselLogFormData) {
   try {
     console.log(`Updating DieselLog ${id}:`, dieselLogData);
-    const res = await fetch(`${baseUrl}/api/DieselLog/${id}`, {
+    const res = await fetch(`${baseUrl}/api/DieselLogApi/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(dieselLogData),
@@ -73,7 +73,7 @@ export async function updateDieselLog(id: number, dieselLogData: DieselLogFormDa
 
 export async function deleteDieselLog(id: number) {
   try {
-    const res = await fetch(`${baseUrl}/api/DieselLog/${id}`, {
+    const res = await fetch(`${baseUrl}/api/DieselLogApi/${id}`, {
       method: 'DELETE',
     });
 

@@ -16,6 +16,8 @@ export default function DashboardMenu() {
     { key:"location", name: "Location", path: "/location", icon: <FaRoute size={40} /> },
     { key:"vehicleAlerts",name: "Vehicle Alerts", path: "/vehiclealerts", icon: <FaList size={40} /> },
     { key:"dieselLog",name: "Diesel Log", path: "/diesellog", icon: <FaList size={40} /> },
+    { key:"vehicleMaintenance",name: "Vehicle Maintenance", path: "/vehiclemaintenance", icon: <FaList size={40} /> },
+    
   ];
 
   return (
