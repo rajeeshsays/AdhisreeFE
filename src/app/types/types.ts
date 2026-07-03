@@ -35,6 +35,25 @@ export type TransportEntryFormData = {
     isActive: boolean,
     
   };
+  export type DriverLedgerFormData =   {
+    id?:number,
+    transactionDate : string,
+    paymentType : string,
+    driverId : number,
+    amount : number,
+    originalBalance : number,
+    balance : number,
+    remarks : string,
+  };
+  export type DriverLedgerActualData =   {
+    id?:number,
+    driverId : number,
+
+    transactionDate : string,
+    debit : number,
+    credit : number,
+    remarks : string,
+  };
 
 export type DieselLogFormData = {
   id?: number;                // optional, for new entries

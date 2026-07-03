@@ -47,8 +47,8 @@ const [vehicleOptions, setVehicleOptions] = useState<FieldOption[]>([]);
   options?: FieldOption[];
 }[] = [
   { name: "id", type: "number", label: "ID" },
-  { name: "emi", type: "date", label: "Date" },
-  { name: "vehicleId", type: "multiselect", label: "Vehicle No" , options: vehicleOptions },
+  { name: "emi", type: "number", label: "EMI" },
+  { name: "vehicleId", type: "select", label: "Vehicle No" , options: vehicleOptions },
   { name: "emiDueDate", type: "date", label:"EMI Due Date"},
   { name: "emiDaysLeft", type: "number", label: "EMI Days Left"},
   { name: "insuranceExpiry", type: "date", label: "Insurance Expiry"},
@@ -99,8 +99,6 @@ const handleSave = async () => {
     console.error(error);
   }
 };
-
-
 
 
 useEffect(() => {

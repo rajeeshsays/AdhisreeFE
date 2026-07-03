@@ -4,8 +4,8 @@ import { VehicleAlertFormData } from '../types/types';
 // Get single VehicleAlert by id
 export async function getVehicleAlert(id: number) {
   try {
-    console.log(`Calling: ${baseUrl}/api/VehicleAlerts/${id}`);
-    const res = await fetch(`${baseUrl}/api/VehicleAlerts/${id}`, {
+    console.log(`Calling: ${baseUrl}/api/VehicleAlertsApi/${id}`);
+    const res = await fetch(`${baseUrl}/api/VehicleAlertsApi/${id}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -19,8 +19,8 @@ export async function getVehicleAlert(id: number) {
 // Get all VehicleAlerts
 export async function getVehicleAlerts() {
   try {
-    console.log(`Calling: ${baseUrl}/api/VehicleAlerts`);
-    const res = await fetch(`${baseUrl}/api/VehicleAlerts`, {
+    console.log(`Calling: ${baseUrl}/api/VehicleAlertsApi`);
+    const res = await fetch(`${baseUrl}/api/VehicleAlertsApi`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -35,7 +35,7 @@ export async function getVehicleAlerts() {
 export async function createVehicleAlert(vehicleAlertData: VehicleAlertFormData) {
   try {
     console.log('Creating VehicleAlert:', vehicleAlertData);
-    const res = await fetch(`${baseUrl}/api/VehicleAlerts`, {
+    const res = await fetch(`${baseUrl}/api/VehicleAlertsApi`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(vehicleAlertData),
@@ -51,7 +51,7 @@ export async function createVehicleAlert(vehicleAlertData: VehicleAlertFormData)
 export async function updateVehicleAlert(id: number, vehicleAlertData: VehicleAlertFormData) {
   try {
     console.log(`Updating VehicleAlert ${id}:`, vehicleAlertData);
-    const res = await fetch(`${baseUrl}/api/VehicleAlerts/${id}`, {
+    const res = await fetch(`${baseUrl}/api/VehicleAlertsApi/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(vehicleAlertData),
@@ -77,7 +77,7 @@ export async function updateVehicleAlert(id: number, vehicleAlertData: VehicleAl
 // Delete a VehicleAlert
 export async function deleteVehicleAlert(id: number) {
   try {
-    const res = await fetch(`${baseUrl}/api/VehicleAlerts/${id}`, {
+    const res = await fetch(`${baseUrl}/api/VehicleAlertsApi/${id}`, {
       method: 'DELETE',
     });
 
