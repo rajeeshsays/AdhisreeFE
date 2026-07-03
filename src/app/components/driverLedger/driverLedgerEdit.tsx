@@ -149,9 +149,6 @@ const actives = [
   closeModal();
 }
 
-
-
-
 const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if(name === "paymentType") {
@@ -170,6 +167,7 @@ setFormData(prevData => ({
       }));
       
   }
+  
   else if(name === "amount") {
     //alert("Amount: " + value);
     //alert("Form data: " + JSON.stringify(formData));
