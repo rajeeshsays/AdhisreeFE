@@ -13,7 +13,7 @@ export default function VehcileList() {
   const [vehicleTypeFilteredList, setVehicleTypeFilteredList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVehicleType, setSelectedVehicleType] = useState<any | null>(null);
-  const [searchedVehicleType, setSearchedVehicleType] = useState<string | undefined>(undefined);
+  const [searchedVehicleType, setSearchedVehicleType] = useState<string>('');
 
 
     const router = useRouter();
@@ -28,6 +28,7 @@ export default function VehcileList() {
           const data = await response.json();
           if (isMounted) {
             setVehicleTypeList(data);
+            setVehicleTypeFilteredList(data);
           }
         }
 
@@ -81,14 +82,14 @@ const handleDelete = async (id: number) => {
 
 const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
   const { name, value } = e.target;
-  if(name === 'searchedVehicleType') {
+  if(name === 'vehicleType') {
+    console.log("searched vehicle type", value)
     setSearchedVehicleType(value);
   }
 };
 
 const handleFilter = () => {
-  let filteredList = vehicleTypeFilteredList;
-
+  let filteredList = vehicleTypeList;
   if (searchedVehicleType) {
     filteredList = filteredList.filter(x => x.desc.includes(searchedVehicleType));
   }
@@ -96,7 +97,8 @@ const handleFilter = () => {
 };
 
 const handleClearFilter = () => {
-  setSearchedVehicleType(undefined);
+  
+  setSearchedVehicleType('');
   setVehicleTypeFilteredList(vehicleTypeList);
 };     
 
@@ -113,10 +115,8 @@ const handleClearFilter = () => {
  <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
   Home
 </button>
-<label className={clsx(styles.label)}>Party</label>
-<input type="text" name="partyName" value={''} className={clsx(styles.textInput)} onChange={handleChange} />
-<label className={clsx(styles.label)}>From Date</label><input type="date" name="fromDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
-<label className={clsx(styles.label)}>To Date</label><input type="date" name="toDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
+<label className={clsx(styles.label)}>Vehicle Type</label>
+<input type="text" name="vehicleType" value={searchedVehicleType} className={clsx(styles.textInput)} onChange={handleChange} />
 <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
   Filter
 </button>
@@ -137,14 +137,14 @@ const handleClearFilter = () => {
 
           <tbody>
             {
-            vehicleTypeList.length === 0 ? (
+            vehicleTypeFilteredList.length === 0 ? (
               <tr>
                 <td colSpan={8} className={styles.empty}>
                   No vehicleType records found
                 </td>
               </tr>
            ) : (
-             vehicleTypeList.map((vehicleType) => ( 
+             vehicleTypeFilteredList.map((vehicleType) => ( 
 
                  <tr key={vehicleType.id}>
                      
