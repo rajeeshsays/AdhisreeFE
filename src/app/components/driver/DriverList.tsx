@@ -16,7 +16,7 @@ export default function DriverList() {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [selectedDriver, setSelectedDriver] = useState<any | null>(null);
-  const [searchedDriver, setSearchedDriver] = useState<string |undefined >(undefined);
+  const [searchedDriver, setSearchedDriver] = useState<string>('');
   const [operationMode , setOperationMode] = useState('');
   const router = useRouter();
 
@@ -36,7 +36,7 @@ export default function DriverList() {
   }, []);
 
 const handleAdd = () => {
-  setSearchedDriver(undefined);
+  setSearchedDriver('');
   setIsModalOpen(true);
   setOperationMode('Add');
 };
@@ -53,7 +53,7 @@ const handleEdit = (driver: any) => {
 const closeModal = ()=>
 {
   setIsModalOpen(false)
-  setSearchedDriver(undefined);
+  setSearchedDriver('');
 }
 useEffect(()=>{
 if(operationMode=='Edit' && searchedDriver)
@@ -81,22 +81,24 @@ const handleDelete = async (id: number) => {
 
 const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
   const { name, value } = e.target;
+
+  console.log("value "+ value);
   if(name === 'fromDate' && value !== '') {
     setFromDate(value);
   }
   else if(name === 'toDate' && value !== '') {
     setToDate(value);
   }
-  else if(name === 'driverId' && value !== '') {
-    setSelectedDriver(()=>driverList.find(driver => driver.id === parseInt(value)));
+  else if(name === 'driverName') {
+    setSearchedDriver(value);
   }
- };
+ }
 
 const handleFilter = () => {
   let filteredList = driverList;
-
+  console.log("Hi",searchedDriver);
   if (searchedDriver) {
-    filteredList = filteredList.filter(x => x.includes(searchedDriver));
+    filteredList = filteredList.filter(x => x.name.includes(searchedDriver));
   }
 
   if (fromDate) {
@@ -106,15 +108,15 @@ const handleFilter = () => {
   if (toDate) {
     filteredList = filteredList.filter(x => new Date(x.transactionDate) <= new Date(toDate));
   }
-
+  
   setDriverFilteredList(filteredList);
 };
 
 
 
 const handleClearFilter = () => {
-  setSelectedDriver(null);
-  setSearchedDriver(undefined);
+console.log("Handle filter is clicked")
+  setSearchedDriver('');
   setFromDate('');
   setToDate('');
   setDriverFilteredList(driverList);
@@ -133,7 +135,7 @@ const handleClearFilter = () => {
   Home
 </button>
 <label className={clsx(styles.label)}>Driver</label>
-<input type="text" name="driverName" value={''} className={clsx(styles.textInput)} onChange={handleChange} />
+<input type="text" name="driverName" value={searchedDriver} className={clsx(styles.textInput)} onChange={handleChange} />
 <label className={clsx(styles.label)}>From Date</label><input type="date" name="fromDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
 <label className={clsx(styles.label)}>To Date</label><input type="date" name="toDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
 <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
@@ -161,14 +163,14 @@ const handleClearFilter = () => {
 
           <tbody>
             {
-            driverList.length === 0 ? (
+            driverFilteredList.length === 0 ? (
               <tr>
                 <td colSpan={8} className={styles.empty}>
                   No driver records found
                 </td>
               </tr>
            ) : (
-             driverList.map((driver) => ( 
+             driverFilteredList.map((driver) => ( 
 
   <tr key={driver.id}>
                      
