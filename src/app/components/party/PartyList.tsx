@@ -13,9 +13,11 @@ export default function PartyList() {
   
 
   const [partyList, setPartyList] = useState<any[]>([]);
+  const [partyFilteredList,setPartyFilteredList] = useState<any[]|null>([])
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [selectedParty, setSelectedParty] = useState<PartyFormData | undefined>(undefined);
+  const [searchedParty,setSearchedParty] = useState<string>('abc');
   const router = useRouter();
 
   useEffect(() => {
@@ -27,6 +29,7 @@ export default function PartyList() {
           const data = await response.json();
           if (isMounted) {
             setPartyList(data);
+            setPartyFilteredList(data);
           }
         }
 
@@ -39,6 +42,8 @@ export default function PartyList() {
     }
     fetchPartyList();
   }, []);
+
+  useEffect(()=>console.log("party list",JSON.stringify(partyList)),[partyList]);
 
 const handleAdd = () => {
   setSelectedParty(undefined);
@@ -57,13 +62,53 @@ const handleEdit = (party: any) => {
   setIsModalOpen(false);
   setSelectedParty(undefined);
   }
-
-
 const handleDelete = async (id: number) => {
   if (!confirm("Are you sure you want to delete this party?")) return;
+  try{
   await deleteParty(id);
-  setPartyList(prev => prev.filter(t => t.id !== id)); 
+  setPartyFilteredList(prev => prev.filter(t => t.id !== id)) 
+
+  setPartyList(prev => prev.filter(t => t.id !== id));
+
+  }
+  catch(error : unknown)
+  {
+    if(error instanceof Error)
+    {
+      alert(error.message);
+    }
+  
+  }
 };
+
+const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+
+const { name, value } = e.target;
+  console.log(value);
+  if(name === 'partyName' ) {
+    setSearchedParty(value);
+  }
+ };
+
+
+const handleFilter = () => {
+  let filteredList = partyList;
+  if (searchedParty) {
+    filteredList = filteredList.filter(x =>
+      x.name.includes(searchedParty)
+    );
+    console.log("filtered list",filteredList)
+  }
+   console.log("filtered list2",filteredList)
+  setPartyFilteredList(filteredList);
+};
+
+
+
+const handleClearFilter = () => {
+  setSearchedParty('');
+  setPartyFilteredList(partyList);
+};     
 
 return (
     <div className={styles.page}>
@@ -75,6 +120,17 @@ return (
 </button>
      <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
   Home
+</button>
+<label className={clsx(styles.label)}>Party</label>
+<input type="text" name="partyName"  className={clsx(styles.textInput)} value={searchedParty} onChange={handleChange} />
+<label className={clsx(styles.label)}>From Date</label><input type="date" name="fromDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
+<label className={clsx(styles.label)}>To Date</label><input type="date" name="toDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
+<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
+  Filter
+</button>
+<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
+
+  Clear Filter
 </button>
 {/* <pre>{JSON.stringify(driverList, null, 2) }</pre> */}
         <table className={styles.table}>
@@ -101,7 +157,7 @@ return (
                 </td>
               </tr>
            ) : (
-             partyList.map((party) => ( 
+             partyFilteredList.map((party) => ( 
 
                  <tr key={party.id}>
                      

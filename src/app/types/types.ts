@@ -48,7 +48,7 @@ export type TransportEntryFormData = {
   export type DriverLedgerActualData =   {
     id?:number,
     driverId : number,
-
+    driver: DriverFormData | null,
     transactionDate : string,
     debit : number,
     credit : number,

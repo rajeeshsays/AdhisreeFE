@@ -2,18 +2,23 @@
 import React, { useEffect, useState } from "react";
 import { getDriverAll, deleteDriver} from "@/app/services/driverService";
 import styles from "./driverList.module.css";
-import DriverEntryForm from "@/app/components/driver/DriverEntry";
+import DriverEntryForm from "@/app/components/driver/driverEntry";
 import { DriverFormData } from "@/app/types/types";
 import {clsx} from 'clsx'
 import {useRouter} from 'next/navigation'
 import { FaEdit,FaTrash } from "react-icons/fa";
 import button from "../../css/button.module.css"
+import driverLedgerList from "../driverLedger/driverLedgerList";
 export default function DriverList() {
   const [driverList, setDriverList] = useState<any[]>([]);
+  const [driverFilteredList, setDriverFilteredList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedDriver, setSelectedDriver] = useState<DriverFormData | undefined>(undefined);
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  const [selectedDriver, setSelectedDriver] = useState<any | null>(null);
+  const [searchedDriver, setSearchedDriver] = useState<string |undefined >(undefined);
   const [operationMode , setOperationMode] = useState('');
-    const router = useRouter();
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchDriverList() {
@@ -31,7 +36,7 @@ export default function DriverList() {
   }, []);
 
 const handleAdd = () => {
-  setSelectedDriver(undefined);
+  setSearchedDriver(undefined);
   setIsModalOpen(true);
   setOperationMode('Add');
 };
@@ -40,24 +45,26 @@ const handleAdd = () => {
 const handleEdit = (driver: any) => {
   console.log('Editing driver:', driver);
   driver.dob = driver.dob ? driver.dob.split('T')[0] : undefined;
-  setSelectedDriver(driver);
+  setSearchedDriver(driver);
   setOperationMode('Edit');
 };
+
 
 const closeModal = ()=>
 {
   setIsModalOpen(false)
-  setSelectedDriver(undefined);
+  setSearchedDriver(undefined);
 }
 useEffect(()=>{
-if(operationMode=='Edit' && selectedDriver)
+if(operationMode=='Edit' && searchedDriver)
 {
  setIsModalOpen(true);
 }
-},[selectedDriver,operationMode])
+},[searchedDriver,operationMode])
+
 
 const handleDelete = async (id: number) => {
-  if (!confirm("Are you sure you want to delete this driver?")) return;
+  if (!confirm("Are you sure you want to delete this driver Ledger?")) return;
   try{
   await deleteDriver(id);
   setDriverList(prev => prev.filter(t => t.id !== id));
@@ -70,9 +77,48 @@ const handleDelete = async (id: number) => {
     }
   
   }
-
 };
 
+const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+  const { name, value } = e.target;
+  if(name === 'fromDate' && value !== '') {
+    setFromDate(value);
+  }
+  else if(name === 'toDate' && value !== '') {
+    setToDate(value);
+  }
+  else if(name === 'driverId' && value !== '') {
+    setSelectedDriver(()=>driverList.find(driver => driver.id === parseInt(value)));
+  }
+ };
+
+const handleFilter = () => {
+  let filteredList = driverList;
+
+  if (searchedDriver) {
+    filteredList = filteredList.filter(x => x.includes(searchedDriver));
+  }
+
+  if (fromDate) {
+    filteredList = filteredList.filter(x => new Date(x.d) >= new Date(fromDate));
+  }
+
+  if (toDate) {
+    filteredList = filteredList.filter(x => new Date(x.transactionDate) <= new Date(toDate));
+  }
+
+  setDriverFilteredList(filteredList);
+};
+
+
+
+const handleClearFilter = () => {
+  setSelectedDriver(null);
+  setSearchedDriver(undefined);
+  setFromDate('');
+  setToDate('');
+  setDriverFilteredList(driverList);
+};     
 
 
   return (
@@ -85,6 +131,17 @@ const handleDelete = async (id: number) => {
 </button>
   <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
   Home
+</button>
+<label className={clsx(styles.label)}>Driver</label>
+<input type="text" name="driverName" value={''} className={clsx(styles.textInput)} onChange={handleChange} />
+<label className={clsx(styles.label)}>From Date</label><input type="date" name="fromDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
+<label className={clsx(styles.label)}>To Date</label><input type="date" name="toDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
+<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
+  Filter
+</button>
+<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
+
+  Clear Filter
 </button>
 {/* <pre>{JSON.stringify(driverList, null, 2) }</pre> */}
         <table className={styles.table}>

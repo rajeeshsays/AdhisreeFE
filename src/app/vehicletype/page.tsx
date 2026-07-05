@@ -1,5 +1,5 @@
 
-import VehcileList from "../components/vehciletype/VehicleTypeList";
+import VehcileList from "../components/vehicletype/VehicleTypeList";
 export default function VehicleTypeListPage()
 {
   return(

@@ -68,3 +68,25 @@
   text-align: center;
   color: #6b7280;
 }
+.dateInput {
+  margin-right: 10px;
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  border-color: black;
+}
+.selectInput   {
+  margin-right: 10px;
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  border-color: black;
+}
+.lable {
+  margin-right: 8px;
+  margin-left: 8px;
+  font-weight: 500;
+  color: #01060f;
+}

@@ -62,7 +62,7 @@ export async function createTransport(transportData : TransportEntryFormData) {
 export async function deleteTransport(id: number) {
   
 
-  await fetch(`${baseUrl}/api/transports/${id}`, {
+  return await fetch(`${baseUrl}/api/transports/${id}`, {
     method: 'DELETE'
   });
   console.log('Transport deleted:', id);

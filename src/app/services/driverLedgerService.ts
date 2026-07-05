@@ -20,6 +20,25 @@ export async function getdriverLedger(id? :number) {
   }
 }
 
+export async function getDriverLedgerAll() {
+  console.log('Reached get driver :');
+  try {
+    console.log("Calling:", `${baseUrl}/api/DriverLedgerApi/getall`);
+    const res = await fetch(`${baseUrl}/api/DriverLedgerApi/getall`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    return res; // <-- FIX
+  } 
+  catch (ex: any) {
+    console.log(JSON.stringify(ex));
+    throw ex; // optional
+  }
+}
+    
+
+
 export async function createDriverLedger(driverFormData : DriverLedgerFormData) {
 
   let driverLedgerActualData : DriverLedgerActualData = {

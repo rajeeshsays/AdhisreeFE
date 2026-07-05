@@ -10,13 +10,15 @@ import button from "../../css/button.module.css"
 import { FaEdit,FaTrash } from "react-icons/fa";
 export default function LocationList() {
   const [locationList, setLocationList] = useState<any[]>([]);
+  const [locationFilteredList, setLocationFilteredList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<any | null>(null);
+  const [searchedLocation, setSearchedLocation] = useState<string>('');
   const router = useRouter();
   const closeModal = ()=>
   {
   setIsModalOpen(false);
-  selectedLocation(null);
+  setSelectedLocation(null);
   }
 
 
@@ -27,6 +29,7 @@ export default function LocationList() {
         if (response.ok) {
           const data = await response.json();
           setLocationList(data);
+          setLocationFilteredList(data);
         }
       } catch (error) {
         console.error(error);
@@ -40,19 +43,50 @@ const handleAdd = () => {
   setIsModalOpen(true);
 
 };
-
 const handleEdit = (location: any) => {
   console.log('Editing location:', location);
   setSelectedLocation(location);
   setIsModalOpen(true);
 };
 
+
 const handleDelete = async (id: number) => {
   if (!confirm("Are you sure you want to delete this location?")) return;
-
+  try { 
   await deleteLocation(id);
   setLocationList(prev => prev.filter(t => t.id !== id));
+}
+  catch (error :unknown) {
+    if(error instanceof Error)
+    {
+      alert(error.message);
+    }
+    }
 };
+
+const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+  const { name, value } = e.target;
+   if(name === 'locationName') {
+    setSearchedLocation(value);
+  }
+ };
+
+const handleFilter = () => {
+  let filteredList = locationList;
+  console.log(locationList);
+  if (searchedLocation) {
+    filteredList = filteredList.filter(x => x.name.includes(searchedLocation));
+  }
+  setLocationFilteredList(filteredList);
+};
+  
+
+
+const handleClearFilter = () => {
+  setSearchedLocation('');
+  setLocationFilteredList(locationList);
+};     
+
 
 
 
@@ -67,7 +101,17 @@ const handleDelete = async (id: number) => {
       <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
   Home
 </button>
+<label className={clsx(styles.label)}>Party</label>
+<input type="text" name="locationName" value={searchedLocation} className={clsx(styles.textInput)} onChange={handleChange} />
+<label className={clsx(styles.label)}>From Date</label><input type="date" name="fromDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
+<label className={clsx(styles.label)}>To Date</label><input type="date" name="toDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
+<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
+  Filter
+</button>
+<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
 
+  Clear Filter
+</button>
 
 {/* <pre>{JSON.stringify(driverList, null, 2) }</pre> */}
         <table className={styles.table}>
@@ -86,14 +130,14 @@ const handleDelete = async (id: number) => {
 
           <tbody>
             {
-            locationList.length === 0 ? (
+            locationFilteredList.length === 0 ? (
               <tr>
                 <td colSpan={8} className={styles.empty}>
                   No location records found
                 </td>
               </tr>
            ) : (
-             locationList.map((location) => ( 
+             locationFilteredList.map((location) => ( 
   <tr key={location.id}>
                      
                   <td>{location.id}</td>
