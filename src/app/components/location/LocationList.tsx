@@ -20,8 +20,6 @@ export default function LocationList() {
   setIsModalOpen(false);
   setSelectedLocation(null);
   }
-
-
   useEffect(() => {
     async function fetchLocationList() {
       try {
@@ -74,6 +72,7 @@ const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
 const handleFilter = () => {
   let filteredList = locationList;
   console.log(locationList);
+  console.log("Searched location");
   if (searchedLocation) {
     filteredList = filteredList.filter(x => x.name.includes(searchedLocation));
   }
@@ -101,7 +100,7 @@ const handleClearFilter = () => {
       <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
   Home
 </button>
-<label className={clsx(styles.label)}>Party</label>
+<label className={clsx(styles.label)}>Location</label>
 <input type="text" name="locationName" value={searchedLocation} className={clsx(styles.textInput)} onChange={handleChange} />
 <label className={clsx(styles.label)}>From Date</label><input type="date" name="fromDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
 <label className={clsx(styles.label)}>To Date</label><input type="date" name="toDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
