@@ -128,7 +128,7 @@ export default function DieselLogList() {
                 <tr key={log.id}>
 
                   <td>{log.id}</td>
-                  <td>{log.vehicleId}</td>
+                  <td>{log.vehicle.registration}</td>
                   <td>{new Date(log.date).toLocaleDateString()}</td>
                   <td>{log.quantity}</td>
                   <td>{log.pricePerUnit}</td>

@@ -7,14 +7,17 @@ import {useRouter} from 'next/navigation'
 import { FaEdit,FaTrash } from "react-icons/fa";
 import button from "../../css/button.module.css"
 import { remove, getAll} from "@/app/services/vehicleMaintenanceService";
+import { getVehicles } from "@/app/services/vehicleService";
 import VehicleMaintenanceEntry from "./vehicleMaintenanceEntry";
 export default function VehicleMaintenanceList() {
   const [vehicleMaintenanceList, setVehicleMaintenanceList] = useState<any[]>([]);
+  const [vehicleMaintenanceFilteredList, setVehicleMaintenanceFilteredList] = useState<any[]>([]);
+  const [vehicleSelectList,setVehicleSelectList] = useState<any[]>([]); 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVehicleMaintenance, setSelectedVehicleMaintenance] = useState<VehicleMaintenanceFormData | undefined>(undefined);
   const [operationMode , setOperationMode] = useState('');
-    const router = useRouter();
-
+  const [selectedVehicleId,setSelectedVehicleId] = useState<number|null>(null)
+  const router = useRouter();
   useEffect(() => {
     async function fetchVehicleMaintenanceList() {
       try {
@@ -22,6 +25,7 @@ export default function VehicleMaintenanceList() {
         if (response.ok) {
           const data = await response.json();
           setVehicleMaintenanceList(data);
+          setVehicleMaintenanceFilteredList(data);
         }
       } catch (error) {
         console.error(error);
@@ -29,6 +33,29 @@ export default function VehicleMaintenanceList() {
     }
     fetchVehicleMaintenanceList();
   }, []);
+
+    useEffect(()=>{
+      async function fetchVehicleList() {
+        let isMounted = true;
+        try {
+          const response = await getVehicles();
+          if (response.ok) {
+            const data = await response.json();
+            if (isMounted) {
+              setVehicleSelectList(data);
+            }
+          }
+  
+        } catch (error) {
+          console.error(error);
+        }
+        return () => {
+          isMounted = false;
+        }
+      }
+      fetchVehicleList();
+    },[])
+
 
 const handleAdd = () => {
   setSelectedVehicleMaintenance(undefined);
@@ -71,6 +98,35 @@ const handleDelete = async (id: number) => {
   }
 
 };
+const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+  const { name, value } = e.target;
+  console.log(name,value);
+  if(name === 'vehicleId') {
+
+    setSelectedVehicleId(parseInt(value));
+  }
+
+};
+
+const handleFilter = () => {
+  let filteredList = vehicleMaintenanceList;
+  console.log(filteredList)
+    console.log("selected vehicle id " +selectedVehicleId)
+  if (selectedVehicleId) {
+
+    filteredList = filteredList.filter(x => x.vehicleId == selectedVehicleId);
+  }
+
+  
+  setVehicleMaintenanceFilteredList(filteredList);
+};
+
+
+const handleClearFilter = () => {
+  setSelectedVehicleId(null);
+  setVehicleMaintenanceFilteredList(vehicleMaintenanceList);
+};     
+
 
 
 
@@ -85,6 +141,30 @@ const handleDelete = async (id: number) => {
   <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
   Home
 </button>
+
+ <label className={clsx(styles.label)}>Vehicle</label>
+        <select
+          name="vehicleId"
+          value={selectedVehicleId?.toString()}
+          onChange={handleChange}
+          required
+          className={clsx(styles.selectInput)}
+        >
+        <option value="">-- Select Vehicle --</option>
+
+    {vehicleSelectList.map((driver) => (
+      <option key={driver.value} value={driver.value}>
+        {driver.label}
+      </option>
+    ))}
+</select>
+<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
+  Filter
+</button>
+<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
+
+  Clear Filter
+</button>
 {/* <pre>{JSON.stringify(vehicleMaintenanceList, null, 2) }</pre> */}
         <table className={styles.table}>
           <thead>
@@ -96,20 +176,21 @@ const handleDelete = async (id: number) => {
               <th>Kilometers</th>
               <th>Cost</th>
               <th>Discription</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
 
           <tbody>
             {
-            vehicleMaintenanceList.length === 0 ? (
+            vehicleMaintenanceFilteredList.length === 0 ? (
               <tr>
                 <td colSpan={8} className={styles.empty}>
                   No vehicle maintenance records found
                 </td>
               </tr>
            ) : (
-             vehicleMaintenanceList.map((vehicleMaintenance) => ( 
+             vehicleMaintenanceFilteredList.map((vehicleMaintenance) => ( 
 
   <tr key={vehicleMaintenance.id}>
                      

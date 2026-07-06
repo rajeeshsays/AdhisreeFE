@@ -1,6 +1,7 @@
 'use client'
-import React, { useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import { getVehicleAlerts, deleteVehicleAlert } from "@/app/services/vehicleAlertService";
+import {getVehicles} from "@/app/services/vehicleService";
 import styles from "./vehicleAlertList.module.css";
 import VehicleAlertsEntry from "./vehicleAlertEntry";
 import { VehicleAlertFormData } from "@/app/types/types";
@@ -9,11 +10,16 @@ import { useRouter } from "next/navigation";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import button from "../../css/button.module.css";
 
+
 export default function VehicleAlertsList() {
   const [alertsList, setAlertsList] = useState<any[]>([]);
+  const [alertsFilteredList,setAlertsFilteredList] = useState<any[]>([])
+  const [vehicleSelectList,setVehicleSelectList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAlert, setSelectedAlert] = useState<VehicleAlertFormData | undefined>(undefined);
   const [operationMode, setOperationMode] = useState('');
+  const [selectedVehicleId,setSelectedVehicleId] = useState<string|null>(null);
+  
   const router = useRouter();
 
   useEffect(()=>{
@@ -30,6 +36,7 @@ export default function VehicleAlertsList() {
         if (response.ok) {
           const data = await response.json();
           setAlertsList(data);
+          setAlertsFilteredList(data);
         }
       } catch (error) {
         console.error(error);
@@ -37,6 +44,28 @@ export default function VehicleAlertsList() {
     }
     fetchAlerts();
   }, []);
+
+  useEffect(()=>{
+    async function fetchVehicleList() {
+      let isMounted = true;
+      try {
+        const response = await getVehicles();
+        if (response.ok) {
+          const data = await response.json();
+          if (isMounted) {
+            setVehicleSelectList(data);
+          }
+        }
+
+      } catch (error) {
+        console.error(error);
+      }
+      return () => {
+        isMounted = false;
+      }
+    }
+    fetchVehicleList();
+  },[])
 
   const handleAdd = () => {
     setSelectedAlert(undefined);
@@ -70,6 +99,35 @@ export default function VehicleAlertsList() {
     }
   };
 
+  const handleChange = async (e : React.ChangeEvent<HTMLSelectElement|HTMLInputElement>)=>
+  {
+    const {name,value} = e.target;
+    if(name =='vehicleId')
+    {
+       setSelectedVehicleId(value);
+    }      
+
+  }
+
+  const handleFilter =  ()=>
+  {
+ 
+   let filteredList = alertsList;
+   alert(selectedVehicleId);
+   if(selectedVehicleId)
+   {
+    filteredList = filteredList.filter(x => x.vehicleId === selectedVehicleId)
+   }
+   setAlertsFilteredList(filteredList);
+  }
+
+  const handleClearFilter = ()=>
+  {
+  setAlertsFilteredList(alertsList);
+  setSelectedVehicleId(null);
+  }
+
+
   return (
     <div className={styles.page}>
       <h1 className={styles.title}>🚨 Vehicle Alerts</h1>
@@ -82,6 +140,29 @@ export default function VehicleAlertsList() {
           Home
         </button>
 
+        <label className={clsx(styles.label)}>Vehicle</label>
+        <select
+          name="vehicleId"
+          value={selectedVehicleId?.toString()}
+          onChange={handleChange}
+          required
+          className={clsx(styles.selectInput)}
+        >
+        <option value="">-- Select Vehicle --</option>
+
+    {vehicleSelectList.map((driver) => (
+      <option key={driver.value} value={driver.value}>
+        {driver.label}
+      </option>
+    ))}
+</select>
+<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
+  Filter
+</button>
+<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
+
+  Clear Filter
+</button>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -98,14 +179,14 @@ export default function VehicleAlertsList() {
           </thead>
 
           <tbody>
-            {alertsList.length === 0 ? (
+            {alertsFilteredList.length === 0 ? (
               <tr>
                 <td colSpan={9} className={styles.empty}>
                   No vehicle alerts found
                 </td>
               </tr>
             ) : (
-              alertsList.map(alert => (
+              alertsFilteredList.map(alert => (
                 <tr key={alert.id}>
                   <td>{alert.id}</td>
                   <td>{alert.vehicleId}</td>

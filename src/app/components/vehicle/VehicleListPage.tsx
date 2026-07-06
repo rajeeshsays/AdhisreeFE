@@ -154,7 +154,7 @@ return (
           required
           className={clsx(styles.selectInput)}
         >
-        <option value="">-- Select Driver --</option>
+        <option value="">-- Select Vehicle --</option>
 
     {vehicleSelectList.map((driver) => (
       <option key={driver.value} value={driver.value}>
