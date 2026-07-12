@@ -6,7 +6,7 @@ export type InvoiceDetail = {
   amount: string;
 };
 
-export type TransportEntryFormData = {
+export type TripEntryFormData = {
   id: number;
   date: string;
   vehicleId: string;
@@ -21,7 +21,9 @@ export type TransportEntryFormData = {
   startKM: string;
   closeKM: string;
   total: string;
-  commision: string;
+  rent : string,
+  commission: string;
+  payabletoThirdParty : string;
   haltDays : string;
   invoiceDetails: InvoiceDetail[];
   returnTrip : string;

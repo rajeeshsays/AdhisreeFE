@@ -1,14 +1,14 @@
 import { baseUrl } from '../configs/apiConfig';
-import { TransportEntryFormData } from '../types/types';
+import { TripEntryFormData } from '../types/types';
 
 
 
-export async function getTransport(id: number) {
-  console.log('Reached get transport :');
+export async function getTrip(id: number) {
+  console.log('Reached get trip :');
 
   try {
-    console.log("Calling:", `${baseUrl}/api/TransportEntryApi/get/${id}`);
-    const res = await fetch(`${baseUrl}/api/TransportEntryApi/get/${id}`, {
+    console.log("Calling:", `${baseUrl}/api/TripEntryApi/get/${id}`);
+    const res = await fetch(`${baseUrl}/api/TripEntryApi/get/${id}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -21,12 +21,12 @@ export async function getTransport(id: number) {
   }
 }
 
-export async function getTransportAll(pageNumber: number, pageSize: number) {
-  console.log('Reached get transport :');
+export async function getTripAll(pageNumber: number, pageSize: number) {
+  console.log('Reached get trip :');
 
   try {
-    console.log("Calling:", `${baseUrl}/api/TransportEntryApi/getall/${pageNumber}/${pageSize}`);
-    const res = await fetch(`${baseUrl}/api/TransportEntryApi/getall/${pageNumber}/${pageSize}`, {
+    console.log("Calling:", `${baseUrl}/api/TripEntryApi/getall/${pageNumber}/${pageSize}`);
+    const res = await fetch(`${baseUrl}/api/TripEntryApi/getall/${pageNumber}/${pageSize}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -40,16 +40,16 @@ export async function getTransportAll(pageNumber: number, pageSize: number) {
   }
 }
 
-export async function createTransport(transportData : TransportEntryFormData) {
-  console.log('Reached get transport :'+ console.log(transportData));
+export async function createTrip(tripData : TripEntryFormData) {
+  console.log('Reached get trip :'+ console.log(tripData));
 
 
   try {
-    console.log("Calling:", `${baseUrl}/api/TransportEntryApi/create`);
-    const res = await fetch(`${baseUrl}/api/TransportEntryApi/create`, {
+    console.log("Calling:", `${baseUrl}/api/TripEntryApi/create`);
+    const res = await fetch(`${baseUrl}/api/TripEntryApi/create`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transportEntry:transportData,destinationGroup : {destinationIds : transportData.destinationGroups} }),
+      body: JSON.stringify({ tripEntry:tripData,destinationGroup : {destinationIds : tripData.destinationGroups} }),
     });
 
     return res; // <-- FIX
@@ -59,26 +59,26 @@ export async function createTransport(transportData : TransportEntryFormData) {
     throw ex; // optional
   }
 }
-export async function deleteTransport(id: number) {
+export async function deleteTrip(id: number) {
   
 
-  return await fetch(`${baseUrl}/api/transports/${id}`, {
+  return await fetch(`${baseUrl}/api/trips/${id}`, {
     method: 'DELETE'
   });
-  console.log('Transport deleted:', id);
+  console.log('Trip deleted:', id);
 };
 
-export async function updateTransport(id: number, transportData : TransportEntryFormData,) {
+export async function updateTrip(id: number, tripData : TripEntryFormData,) {
 
-  transportData.destinationGroups =  transportData.destinationGroups.toString().split(',');
-   console.log('destination groups :' + transportData.destinationGroups);
-    console.log('destination groups :' + transportData.destinationGroups.toString().split(','));
-  console.log('inside updateTransport ...Sending email content :', transportData);
+  tripData.destinationGroups =  tripData.destinationGroups.toString().split(',');
+   console.log('destination groups :' + tripData.destinationGroups);
+    console.log('destination groups :' + tripData.destinationGroups.toString().split(','));
+  console.log('inside updateTrip ...Sending email content :', tripData);
   try {
-    const res = await fetch(`${baseUrl}/api/TransportEntryApi/${id}`, {
+    const res = await fetch(`${baseUrl}/api/TripEntryApi/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transportEntry:transportData,destinationGroup : { destinationIds : transportData.destinationGroups} }),
+      body: JSON.stringify({ tripEntry:tripData,destinationGroup : { destinationIds : tripData.destinationGroups} }),
     });
 
     const contentType = res.headers.get('content-type');
@@ -110,7 +110,7 @@ export async function parseContent(content : any) {
 
   console.log('Sending email content :', content);
   try {
-    const res = await fetch(`${baseUrl}/api/TransportEntryApi/1`, {
+    const res = await fetch(`${baseUrl}/api/TripEntryApi/1`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content }),

@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { createTransport,updateTransport } from "../../services/transportService";
+import { createTransport,updateTransport } from "../../services/tripService";
 import "./transportEdit.css";
 import { getDrivers } from "../../services/driverService";
 import { getLocations } from "../../services/locationService";
@@ -13,16 +13,13 @@ import { InvoiceDetail, TransportEntryFormData } from "@/app/types/types";
 import { FaTrash } from "react-icons/fa";
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
-
-
 interface FieldOption {
   value: string;
   label: string;
 }
 const TransportEntryForm = ({transport,closeModal}:{transport:TransportEntryFormData | undefined,closeModal:()=>void}) => {
 
-  
-    const transportData : TransportEntryFormData = {
+const transportData : TransportEntryFormData = {
       id: 0,
       date: "",
       vehicleId: "",
@@ -37,7 +34,9 @@ const TransportEntryForm = ({transport,closeModal}:{transport:TransportEntryForm
       startKM: "",
       closeKM: "",
       total: "",
-      commision: "",
+      rent : "",
+      payabletoThirdParty : "",
+      commission: "",
       invoiceDetails: [],
       destinationUnloadingCharges: {},
       returnTrip : "",
@@ -83,17 +82,44 @@ const [returnTrip,setReturnTrip] = useState<string>('');
   { name: "startKM", type: "number", label: "Start KM" },
   { name: "closeKM", type: "number", label: "Close KM" },
   { name: "total", type: "number", label: "Total" },
-  { name: "commision", type: "number", label: "commission" },
-  {name:"haltDays",type:"number",label:"Halt Days"}
+  { name: "commission", type: "number", label: "commission" },
+  { name:"haltDays",type:"number",label:"Halt Days"},
+  { name: "rent", type: "number", label: "Rent" },
+  { name: "payabletoThirdParty", type: "number", label: "Payable to TP" },
 
 ];
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((p) => ({
+    let payableToThirdparty  = value;
+    
+    if(name == "rent" )
+    {
+      payableToThirdparty = (parseFloat(value) - (parseFloat(formData["commission"]) ?? 0)).toString();
+          setFormData((p) => ({
       ...p,
       [name]: value,
-    } as TransportEntryFormData));
-  };
+      "payabletoThirdParty" :payableToThirdparty}));
+      return;
+    } 
+    
+    else if(name == "commission")
+    { 
+       let commission = parseFloat(value) ?? 0;
+       let rent = parseFloat(formData["rent"]) ?? 0; 
+       if(rent < commission )
+       {
+       alert("Rent should always be a greated value");
+       return;
+       }
+       payableToThirdparty = (rent-commission).toString();
+
+     setFormData((p) => ({
+      ...p,
+      [name]: value,
+      "commission": commission.toString(),
+      "payabletoThirdParty" : payableToThirdparty,
+      }));
+  }
 const handleClose = () => {
   console.log("Closing form...");
   closeModal();
@@ -588,6 +614,6 @@ return (
   </div>
 );
 
-};
-
+  }
+}
 export default TransportEntryForm;

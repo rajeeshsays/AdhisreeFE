@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import {getTransportAll } from '../app/services/transportService';
+import {getTransportAll } from '../app/services/tripService';
 
 interface Transport {
   id: number;

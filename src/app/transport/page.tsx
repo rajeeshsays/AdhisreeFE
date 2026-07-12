@@ -1,4 +1,4 @@
-import TransportList from "../components/transport/TransportList"
+import TransportList from "../components/trip/tripList"
 
 export default function TransportListPage()
 {
