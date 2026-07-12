@@ -1,5 +1,11 @@
 
 
+export type InvoiceDetail = {
+  invoiceNo: string;
+  date: string;
+  amount: string;
+};
+
 export type TransportEntryFormData = {
   id: number;
   date: string;
@@ -15,10 +21,12 @@ export type TransportEntryFormData = {
   startKM: string;
   closeKM: string;
   total: string;
-  loading: string;
-  unloading: string;
-  loadingCommision: string;
-  unloadingCommision: string;
+  commision: string;
+  haltDays : string;
+  invoiceDetails: InvoiceDetail[];
+  returnTrip : string;
+  destinationUnloadingCharges: Record<string, string>;
+  remark : string;
 };
 
   export type DriverFormData =   {
@@ -33,7 +41,7 @@ export type TransportEntryFormData = {
     mobile2: string,
     licenceNo: string,
     isActive: boolean,
-    
+    transportTypeId :string,
   };
   export type DriverLedgerFormData =   {
     id?:number,

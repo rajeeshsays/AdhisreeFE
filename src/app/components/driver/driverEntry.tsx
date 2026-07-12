@@ -6,6 +6,20 @@ import { DriverFormData } from "@/app/types/types";
 import styles from "./driver.module.css";
 import { createDriver,updateDriver } from "../../services/driverService";
 
+interface FieldOption {
+  value: string;
+  label: string;
+}
+let _transportTypes : FieldOption[] = [
+  {
+    value : "1",
+    label : "Own"
+  },
+    {
+    value : "2",
+    label : "Thirdparty"
+  }
+]
 export default function DriverEntryForm({driver,closeModal}:{driver:DriverFormData | undefined,closeModal:()=>void})  {
   const driverData : DriverFormData= {
     id: 0,
@@ -19,12 +33,14 @@ export default function DriverEntryForm({driver,closeModal}:{driver:DriverFormDa
     mobile2: "",
     licenceNo: "",
     isActive: true,
+    transportTypeId : "1"
   }
 
   const[formData,setFormData] = useState<DriverFormData>(driver ?? driverData)
   
-  const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  const handleChange = (e : React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>) => {
+    let { name, value } = e.target;
+     value = name == "transportTypeId" ? value?? 1 : value
     console.log("name=",name,"value=",value)
     setFormData((prevData) => ({
       ...prevData,
@@ -57,7 +73,11 @@ const changeActives = () => {
 //const handleSave = async (e : React.MouseEvent<HTMLButtonElement>) => {
 const handleSave = async () => {
   try {
-
+if(parseInt(formData["transportTypeId"]) > 5)
+{
+  console.log("Halt cannot be more than 5 days...");
+  return;
+}
   
   console.log("formdata te list " +JSON.stringify(formData))
 
@@ -177,6 +197,19 @@ const handleSave = async () => {
           onChange={handleChange}
           required
         />
+      </div>
+            <div>
+        <label>Transport Type</label>
+           <select
+                    name="transportTypeId"
+                    onChange={handleChange}
+                    value={formData["transportTypeId"]}
+                  
+                  >
+                  {_transportTypes.map((op)=>
+                   <option key={op.value} value={op.value}>{op.label}</option>
+                  )}
+                  </select>
       </div>
 <div>
   <label>Is Active</label>

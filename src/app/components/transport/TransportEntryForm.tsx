@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { createTransport,updateTransport } from "../../services/transportService";
 import "./transportEdit.css";
@@ -9,7 +9,8 @@ import { getVehicles } from "../../services/vehicleService";
 import { getVehicleTypes} from "../../services/vehicleTypeService";
 import { getParties } from "../../services/partyService";
 import styles from "./transport.module.css";
-import { TransportEntryFormData } from "@/app/types/types";
+import { InvoiceDetail, TransportEntryFormData } from "@/app/types/types";
+import { FaTrash } from "react-icons/fa";
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
 
@@ -36,19 +37,27 @@ const TransportEntryForm = ({transport,closeModal}:{transport:TransportEntryForm
       startKM: "",
       closeKM: "",
       total: "",
-      loading: "",
-      unloading: "",
-      loadingCommision: "",
-      unloadingCommision: "",
+      commision: "",
+      invoiceDetails: [],
+      destinationUnloadingCharges: {},
+      returnTrip : "",
+      haltDays:"",
+      remark : ""
     };
   
 const [formData, setFormData] = useState<TransportEntryFormData>(transport ?? transportData);
+const [invoiceForm, setInvoiceForm] = useState({ invoiceNo: "", date: "", amount: "" });
+const [destinationCharges, setDestinationCharges] = useState<Record<string, string>>(transport?.destinationUnloadingCharges ?? {});
+const [invoiceRows, setInvoiceRows] = useState<InvoiceDetail[]>(transport?.invoiceDetails ?? []);
 const [driverOptions, setDriverOptions] = useState<FieldOption[]>([]);
 const [locationOptions, setLocationOptions] = useState<FieldOption[]>([]);
 const [vehicleOptions, setVehicleOptions] = useState<FieldOption[]>([]);
 const [vehicleTypeOptions, setVehicleTypeOptions] = useState<FieldOption[]>([]);
+const [party2GroupOriginalOptions, setParty2GroupOriginalOptions] = useState<FieldOption[]>([]);
 const [party2GroupOptions, setParty2GroupOptions] = useState<FieldOption[]>([]);
 const [partyOptions, setPartyOptions] = useState<FieldOption[]>([]);
+const [returnTrip,setReturnTrip] = useState<string>('');
+
 //const [loading, setLoading] = useState(true);
 
   const fields: {
@@ -65,7 +74,7 @@ const [partyOptions, setPartyOptions] = useState<FieldOption[]>([]);
   { name: "party1", type: "select", label: "Party 1" , options: partyOptions },
   {
     name: "destinationGroups",
-    type: "multiselect2",
+    type: "multiselect",
     label: "Destination Group",
     options: party2GroupOptions,
   },
@@ -74,19 +83,69 @@ const [partyOptions, setPartyOptions] = useState<FieldOption[]>([]);
   { name: "startKM", type: "number", label: "Start KM" },
   { name: "closeKM", type: "number", label: "Close KM" },
   { name: "total", type: "number", label: "Total" },
-  { name: "loading", type: "number", label: "Loading" },
-  { name: "unloading", type: "number", label: "Unloading" },
-  { name: "loadingCommision", type: "number", label: "Loading Commission" },
-  { name: "unloadingCommision", type: "number", label: "Unloading Commission" },
+  { name: "commision", type: "number", label: "commission" },
+  {name:"haltDays",type:"number",label:"Halt Days"}
+
 ];
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((p) => ({ ...p, [name]: value }));
+    setFormData((p) => ({
+      ...p,
+      [name]: value,
+    } as TransportEntryFormData));
   };
 const handleClose = () => {
   console.log("Closing form...");
   closeModal();
 }
+
+useEffect(() => {
+  setInvoiceRows(transport?.invoiceDetails ?? []);
+  setDestinationCharges(transport?.destinationUnloadingCharges ?? {});
+}, [transport]);
+
+const handleInvoiceInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const { name, value } = e.target;
+  setInvoiceForm((prev) => ({ ...prev, [name]: value }));
+};
+
+const handleAddInvoice = () => {
+  if (!invoiceForm.invoiceNo.trim() || !invoiceForm.date || !invoiceForm.amount.trim()) {
+    return;
+  }
+
+  const parsedAmount = Number(invoiceForm.amount);
+  if (!Number.isFinite(parsedAmount) || parsedAmount < 0) {
+    return;
+  }
+
+  const newRow: InvoiceDetail = {
+    invoiceNo: invoiceForm.invoiceNo.trim(),
+    date: invoiceForm.date,
+    amount: parsedAmount.toFixed(2),
+  };
+
+  const nextRows = [...invoiceRows, newRow];
+  setInvoiceRows(nextRows);
+  setFormData((prev) => ({ ...prev, invoiceDetails: nextRows }));
+  setInvoiceForm({ invoiceNo: "", date: "", amount: "" });
+};
+
+const handleDeleteInvoice = (indexToRemove: number) => {
+  const nextRows = invoiceRows.filter((_, index) => index !== indexToRemove);
+  setInvoiceRows(nextRows);
+  setFormData((prev) => ({ ...prev, invoiceDetails: nextRows }));
+};
+
+const totalInvoiceAmount = useMemo(
+  () => invoiceRows.reduce((sum, row) => sum + Number(row.amount || 0), 0),
+  [invoiceRows]
+);
+
+const selectedDestinationOptions = useMemo(
+  () => party2GroupOptions.filter((option) => formData.destinationGroups.includes(option.value)),
+  [party2GroupOptions, formData.destinationGroups]
+);
 
 useEffect(() => {  
    console.log("Fetching form data..."); 
@@ -165,15 +224,22 @@ useEffect(() => {
 }, [transport]);
 
 
+const handleDestinationChargeChange = (destinationValue: string, value: string) => {
+  const nextCharges = { ...destinationCharges, [destinationValue]: value };
+  setDestinationCharges(nextCharges);
+  setFormData((prev) => ({ ...prev, destinationUnloadingCharges: nextCharges }));
+};
+
 const handleSave = async () => {
   try {
 
-  console.log("formdata te list " +formData)
+  const payload = { ...formData, invoiceDetails: invoiceRows, destinationUnloadingCharges: destinationCharges };
+  console.log("formdata te list " + payload)
 
    //const response =  await createTransport(formData);
     const response = formData.id
-      ? await updateTransport(formData.id, formData)
-      : await createTransport(formData);
+      ? await updateTransport(formData.id, payload)
+      : await createTransport(payload);
 
     if (response.ok) {
       const resText = await response.json();
@@ -238,6 +304,12 @@ useEffect(() => {
           label: v.label,
         })));
 
+      setParty2GroupOriginalOptions(
+        parties.map((v: any) => ({
+          value: v.value,
+          label: v.label,
+        })));
+
       setParty2GroupOptions(
         parties.map((v: any) => ({
           value: v.value,
@@ -263,12 +335,37 @@ useEffect(() => {
 
 
 const handleSelectChange = (name: string, isMulti = false) => (selected: any) => {
+  
+  
+  if (name === "destinationGroups") {
+const selectedValues = selected?.map((item: any) => item.value) || [];
+    const nextCharges = Object.fromEntries(
+      Object.entries(destinationCharges).filter(([key]) => selectedValues.includes(key))
+    );
+
+    setDestinationCharges(nextCharges);
+    setFormData((prev: any) => ({
+      ...prev,
+      destinationGroups: selectedValues,
+
+      destinationUnloadingCharges: nextCharges,
+    }));
+    return;
+  }
   setFormData((prev: any) => ({
     ...prev,
     [name]: isMulti
       ? selected?.map((item: any) => item.value) || []
       : selected?.value ?? null,
   }));
+ if(name=="party1")
+  {
+    alert("Party one is selected "+ selected?.value);
+    setParty2GroupOptions(party2GroupOriginalOptions.filter(x=>x.value!== selected?.value));
+
+    
+   }
+
 };
 
 
@@ -306,7 +403,7 @@ return (
                     options={options}
                     onChange={handleSelectChange(name, false)}
                     value={options?.find(
-                      o => o.value == formData[name]
+                      (o) => o.value === String(formData[name] ?? "")
                     )}
                   />
                 ) : type === "multiselect" && options  ? (
@@ -317,8 +414,8 @@ return (
                     isMulti
                     options={options}
                     onChange={handleSelectChange(name, true)}
-                    value={options?.filter(o =>
-                      formData[name]?.includes(o.value)
+                    value={options?.filter((o) =>
+                      (formData[name] as string[] | undefined)?.includes(o.value)
                     )}
                   />
                 ) : (
@@ -326,7 +423,7 @@ return (
                     id={name}
                     name={name}
                     type={type}
-                    value={formData[name] ?? ""}
+                    value={String(formData[name] ?? "")}
                     onChange={handleInputChange}
                   />
                 )}
@@ -335,6 +432,149 @@ return (
           })}
         </div>
 
+        {selectedDestinationOptions.length > 0 && (
+          <div style={{ gridColumn: "1 / -1", marginTop: 8 }}>
+            <h3 style={{ marginBottom: 12 }}>Unloading Charges by Destination</h3>
+            <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+              {selectedDestinationOptions.map((option) => (
+                <div key={option.value}>
+                  <label htmlFor={`destination-charge-${option.value}`} style={{ display: "block", marginBottom: 4 }}>
+                    {option.label}
+                  </label>
+                  <input
+                    id={`destination-charge-${option.value}`}
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={destinationCharges[option.value] ?? ""}
+                    onChange={(e) => handleDestinationChargeChange(option.value, e.target.value)}
+                    placeholder="0.00"
+                    style={{ width: "100%", padding: 8 }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        <div>
+          <label>Return Trip
+            <input
+                    id="returnTrip"
+                    name="returnTrip"
+                    type="text"
+                    value={returnTrip}
+                    onChange={handleInputChange}
+                    placeholder = "Describe your return"
+                    style={{ width: "100%", padding: 8 }}
+                  />
+            </label>
+        </div>
+        <div style={{ gridColumn: "1 / -1", marginTop: 12 }}>
+          <h3 style={{ marginBottom: 12 }}>Invoice Details</h3>
+
+          <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", marginBottom: 16, padding: 16, border: "1px solid #ddd", borderRadius: 8, background: "#fafafa" }}>
+            <div>
+              <label htmlFor="invoiceNo" style={{ display: "block", marginBottom: 4 }}>Invoice No</label>
+              <input
+                id="invoiceNo"
+                name="invoiceNo"
+                value={invoiceForm.invoiceNo}
+                onChange={handleInvoiceInputChange}
+                placeholder="Enter invoice no"
+                style={{ width: "100%", padding: 8 }}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="invoiceDate" style={{ display: "block", marginBottom: 4 }}>Date</label>
+              <input
+                id="invoiceDate"
+                name="date"
+                type="date"
+                value={invoiceForm.date}
+                onChange={handleInvoiceInputChange}
+                style={{ width: "100%", padding: 8 }}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="invoiceAmount" style={{ display: "block", marginBottom: 4 }}>Amount</label>
+              <input
+                id="invoiceAmount"
+                name="amount"
+                type="number"
+                min="0"
+                step="0.01"
+                value={invoiceForm.amount}
+                onChange={handleInvoiceInputChange}
+                placeholder="0.00"
+                style={{ width: "100%", padding: 8 }}
+              />
+            </div>
+
+            <div >
+              <button type="button" onClick={handleAddInvoice} style={{ width: "100%", padding: "10px 12px" }}>
+                Add Invoice
+              </button>
+            </div>
+          </div>
+
+          {invoiceRows.length === 0 ? (
+            <p style={{ color: "#666" }}>No invoice details added yet.</p>
+          ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ background: "#f2f2f2" }}>
+                  <th style={{ border: "1px solid #ddd", padding: 8, textAlign: "left" }}>Invoice No</th>
+                  <th style={{ border: "1px solid #ddd", padding: 8, textAlign: "left" }}>Date</th>
+                  <th style={{ border: "1px solid #ddd", padding: 8, textAlign: "right" }}>Amount</th>
+                  <th style={{ border: "1px solid #ddd", padding: 8, textAlign: "center" }}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoiceRows.map((row, index) => (
+                  <tr key={`${row.invoiceNo}-${index}`}>
+                    <td style={{ border: "1px solid #ddd", padding: 8 }}>{row.invoiceNo}</td>
+                    <td style={{ border: "1px solid #ddd", padding: 8 }}>{row.date}</td>
+                    <td style={{ border: "1px solid #ddd", padding: 8, textAlign: "right" }}>
+                      {Number(row.amount).toFixed(2)}
+                    </td>
+                    <td style={{ border: "1px solid #ddd", padding: 8, textAlign: "center" }}>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteInvoice(index)}
+                        style={{ padding: "6px 10px", color: "#b91c1c", border: "1px solid #fecaca", borderRadius: 4, background: "#fef2f2", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+                        aria-label="Delete invoice"
+                      >
+                        <FaTrash />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr style={{ background: "#f8f8f8" }}>
+                  <td style={{ border: "1px solid #ddd", padding: 8, fontWeight: 600 }} colSpan={2}>Total</td>
+                  <td style={{ border: "1px solid #ddd", padding: 8, textAlign: "right", fontWeight: 600 }}>
+                    {totalInvoiceAmount.toFixed(2)}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          )}
+        </div>
+            <div>
+              <label htmlFor="remark" style={{ display: "block", marginBottom: 4 }}>Remark</label>
+              <input
+                id="remark"
+                name="remark"
+                type="text"
+                value={invoiceForm.amount}
+                onChange={handleInvoiceInputChange}
+                placeholder="Enter remark if any"
+                style={{ width: "100%", padding: 8,height:"100px" }}
+              />
+            </div>
         <div className="form-actions">
           <button type="button" onClick={handleClose}>
             Cancel
