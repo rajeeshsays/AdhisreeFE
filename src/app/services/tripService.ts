@@ -1,5 +1,5 @@
 import { baseUrl } from '../configs/apiConfig';
-import { TripEntryFormData } from '../types/types';
+import { TripEntryPayload, TripSavePayload } from '../types/types';
 
 
 
@@ -40,20 +40,19 @@ export async function getTripAll(pageNumber: number, pageSize: number) {
   }
 }
 
-export async function createTrip(tripData : TripEntryFormData) {
-  console.log('Reached get trip :'+ console.log(tripData));
-
+export async function createTrip(payload: TripEntryPayload) {
+  console.log('Reached create trip :', payload);
 
   try {
     console.log("Calling:", `${baseUrl}/api/TripEntryApi/create`);
     const res = await fetch(`${baseUrl}/api/TripEntryApi/create`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tripEntry:tripData,destinationGroup : {destinationIds : tripData.destinationGroups} }),
+      body: JSON.stringify(payload),
     });
 
     return res; // <-- FIX
-  } 
+  }
   catch (ex: any) {
     console.log(JSON.stringify(ex));
     throw ex; // optional
@@ -68,17 +67,14 @@ export async function deleteTrip(id: number) {
   console.log('Trip deleted:', id);
 };
 
-export async function updateTrip(id: number, tripData : TripEntryFormData,) {
+export async function updateTrip(id: number, payload: TripEntryPayload) {
 
-  tripData.destinationGroups =  tripData.destinationGroups.toString().split(',');
-   console.log('destination groups :' + tripData.destinationGroups);
-    console.log('destination groups :' + tripData.destinationGroups.toString().split(','));
-  console.log('inside updateTrip ...Sending email content :', tripData);
+  console.log('inside updateTrip ...Sending payload :', payload);
   try {
     const res = await fetch(`${baseUrl}/api/TripEntryApi/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tripEntry:tripData,destinationGroup : { destinationIds : tripData.destinationGroups} }),
+      body: JSON.stringify(payload),
     });
 
     const contentType = res.headers.get('content-type');

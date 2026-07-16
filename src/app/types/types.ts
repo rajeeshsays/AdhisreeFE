@@ -5,15 +5,49 @@ export type InvoiceDetail = {
   date: string;
   amount: string;
 };
+export type UnLoadingCharge = {
+  tripId : string,
+  destinationId : string,
+  amount : number,
 
-export type TripEntryFormData = {
-  id: number;
+}
+export type TripEntryPayload = {
+  id?: number;
   date: string;
   vehicleId: string;
   vehicleTypeId: string;
   driverId: string;
   party1: string;
-  destinationGroups: string[];
+  from: string;
+  to: string;
+  startKM: string;
+  closeKM: string;
+  total: string;
+  rent : string,
+  commission: string;
+  payabletoThirdParty : string;
+  haltDays : string;
+  invoiceDetails: InvoiceDetail[];
+  returnTrip : string;
+  unloadingCharges: UnLoadingCharge[],
+  destinationGroup : DestinationGroup[],
+  remark : string;
+};
+
+export type TripSavePayload = {
+  tripEntry: TripEntryPayload;
+  destinationGroup: { destinationIds: number[] };
+  invoices: { invoiceNo: string; date: string; amount: number }[];
+  unloadingCharges: { destinationId: number; amount: number }[];
+};
+
+export type TripEntryFormData = {
+  id?: number;
+  date: string;
+  vehicleId: string;
+  vehicleTypeId: string;
+  driverId: string;
+  party1: string;
   from: string;
   to: string;
   fromText : string;
@@ -27,10 +61,18 @@ export type TripEntryFormData = {
   haltDays : string;
   invoiceDetails: InvoiceDetail[];
   returnTrip : string;
-  destinationUnloadingCharges: Record<string, string>;
+  unloadingCharges: UnLoadingCharge[],
+  destinationGroup : string[],
   remark : string;
 };
 
+export type DestinationGroup = {
+  id : string,
+  destinationId : string,
+  tripId : string,
+
+
+}
   export type DriverFormData =   {
     id?:number,
     name: string,
@@ -130,8 +172,9 @@ export type VehicleMaintenanceFormData ={
     contactPerson : string,
     pincode : string,
     accountId : string,
+    locationId : string,
     isActive : boolean,
-  } 
+  }
 
   export type DistrictFormData  = {
     name: number,
@@ -162,3 +205,35 @@ export type VehicleMaintenanceFormData ={
         isActive : boolean,
 
     }
+
+  export type UnloadingChargeData = {
+    id?: number,
+    destinationId: number,
+    tripId: number,
+    amount: number,
+    tripEntry?: {
+      id: number,
+      date: string,
+      driverId?: number,
+      driver?: { id?: number, name: string } | null,
+      vehicle?: { model?: string, registration?: string } | null,
+    } | null,
+    destination?: { id?: number, name: string } | null,
+  }
+
+  export type InvoiceData = {
+    id?: number,
+    destinationId: number,
+    tripId: number,
+    invoiceNo: string,
+    date: string,
+    amount: number,
+    tripEntry?: {
+      id: number,
+      date: string,
+      driverId?: number,
+      driver?: { id?: number, name: string } | null,
+      vehicle?: { model?: string, registration?: string } | null,
+    } | null,
+    destination?: { id?: number, name: string } | null,
+  }

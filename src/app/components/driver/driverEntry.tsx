@@ -10,7 +10,7 @@ interface FieldOption {
   value: string;
   label: string;
 }
-let _transportTypes : FieldOption[] = [
+const _transportTypes : FieldOption[] = [
   {
     value : "1",
     label : "Own"
@@ -39,12 +39,12 @@ export default function DriverEntryForm({driver,closeModal}:{driver:DriverFormDa
   const[formData,setFormData] = useState<DriverFormData>(driver ?? driverData)
   
   const handleChange = (e : React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>) => {
-    let { name, value } = e.target;
-     value = name == "transportTypeId" ? value?? 1 : value
+    const { name, value } = e.target;
+     const _value = name == "transportTypeId" ? value?? 1 : value
     console.log("name=",name,"value=",value)
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: _value,
     }));
   };
 

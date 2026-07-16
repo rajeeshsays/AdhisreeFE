@@ -1,43 +1,43 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getTransportAll,deleteTransport} from "@/app/services/tripService";
-import styles from "./transportList.module.css";
-import TransportEntryForm from "@/app/components/trip/tripEntryForm";
+import { getTripAll,deleteTrip} from "@/app/services/tripService";
+import styles from "@/app/components/trip/triptList.module.css";
+import TripEntryForm from "@/app/components/trip/tripEntryForm";
 import { useRouter } from "next/navigation";
 import button from "../../css/button.module.css"
 import clsx from "clsx"
 import { FaEdit,FaTrash } from "react-icons/fa";
-import {deleteDriver,getDrivers} from "@/app/services/driverService";
+import {getDrivers} from "@/app/services/driverService";
 
-export default function TransportList() {
-  const [transportList, setTransportList] = useState<any[]>([]);
-  const [transportFilteredList, setTransportFilteredList] = useState<any[]>([]);
+export default function TripList() {
+  const [tripList, setTripList] = useState<any[]>([]);
+  const [tripFilteredList, setTripFilteredList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [selectedDriverId, setSelectedDriverId] = useState('');
   const [driverList, setDriverList] = useState<any[]>([]);
-  const [selectedTransport, setSelectedTransport] = useState<any | null>(null);
+  const [selectedTrip, setSelectedTrip] = useState<any | null>(null);
   const router = useRouter();
   useEffect(() => {
-    async function fetchTransportList() {
+    async function fetchTripList() {
       try {
-        const response = await getTransportAll(1,100);
+        const response = await getTripAll(1,100);
         if (response.ok) {
           const data = await response.json();
-          setTransportList(data);
-          setTransportFilteredList(data);
+          setTripList(data);
+          setTripFilteredList(data);
         }
       } catch (error) {
         console.error(error);
       }
     }
-    fetchTransportList();
+    fetchTripList();
   }, []);
 
 const handleAdd = () => {
-  setSelectedTransport(null);
+  setSelectedTrip(null);
   setIsModalOpen(true);
 };
 useEffect(() => {
@@ -60,29 +60,29 @@ useEffect(() => {
 
   fetchDriverList();
 }, []);
-const handleEdit = (transport: any) => {
-  console.log('Editing transport:', transport);
-  setSelectedTransport(transport);
+const handleEdit = (trip: any) => {
+  console.log('Editing trip:', trip);
+  setSelectedTrip(trip);
   setIsModalOpen(true);
 };
   const closeModal = ()=>
   {
   setIsModalOpen(false);
-  setSelectedTransport(null);
+  setSelectedTrip(null);
   window.location.reload(); // Refresh the page to reflect changes
   }
 const handleDelete = async (id: number) => {
-  if (!confirm("Are you sure you want to delete this transport?")) return;
+  if (!confirm("Are you sure you want to delete this trip?")) return;
 
-  const { ok } = await deleteTransport(id);
+  const { ok } = await deleteTrip(id);
 
   if (!ok) return;
 
-  const removeTransport = (list: typeof transportList) =>
-    list.filter((transport) => transport.id !== id);
+  const removeTrip = (list: typeof tripList) =>
+    list.filter((trip) => trip.id !== id);
 
-  setTransportList(removeTransport);
-  setTransportFilteredList(removeTransport);
+  setTripList(removeTrip);
+  setTripFilteredList(removeTrip);
 };
 
 const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
@@ -100,8 +100,8 @@ const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
  };
 
 const handleFilter = () => {
-  let filteredList = transportList;
-console.log('Filtering transport list with selectedDriverId:', selectedDriverId, 'fromDate:', fromDate, 'toDate:', toDate);
+  let filteredList = tripList;
+console.log('Filtering trip list with selectedDriverId:', selectedDriverId, 'fromDate:', fromDate, 'toDate:', toDate);
   if (selectedDriverId) {
     filteredList = filteredList.filter(x => x.driverId === parseInt(selectedDriverId));
   }
@@ -114,7 +114,7 @@ console.log('Filtering transport list with selectedDriverId:', selectedDriverId,
     filteredList = filteredList.filter(x => new Date(x.transactionDate) <= new Date(toDate));
   }
 
-  setTransportFilteredList(filteredList);
+  setTripFilteredList(filteredList);
 };
 
 
@@ -123,7 +123,7 @@ const handleClearFilter = () => {
   setSelectedDriverId('');
   setFromDate('');
   setToDate('');
-  setTransportFilteredList(transportList);
+  setTripFilteredList(tripList);
 };              
 
 
@@ -132,7 +132,7 @@ const handleClearFilter = () => {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>🚚 Transport List</h1>
+      <h1 className={styles.title}>🚚 Trip List</h1>
 
       <div className={styles.tableWrapper}>
         <button className={clsx(styles.addBtn,button.primaryBtn)} onClick={handleAdd}>
@@ -158,8 +158,8 @@ const handleClearFilter = () => {
     ))}
 </select>
 
-<label className={clsx(styles.label)}>From Date</label><input type="date" name="fromDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
-<label className={clsx(styles.label)}>To Date</label><input type="date" name="toDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
+<label className={clsx(styles.label)}>From Date</label><input type="date" name="fromDate" value={fromDate} className={clsx(styles.dateInput)} onChange={handleChange} />
+<label className={clsx(styles.label)}>To Date</label><input type="date" name="toDate" value={toDate} className={clsx(styles.dateInput)} onChange={handleChange} />
 <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
   Filter
 </button>
@@ -183,35 +183,35 @@ const handleClearFilter = () => {
           </thead>
 
           <tbody>
-            {transportFilteredList.length === 0 ? (
+            {tripFilteredList.length === 0 ? (
               <tr>
                 <td colSpan={8} className={styles.empty}>
-                  No transport records found
+                  No trip records found
                 </td>
               </tr>
             ) : (
-              transportFilteredList.map((transport) => (
-                <tr key={transport.id}>
-                  <td>{transport.id}</td>
-                  <td>{new Date(transport.date).toLocaleDateString()}</td>
-                  <td>{transport.vehicle?.model}</td>
+              tripFilteredList.map((trip) => (
+                <tr key={trip.id}>
+                  <td>{trip.id}</td>
+                  <td>{new Date(trip.date).toLocaleDateString()}</td>
+                  <td>{trip.vehicle?.model}</td>
                   <td>
                     <span className={styles.badge}>
-                      {transport.vehicle?.registration}
+                      {trip.vehicle?.registration}
                     </span>
                   </td>
-                  <td>{transport.fromText}</td>
-                  <td>{transport.toText}</td>
-                  <td>{transport.total}</td>
-                  <td className={styles.amount}>₹ {transport.rent}</td>
+                  <td>{trip.fromText}</td>
+                  <td>{trip.toText}</td>
+                  <td>{trip.total}</td>
+                  <td className={styles.amount}>₹ {trip.rent}</td>
                   <td>
      
     <div className={button.actionIcons}>
-     <button className={button.actionEdit} onClick={() => handleEdit(transport)}>
+     <button className={button.actionEdit} onClick={() => handleEdit(trip)}>
         <FaEdit />
       </button>
 
-      <button className={button.btnDelete} onClick={() => handleDelete(transport.id)}>
+      <button className={button.btnDelete} onClick={() => handleDelete(trip.id)}>
         <FaTrash />
       </button>
       </div>
@@ -224,8 +224,8 @@ const handleClearFilter = () => {
           </tbody>
         </table>
 {isModalOpen && (
-  <TransportEntryForm
-    transport={selectedTransport}
+  <TripEntryForm
+    trip={selectedTrip}
     closeModal={closeModal}
   />
 )}

@@ -3,19 +3,23 @@ import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { createTrip,updateTrip } from "../../services/tripService";
 import "./tripEdit.css";
-import { getDrivers } from "../../services/driverService";
+import { getDriverAll } from "../../services/driverService";
 import { getLocations } from "../../services/locationService";
 import { getVehicles } from "../../services/vehicleService";
 import { getVehicleTypes} from "../../services/vehicleTypeService";
 import { getParties } from "../../services/partyService";
 import styles from "./trip.module.css";
-import { InvoiceDetail, TripEntryFormData } from "@/app/types/types";
+import { InvoiceDetail, TripEntryFormData, TripEntryPayload, UnLoadingCharge } from "@/app/types/types";
 import { FaTrash } from "react-icons/fa";
+
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
 interface FieldOption {
   value: string;
   label: string;
+}
+interface DriverOption extends FieldOption {
+  transportTypeId: string;
 }
 const TripEntryForm = ({trip,closeModal}:{trip:TripEntryFormData | undefined,closeModal:()=>void}) => {
 
@@ -26,7 +30,7 @@ const tripData : TripEntryFormData = {
       vehicleTypeId: "",
       driverId: "",
       party1: "",
-      destinationGroups: [],
+      destinationGroup: [],
       from: "",
       to: "",
       fromText : "",
@@ -38,7 +42,7 @@ const tripData : TripEntryFormData = {
       payabletoThirdParty : "",
       commission: "",
       invoiceDetails: [],
-      destinationUnloadingCharges: {},
+      unloadingCharges: [],
       returnTrip : "",
       haltDays:"",
       remark : ""
@@ -46,16 +50,16 @@ const tripData : TripEntryFormData = {
   
 const [formData, setFormData] = useState<TripEntryFormData>(trip ?? tripData);
 const [invoiceForm, setInvoiceForm] = useState({ invoiceNo: "", date: "", amount: "" });
-const [destinationCharges, setDestinationCharges] = useState<Record<string, string>>(trip?.destinationUnloadingCharges ?? {});
+const [destinationCharges, setDestinationCharges] = useState<UnLoadingCharge[]>(trip?.unloadingCharges ?? []);
 const [invoiceRows, setInvoiceRows] = useState<InvoiceDetail[]>(trip?.invoiceDetails ?? []);
-const [driverOptions, setDriverOptions] = useState<FieldOption[]>([]);
+const [driverOptions, setDriverOptions] = useState<DriverOption[]>([]);
+const [selectedDriverTransportTypeId, setSelectedDriverTransportTypeId] = useState("");
 const [locationOptions, setLocationOptions] = useState<FieldOption[]>([]);
 const [vehicleOptions, setVehicleOptions] = useState<FieldOption[]>([]);
 const [vehicleTypeOptions, setVehicleTypeOptions] = useState<FieldOption[]>([]);
 const [party2GroupOriginalOptions, setParty2GroupOriginalOptions] = useState<FieldOption[]>([]);
 const [party2GroupOptions, setParty2GroupOptions] = useState<FieldOption[]>([]);
 const [partyOptions, setPartyOptions] = useState<FieldOption[]>([]);
-const [returnTrip,setReturnTrip] = useState<string>('');
 
 //const [loading, setLoading] = useState(true);
 
@@ -72,7 +76,7 @@ const [returnTrip,setReturnTrip] = useState<string>('');
   { name: "driverId", type: "select", label: "Driver ID", options: driverOptions },
   { name: "party1", type: "select", label: "Party 1" , options: partyOptions },
   {
-    name: "destinationGroups",
+    name: "destinationGroup",
     type: "multiselect",
     label: "Destination Group",
     options: party2GroupOptions,
@@ -82,52 +86,77 @@ const [returnTrip,setReturnTrip] = useState<string>('');
   { name: "startKM", type: "number", label: "Start KM" },
   { name: "closeKM", type: "number", label: "Close KM" },
   { name: "total", type: "number", label: "Total" },
-  { name: "commission", type: "number", label: "commission" },
   { name:"haltDays",type:"number",label:"Halt Days"},
   { name: "rent", type: "number", label: "Rent" },
+  { name: "commission", type: "number", label: "commission" },
   { name: "payabletoThirdParty", type: "number", label: "Payable to TP" },
 
 ];
+
+const totalInvoiceAmount = useMemo(
+  () => invoiceRows.reduce((sum, row) => sum + Number(row.amount || 0), 0),
+  [invoiceRows]
+);
+
+const selectedDestinationOptions = useMemo(
+  () => party2GroupOptions.filter((option) => formData.destinationGroup.includes(option.value)),
+  [party2GroupOptions, formData.destinationGroup]
+);
+
+const isThirdPartyDriver = selectedDriverTransportTypeId === "2";
+
+useEffect(() => {
+  if (!formData.driverId) return;
+  const currentDriver = driverOptions.find((o) => o.value === String(formData.driverId));
+  if (currentDriver) setSelectedDriverTransportTypeId(currentDriver.transportTypeId);
+}, [driverOptions]);
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    let payableToThirdparty  = value;
-    
+
+    if (name === "startKM" || name === "closeKM") {
+      const startKM = name === "startKM" ? parseFloat(value) : parseFloat(formData.startKM as string);
+      const closeKM = name === "closeKM" ? parseFloat(value) : parseFloat(formData.closeKM as string);
+      const total = !isNaN(startKM) && !isNaN(closeKM) ? (closeKM - startKM).toString() : "";
+      setFormData((p) => ({ ...p, [name]: value, total }));
+      return;
+    }
+
     if(name == "rent" )
     {
-      payableToThirdparty = (parseFloat(value) - (parseFloat(formData["commission"]) ?? 0)).toString();
-          setFormData((p) => ({
+      const payableToThirdparty = (parseFloat(value) - (parseFloat(formData["commission"]) || 0)).toString();
+      setFormData((p) => ({
       ...p,
       [name]: value,
       "payabletoThirdParty" :payableToThirdparty}));
       return;
-    } 
-    
+    }
+
     else if(name == "commission")
-    { 
-       let commission = parseFloat(value) ?? 0;
-       let rent = parseFloat(formData["rent"]) ?? 0; 
+    {
+       const commission = parseFloat(value) || 0;
+       const rent = parseFloat(formData["rent"]) || 0;
        if(rent < commission )
        {
        alert("Rent should always be a greated value");
        return;
        }
-       payableToThirdparty = (rent-commission).toString();
+       const payableToThirdparty = (rent-commission).toString();
 
      setFormData((p) => ({
       ...p,
       [name]: value,
       "payabletoThirdParty" : payableToThirdparty,
       }));
-  }
+      return;
+    }
+
+    setFormData((p) => ({ ...p, [name]: value }));
+  };
+
 const handleClose = () => {
   console.log("Closing form...");
   closeModal();
 }
-
-useEffect(() => {
-  setInvoiceRows(trip?.invoiceDetails ?? []);
-  setDestinationCharges(trip?.destinationUnloadingCharges ?? {});
-}, [trip]);
 
 const handleInvoiceInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const { name, value } = e.target;
@@ -162,19 +191,11 @@ const handleDeleteInvoice = (indexToRemove: number) => {
   setFormData((prev) => ({ ...prev, invoiceDetails: nextRows }));
 };
 
-const totalInvoiceAmount = useMemo(
-  () => invoiceRows.reduce((sum, row) => sum + Number(row.amount || 0), 0),
-  [invoiceRows]
-);
 
-const selectedDestinationOptions = useMemo(
-  () => party2GroupOptions.filter((option) => formData.destinationGroups.includes(option.value)),
-  [party2GroupOptions, formData.destinationGroups]
-);
 
-useEffect(() => {  
-   console.log("Fetching form data..."); 
-   console.log(trip);
+//useEffect(() => {  
+ //  console.log("Fetching form data..."); 
+//   console.log(trip);
 //  const fetchDropdownData = async () => {
 //     try {
 //       //setLoading(true);
@@ -246,29 +267,65 @@ useEffect(() => {
 //   };
 //   fetchDropdownData();
 // 
-}, [trip]);
+//}, [trip]);
 
 
 const handleDestinationChargeChange = (destinationValue: string, value: string) => {
   const nextCharges = { ...destinationCharges, [destinationValue]: value };
   setDestinationCharges(nextCharges);
-  setFormData((prev) => ({ ...prev, destinationUnloadingCharges: nextCharges }));
+  setFormData((prev) => ({ ...prev, unloadCharges: nextCharges }));
 };
 
-const handleSave = async () => {
+const handleSave = async (e: React.FormEvent) => {
+  e.preventDefault();
   try {
-
-  const payload = { ...formData, invoiceDetails: invoiceRows, destinationUnloadingCharges: destinationCharges };
-  console.log("formdata te list " + payload)
-
-   //const response =  await createTrip(formData);
+      const payload:  TripEntryPayload = {
+        id: formData.id || undefined,
+        date: formData.date,
+        vehicleId: formData.vehicleId,
+        vehicleTypeId: formData.vehicleTypeId,
+        driverId: formData.driverId,
+        party1: formData.party1,
+        from: formData.from,
+        to: formData.to,
+        startKM: formData.startKM,
+        closeKM: formData.closeKM,
+        total: formData.total,
+        commission: formData.commission,
+        returnTrip: formData.returnTrip,
+        haltDays: formData.haltDays,
+        rent: formData.rent,
+        remark: formData.remark,
+       destinationGroup: formData.destinationGroup.map((destinationId: string) => ({
+  id: "",
+  destinationId,
+  tripId: "" // or the appropriate tripId value
+})),
+        invoiceDetails: formData.invoiceDetails.map((row) => ({
+          id: "",
+          invoiceNo: row.invoiceNo,
+          date: row.date,
+          amount: row.amount
+        })),
+        unloadingCharges: formData.unloadingCharges.map((row) => ({
+          id: "",
+          tripId: row.tripId,
+          destinationId: row.destinationId,
+          amount: row.amount
+        })),
+        payabletoThirdParty: ""
+      }
+console.log(payload);
     const response = formData.id
       ? await updateTrip(formData.id, payload)
       : await createTrip(payload);
 
     if (response.ok) {
-      const resText = await response.json();
-      alert(resText)
+      const resBody = await response.json();
+      alert(JSON.stringify(resBody));
+    } else {
+      const errText = await response.text();
+      alert(errText || "Failed to save trip");
     }
   } catch (error) {
     console.error(error);
@@ -285,7 +342,7 @@ useEffect(() => {
       //setLoading(true);
 
       const [driverRes, locationRes, vehicleRes, vehicleTypeRes, partyRes] = await Promise.all([
-        getDrivers(),
+        getDriverAll(1, 1000),
         getLocations(),
         getVehicles(),
         getVehicleTypes(),
@@ -306,8 +363,9 @@ useEffect(() => {
 
       setDriverOptions(
         drivers.map((d: any) => ({
-          value: d.value,
-          label: d.label,
+          value: String(d.id),
+          label: d.name,
+          transportTypeId: String(d.transportTypeId),
         }))
       );
 
@@ -362,6 +420,12 @@ useEffect(() => {
 const handleSelectChange = (name: string, isMulti = false) => (selected: any) => {
   
   
+  if (name === "driverId") {
+    setSelectedDriverTransportTypeId(selected?.transportTypeId ?? "");
+    setFormData((prev: any) => ({ ...prev, driverId: selected?.value ?? null }));
+    return;
+  }
+
   if (name === "destinationGroups") {
 const selectedValues = selected?.map((item: any) => item.value) || [];
     const nextCharges = Object.fromEntries(
@@ -373,7 +437,7 @@ const selectedValues = selected?.map((item: any) => item.value) || [];
       ...prev,
       destinationGroups: selectedValues,
 
-      destinationUnloadingCharges: nextCharges,
+      unloadCharges: nextCharges,
     }));
     return;
   }
@@ -397,11 +461,15 @@ const selectedValues = selected?.map((item: any) => item.value) || [];
 return (
   <div className={styles.overlay}>
     <div className={styles.modal}>
-      <form onSubmit={handleSave} className=".trip-form">
+      <form onSubmit={handleSave} className="trip-form">
         <h2>Trip Entry Form</h2>
 
         <div className="form-grid">
-          {fields.map(({ name, type, label, options }) => {
+          {fields
+            .filter(({ name }) =>
+              ["rent", "commission", "payabletoThirdParty"].includes(name) ? isThirdPartyDriver : true
+            )
+            .map(({ name, type, label, options }) => {
             // Skip empty fields in edit mode
             // if (
             //   operationMode.toLowerCase() === "edit" &&
@@ -450,6 +518,7 @@ return (
                     type={type}
                     value={String(formData[name] ?? "")}
                     onChange={handleInputChange}
+                    readOnly={name === "total"}
                   />
                 )}
               </div>
@@ -487,7 +556,7 @@ return (
                     id="returnTrip"
                     name="returnTrip"
                     type="text"
-                    value={returnTrip}
+                    value={String(formData.returnTrip ?? "")}
                     onChange={handleInputChange}
                     placeholder = "Describe your return"
                     style={{ width: "100%", padding: 8 }}
@@ -612,7 +681,5 @@ return (
     </div>
   </div>
 );
-
-  }
-}
+};
 export default TripEntryForm;

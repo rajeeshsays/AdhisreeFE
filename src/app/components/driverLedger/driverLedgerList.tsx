@@ -3,11 +3,10 @@ import React, { useEffect, useState } from "react";
 import {deleteDriver,getDrivers} from "@/app/services/driverService";
 import {getDriverLedgerAll} from "@/app/services/driverLedgerService";
 import styles from "./driverLedgerList.module.css";
-import DriverLedgerEntryForm from "@/app/components/driverLedger/driverLedgerEdit";
-import { DriverFormData, DriverLedgerActualData, DriverLedgerFormData } from "@/app/types/types";
+import { DriverLedgerActualData, } from "@/app/types/types";
 import {clsx} from 'clsx'
 import {useRouter} from 'next/navigation'
-import { FaEdit,FaTrash } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
 import button from "../../css/button.module.css"
 import DriverLedgerEdit from "@/app/components/driverLedger/driverLedgerEdit";
 export default function DriverList() {
@@ -15,17 +14,13 @@ export default function DriverList() {
   const [driverLedgerFilteredList, setDriverLedgerFilteredList] = useState<DriverLedgerActualData[]>([]);
   const [driverLedgerList, setDriverLedgerList] = useState<DriverLedgerActualData[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedDriverLedger, setSelectedDriverLedger] = useState<DriverLedgerFormData | undefined>(undefined);
-  const [operationMode , setOperationMode] = useState('');
   const [selectedDriverId, setSelectedDriverId] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState(''); 
 
   const router = useRouter();
   const handleAdd = () => {
-  setSelectedDriverLedger(undefined);
   setIsModalOpen(true);
-  setOperationMode('Add');
 };
 
 useEffect(() => {
@@ -77,13 +72,12 @@ useEffect(() => {
 const closeModal = ()=>
 {
   setIsModalOpen(false)
-  setSelectedDriverLedger(undefined);
 }
 
-const handleDelete = async (id: number) => {
+const handleDelete = async (id: number | undefined) => {
   if (!confirm("Are you sure you want to delete this driver Ledger?")) return;
   try{
-  await deleteDriver(id);
+  await deleteDriver(id || 0);
   setDriverList(prev => prev.filter(t => t.id !== id));
   }
   catch(error : unknown)

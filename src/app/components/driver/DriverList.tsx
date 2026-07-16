@@ -3,23 +3,22 @@ import React, { useEffect, useState } from "react";
 import { getDriverAll, deleteDriver} from "@/app/services/driverService";
 import styles from "./driverList.module.css";
 import DriverEntryForm from "@/app/components/driver/driverEntry";
-import { DriverFormData } from "@/app/types/types";
 import {clsx} from 'clsx'
 import {useRouter} from 'next/navigation'
+import { DriverFormData } from "@/app/types/types";
 import { FaEdit,FaTrash } from "react-icons/fa";
 import button from "../../css/button.module.css"
-import driverLedgerList from "../driverLedger/driverLedgerList";
 export default function DriverList() {
   const [driverList, setDriverList] = useState<any[]>([]);
   const [driverFilteredList, setDriverFilteredList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
-  const [selectedDriver, setSelectedDriver] = useState<any | null>(null);
-  const [searchedDriver, setSearchedDriver] = useState<string>('');
-  const [operationMode , setOperationMode] = useState('');
+   const [operationMode , setOperationMode] = useState('');
+   const [searchedDriver,setSearchedDriver] = useState('');
+   const [selectedDriver,setSelectedDriver] = useState({} as DriverFormData);
   const router = useRouter();
-
+console.log("NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
   useEffect(() => {
     async function fetchDriverList() {
       try {
@@ -36,7 +35,7 @@ export default function DriverList() {
   }, []);
 
 const handleAdd = () => {
-  setSearchedDriver('');
+  //setSearchedDriver('');
   setIsModalOpen(true);
   setOperationMode('Add');
 };
@@ -45,7 +44,7 @@ const handleAdd = () => {
 const handleEdit = (driver: any) => {
   console.log('Editing driver:', driver);
   driver.dob = driver.dob ? driver.dob.split('T')[0] : undefined;
-  setSearchedDriver(driver);
+  setSelectedDriver(driver);
   setOperationMode('Edit');
 };
 

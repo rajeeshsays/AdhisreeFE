@@ -6,9 +6,10 @@ import Select from 'react-select';
 import { PartyFormData } from "@/app/types/types";
 import styles from "./party.module.css";
 import { createParty,updateParty } from "@/app/services/partyService";
+import { getLocations } from "@/app/services/locationService";
 
 
-export default function PartyEntryForm({party,closeModal}:{party : PartyFormData | undefined,closeModal:()=>void})  {  
+export default function PartyEntryForm({party,closeModal}:{party : PartyFormData | undefined,closeModal:()=>void})  {
   const partyData : PartyFormData = {
     id:  0,
     name: "",
@@ -21,17 +22,39 @@ export default function PartyEntryForm({party,closeModal}:{party : PartyFormData
     email:  "",
     contactPerson : "",
     pincode: "",
-    accountId: "",  
+    accountId: "",
+    locationId: "",
     isActive:true
   }
 
 
   const [formData, setFormData] = useState<PartyFormData>(party ?? partyData);
-  
+  const [locationOptions, setLocationOptions] = useState<any[]>([]);
+
   useEffect(()=>{
   console.log(party);
-  
+
   },[formData,party])
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchLocations = async () => {
+      try {
+        const response = await getLocations();
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const data = await response.json();
+        if (isMounted) {
+          setLocationOptions(data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchLocations();
+    return () => { isMounted = false; };
+  }, []);
 
   
   const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
@@ -163,7 +186,18 @@ const handleSave = async () => {
           required
         />
 
-        
+
+      </div>
+
+      <div>
+        <label>Location:</label>
+        <Select
+          name="locationId"
+          value={locationOptions.find(option => option.value === formData.locationId)}
+          onChange={handleSelectChange("locationId")}
+          options={locationOptions}
+          required
+        />
       </div>
 
       <div>

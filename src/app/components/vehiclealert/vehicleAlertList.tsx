@@ -1,5 +1,5 @@
 'use client'
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { getVehicleAlerts, deleteVehicleAlert } from "@/app/services/vehicleAlertService";
 import {getVehicles} from "@/app/services/vehicleService";
 import styles from "./vehicleAlertList.module.css";

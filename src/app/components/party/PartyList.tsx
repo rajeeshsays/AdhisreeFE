@@ -66,7 +66,7 @@ const handleDelete = async (id: number) => {
   if (!confirm("Are you sure you want to delete this party?")) return;
   try{
   await deleteParty(id);
-  setPartyFilteredList(prev => prev.filter(t => t.id !== id)) 
+  setPartyFilteredList(prev => prev!= null ? prev.filter(t => t.id !== id): null) 
 
   setPartyList(prev => prev.filter(t => t.id !== id));
 
@@ -143,6 +143,7 @@ return (
               <th>Mobile 1</th>
               <th>Mobile 2</th>
               <th>License No</th>
+              <th>Location</th>
               <th>Is Active</th>
               <th>Actions</th>
             </tr>
@@ -152,11 +153,11 @@ return (
             {
             partyList.length === 0 ? (
               <tr>
-                <td colSpan={8} className={styles.empty}>
+                <td colSpan={10} className={styles.empty}>
                   No party records found
                 </td>
               </tr>
-           ) : (
+           ) : ( partyFilteredList &&
              partyFilteredList.map((party) => ( 
 
                  <tr key={party.id}>
@@ -168,6 +169,7 @@ return (
                    <td>{party.mobile1}</td>
                    <td>{party.mobile2}</td>
                    <td>{party.licenseNo}</td>
+                   <td>{party.location?.name || "-"}</td>
                    <td className={party.isActive === "1" ? styles.active : styles.inactive}>
                      {party.isActive ? "Active" : "Inactive"}                    
                    

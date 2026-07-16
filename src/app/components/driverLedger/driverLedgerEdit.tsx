@@ -1,7 +1,6 @@
 'use client'
 import React, {  useEffect, useState } from "react";
 import  './driverLedgerEdit.css';
-import Select from 'react-select';
 import {DriverLedgerFormData, DriverLedgerActualData } from "@/app/types/types";
 import styles from "./driverLedger.module.css";
 import {createDriverLedger, getdriverLedger } from "@/app/services/driverLedgerService";
@@ -12,7 +11,7 @@ interface FieldOptions {
   label: string;
 }
 
-let _driverLedgerFormData : DriverLedgerFormData =
+const _driverLedgerFormData : DriverLedgerFormData =
 {
 id: 0,
 transactionDate: Date.now().toString(),
@@ -20,10 +19,11 @@ paymentType: '',
 driverId: 0,
 amount: 0,
 balance: 0,
-remarks: '' 
+remarks: '' ,
+originalBalance : 0
 }
 
-let _driverLedgerActualData : DriverLedgerActualData[] =
+const _driverLedgerActualData : DriverLedgerActualData[] =
 [
 {
 id: 0,
@@ -31,18 +31,18 @@ transactionDate: Date.now().toString(),
 debit: 0,
 credit: 0,
 driverId: 0,
-remarks: '' 
+remarks: '',
+driver : null
 }
 ]
 type ProcessType = "Advance" | "Salary";
 type BalanceLabel = "Payable" | "Receivable" | "Balance";
 export default function DriverLedgerEdit({closeModal } : { closeModal: () => void }) {
-let drivers : FieldOptions[]=[];
+const drivers : FieldOptions[]=[];
 const[driverList,setDriverList] = useState<FieldOptions[]>(drivers);
 const[driverLedger,setDriverLedger] = useState<DriverLedgerActualData[]>(_driverLedgerActualData);
 const [formData, setFormData] = useState<DriverLedgerFormData>(_driverLedgerFormData);
 const [processType, setProcessType] = useState<ProcessType>("Advance");
-const [selectedDriverId, setSelectedDriverId] = useState<number | null>(null);
 const [balanceLabel, setBalanceLabel] = useState<BalanceLabel>("Balance");
 
 useEffect(() => {
@@ -100,49 +100,30 @@ const getDriverLedger = function(driverId?: number)
 };
 
 useEffect(() => {
-        calculateBalance().then((balance) => {
-      
-        //alert("Driver Ledger: " + JSON.stringify(driverLedger));
-      if(balance > 0) {
-        setBalanceLabel("Receivable");
-      } else if(balance < 0) {
-        setBalanceLabel("Payable");
-      } else {
-        setBalanceLabel("Balance");
-      }
-      
-      setFormData(prevData => ({
-        ...prevData,
-        originalBalance: balance,
-        balance: balance
-      }));
-    });
-}, [driverLedger]);
-
-
-const calculateBalance = async () => {
-
   const totalDebit = driverLedger.reduce((sum, entry) => sum + entry.debit, 0);
   const totalCredit = driverLedger.reduce((sum, entry) => sum + entry.credit, 0);
-  if(totalDebit > totalCredit) {
-    return totalCredit - totalDebit;
+  const balance = totalDebit > totalCredit ? totalCredit - totalDebit : totalDebit - totalCredit;
+
+  if(balance > 0) {
+    setBalanceLabel("Receivable");
+  } else if(balance < 0) {
+    setBalanceLabel("Payable");
+  } else {
+    setBalanceLabel("Balance");
   }
-  else
-  {
-    return totalDebit - totalCredit;
-  }
-  return 0;
-};  
+
+  setFormData(prevData => ({
+    ...prevData,
+    originalBalance: balance,
+    balance: balance
+  }));
+}, [driverLedger]);
 
 useEffect(() => {
  console.log("Driver list:", driverList);
 },[driverList]);
 
 
-const actives = [
-    { value: true, label: 'Active' },
-    { value: false, label: 'Inactive' },
-  ];
 
   const handleClose = () => {
   console.log("Closing form...");
@@ -157,8 +138,7 @@ const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLSelectEl
     else if(name === "driverId") {
       
       const driverId = parseInt(value, 10);
-      await setSelectedDriverId(driverId);    
-      await  getDriverLedger(driverId);
+      getDriverLedger(driverId);
 
 
 setFormData(prevData => ({
@@ -171,7 +151,7 @@ setFormData(prevData => ({
   else if(name === "amount") {
     //alert("Amount: " + value);
     //alert("Form data: " + JSON.stringify(formData));
-     let newBalance = formData.originalBalance + (parseFloat(value) || 0);
+     const newBalance = formData.originalBalance + (parseFloat(value) || 0);
       const amount = parseFloat(value);
       setFormData(prevData => ({
         ...prevData,

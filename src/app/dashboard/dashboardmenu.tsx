@@ -18,6 +18,8 @@ export default function DashboardMenu() {
     { key:"dieselLog",name: "Diesel Log", path: "/diesellog", icon: <FaList size={40} /> },
     { key:"vehicleMaintenance",name: "Vehicle Maintenance", path: "/vehiclemaintenance", icon: <FaList size={40} /> },
     { key:"driverLedger",name: "Driver Ledger", path: "/driverLedger", icon: <FaList size={40} /> },
+    { key:"unloadingCharges",name: "Unloading Charges", path: "/unloadingcharges", icon: <FaList size={40} /> },
+    { key:"invoiceRegister",name: "Invoice Issue Register", path: "/invoiceregister", icon: <FaList size={40} /> },
   ];
 
   return (
