@@ -107,11 +107,11 @@ export default function DieselLogList() {
               <th>ID</th>
               <th>Vehicle No</th>
               <th>Date</th>
-              <th>Litres</th>
-              <th>Rate</th>
-              <th>Amount</th>
-              <th>Odometer</th>
-              <th>Actions</th>
+              <th style={{ textAlign: "right" }}>Odometer</th>
+              <th style={{ textAlign: "right" }}>Litres</th>
+              <th style={{ textAlign: "right" }}>Rate</th>
+              <th style={{ textAlign: "right" }}>Amount</th>
+              <th style={{ textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
 
@@ -130,13 +130,13 @@ export default function DieselLogList() {
                   <td>{log.id}</td>
                   <td>{log.vehicle.registration}</td>
                   <td>{new Date(log.date).toLocaleDateString()}</td>
-                  <td>{log.quantity}</td>
-                  <td>{log.pricePerUnit}</td>
-                  <td>{log.totalCost}</td>
-                  <td>{log.odometerReading}</td>
+                  <td style={{ textAlign: "right" }}>{Number(log.odometerReading).toFixed(2)}</td>
+                  <td style={{ textAlign: "right" }}>{Number(log.quantity).toFixed(2)}</td>
+                  <td style={{ textAlign: "right" }}>{Number(log.pricePerUnit).toFixed(2)}</td>
+                  <td style={{ textAlign: "right" }}>{Number(log.totalCost).toFixed(2)}</td>
 
-                  <td>
-                    <div className={button.actionIcons}>
+                  <td style={{ textAlign: "right" }}>
+                    <div className={button.actionIcons} style={{ justifyContent: "flex-end" }}>
 
                       <button
                         className={button.actionEdit}

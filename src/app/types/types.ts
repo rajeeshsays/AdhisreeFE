@@ -27,11 +27,12 @@ export type TripEntryPayload = {
   commission: string;
   payabletoThirdParty : string;
   haltDays : string;
-  invoiceDetails: InvoiceDetail[];
+  invoices: InvoiceDetail[];
   returnTrip : string;
   unloadingCharges: UnLoadingCharge[],
-  destinationGroup : DestinationGroup[],
+  destinationGroups : number[],
   remark : string;
+  voucherId?: number | null;
 };
 
 export type TripSavePayload = {
@@ -64,6 +65,7 @@ export type TripEntryFormData = {
   unloadingCharges: UnLoadingCharge[],
   destinationGroup : string[],
   remark : string;
+  voucherId?: number | null;
 };
 
 export type DestinationGroup = {
@@ -128,10 +130,10 @@ export type VehicleAlertFormData = {
   emiDaysLeft: number;
   insuranceExpiry: string;     // DateOnly → string
   insuranceDaysLeft: number;
-  insuranceStatus: number;
+  insuranceStatus: string;
   pollutionExpiry: string;     // DateOnly → string
   pollutionDaysLeft: number;
-  pollutionStatus: number;
+  pollutionStatus: string;
   fuelStationName?: string;    // optional
   remarks?: string;            // optional
 };
@@ -210,15 +212,12 @@ export type VehicleMaintenanceFormData ={
     id?: number,
     destinationId: number,
     tripId: number,
+    tripDate : string,
+    driverId :number,
+    driverName :string,
     amount: number,
-    tripEntry?: {
-      id: number,
-      date: string,
-      driverId?: number,
-      driver?: { id?: number, name: string } | null,
-      vehicle?: { model?: string, registration?: string } | null,
-    } | null,
-    destination?: { id?: number, name: string } | null,
+    vehicleRegistration: string,
+    destinationName:string,
   }
 
   export type InvoiceData = {

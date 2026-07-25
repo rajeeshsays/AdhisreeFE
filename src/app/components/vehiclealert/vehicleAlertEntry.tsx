@@ -14,9 +14,40 @@ interface FieldOption {
   value: string;
   label: string;
 }
+
+const insuranceStatusOptions: FieldOption[] = [
+  { value: "Active", label: "Active" },
+  { value: "Expired", label: "Expired" },
+];
+
+const pollutionStatusOptions: FieldOption[] = [
+  { value: "Tested", label: "Tested" },
+  { value: "Expired", label: "Expired" },
+];
+
+const isExpired = (dateStr?: string) => {
+  if (!dateStr) return false;
+  const expiry = new Date(dateStr);
+  if (isNaN(expiry.getTime())) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  expiry.setHours(0, 0, 0, 0);
+  return expiry < today;
+};
+
+const calcDaysLeft = (dateStr?: string): number => {
+  if (!dateStr) return 0;
+  const target = new Date(dateStr);
+  if (isNaN(target.getTime())) return 0;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  target.setHours(0, 0, 0, 0);
+  return Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+};
+
 const  VehicleAlertEntry = ({vehicleAlert,closeModal}:{vehicleAlert:VehicleAlertFormData | undefined,closeModal:()=>void}) => {
 
-  
+
     const vehiclealertData : VehicleAlertFormData = {
         id: 0,                // optional for new entries
         vehicleId: 0,           // reference to Vehicle
@@ -25,10 +56,10 @@ const  VehicleAlertEntry = ({vehicleAlert,closeModal}:{vehicleAlert:VehicleAlert
         emiDaysLeft: 0,
         insuranceExpiry: "",     // DateOnly → string
         insuranceDaysLeft: 0,
-        insuranceStatus: 0,
+        insuranceStatus: "",
         pollutionExpiry: "",     // DateOnly → string
         pollutionDaysLeft: 0,
-        pollutionStatus: 0,
+        pollutionStatus: "",
         fuelStationName: "",    // optional
         remarks: "",            // optional
 };
@@ -47,25 +78,25 @@ const [vehicleOptions, setVehicleOptions] = useState<FieldOption[]>([]);
   options?: FieldOption[];
 }[] = [
   { name: "id", type: "number", label: "ID" },
-  { name: "emi", type: "number", label: "EMI" },
   { name: "vehicleId", type: "select", label: "Vehicle No" , options: vehicleOptions },
+  { name: "emi", type: "number", label: "EMI" },
   { name: "emiDueDate", type: "date", label:"EMI Due Date"},
-  { name: "emiDaysLeft", type: "number", label: "EMI Days Left"},
+  { name: "emiDaysLeft", type: "number", label: "Overdue Days For EMI"},
   { name: "insuranceExpiry", type: "date", label: "Insurance Expiry"},
-  { name: "insuranceDaysLeft", type: "number", label: "Insurance Days Left"},
-  { name: "insuranceStatus", type: "number", label: "Insurance Status"},
+  { name: "insuranceDaysLeft", type: "number", label: "Days Left For Ins Renewal"},
+  { name: "insuranceStatus", type: "select", label: "Insurance Status", options: insuranceStatusOptions},
   { name: "pollutionExpiry", type: "date", label: "Pollution Expiry"},
-  { name: "pollutionDaysLeft", type: "number", label: "Pollution Days Left"},
-  { name: "pollutionStatus", type: "number", label: "Pollution Status"},
+  { name: "pollutionDaysLeft", type: "number", label: "Days Left For Pollution Retest"},
+  { name: "pollutionStatus", type: "select", label: "Pollution Status", options: pollutionStatusOptions},
   { name: "fuelStationName", type: "text", label: "Fuel Station Name" },
-  { name: "remarks", type: "text", label: "Remarks" }
+  { name: "remarks", type: "textarea", label: "Remarks" }
 
 ];
 
 
 
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
   };
@@ -74,11 +105,34 @@ const handleClose = () => {
   closeModal();
 }
 
-useEffect(() => {  
-   console.log("Fetching form data..."); 
+useEffect(() => {
+   console.log("Fetching form data...");
    console.log(vehicleAlert);
 
 }, [vehicleAlert]);
+
+useEffect(() => {
+  const emiDaysLeft = calcDaysLeft(formData.emiDueDate);
+  setFormData((p) => (p.emiDaysLeft === emiDaysLeft ? p : { ...p, emiDaysLeft }));
+}, [formData.emiDueDate]);
+
+useEffect(() => {
+  const insuranceDaysLeft = calcDaysLeft(formData.insuranceExpiry);
+  setFormData((p) => ({
+    ...p,
+    insuranceDaysLeft,
+    insuranceStatus: isExpired(formData.insuranceExpiry) ? "Expired" : "Active",
+  }));
+}, [formData.insuranceExpiry]);
+
+useEffect(() => {
+  const pollutionDaysLeft = calcDaysLeft(formData.pollutionExpiry);
+  setFormData((p) => ({
+    ...p,
+    pollutionDaysLeft,
+    pollutionStatus: isExpired(formData.pollutionExpiry) ? "Expired" : p.pollutionStatus,
+  }));
+}, [formData.pollutionExpiry]);
 
 
 const handleSave = async () => {
@@ -169,7 +223,7 @@ return (
             if (name === "id") return null;
 
             return (
-              <div key={name}>
+              <div key={name} className={type === "textarea" ? "full-width-field" : undefined}>
                 <label htmlFor={name}>{label}</label>
                  {/* {<pre>{type}</pre>}
                 {<pre>options={type === "multiselect" ? JSON.stringify(options?.length) : "not multiselect"}</pre>} */}
@@ -196,7 +250,15 @@ return (
                     // value={options?.filter(o =>
                     //   formData[name]?.includes(o.value)
                     // )}
-                   
+
+                  />
+                ) : type === "textarea" ? (
+                  <textarea
+                    id={name}
+                    name={name}
+                    value={formData[name] ?? ""}
+                    onChange={handleInputChange}
+                    rows={5}
                   />
                 ) : (
                   <input
@@ -205,6 +267,7 @@ return (
                     type={type}
                     value={formData[name] ?? ""}
                     onChange={handleInputChange}
+                    readOnly={name === "emiDaysLeft" || name === "insuranceDaysLeft" || name === "pollutionDaysLeft"}
                   />
                 )}
               </div>

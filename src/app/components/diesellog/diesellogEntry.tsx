@@ -58,6 +58,15 @@ const [partyOptions, setPartyOptions] = useState<FieldOption[]>([]);
 ];
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
+    if (name === "quantity" || name === "pricePerUnit") {
+      const quantity = name === "quantity" ? parseFloat(value) : parseFloat(String(formData.quantity));
+      const pricePerUnit = name === "pricePerUnit" ? parseFloat(value) : parseFloat(String(formData.pricePerUnit));
+      const totalCost = !isNaN(quantity) && !isNaN(pricePerUnit) ? Number((quantity * pricePerUnit).toFixed(2)) : 0;
+      setFormData((p) => ({ ...p, [name]: value, totalCost }));
+      return;
+    }
+
     setFormData((p) => ({ ...p, [name]: value }));
   };
 const handleClose = () => {
@@ -70,7 +79,24 @@ useEffect(() => {
    console.log(dieselLog);
 }, [dieselLog]);
 
-const handleSave = async () => {
+const validate = (): string | null => {
+  for (const { name, type, label } of fields) {
+    if (name === "id") continue;
+
+    if (type === "number" && !(Number(formData[name]) > 1)) {
+      return `${label} must be greater than 1`;
+    }
+  }
+  return null;
+};
+
+const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  const validationError = validate();
+  if (validationError) {
+    alert(validationError);
+    return;
+  }
   try {
 
   console.log("Diesel Log create/update form data:", formData);
@@ -182,6 +208,7 @@ return (
                     value={options?.find(
                       o => o.value == formData[name]
                     )}
+                    required
                   />
                 ) : type === "multiselect" && options  ? (
                   <Select
@@ -202,6 +229,10 @@ return (
                     type={type}
                     value={formData[name] ?? ""}
                     onChange={handleInputChange}
+                    required
+                    min={type === "number" ? 0 : undefined}
+                    step={type === "number" ? "any" : undefined}
+                    readOnly={name === "totalCost"}
                   />
                 )}
               </div>

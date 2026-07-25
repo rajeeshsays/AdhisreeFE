@@ -4,18 +4,21 @@ import  './driverLedgerEdit.css';
 import {DriverLedgerFormData, DriverLedgerActualData } from "@/app/types/types";
 import styles from "./driverLedger.module.css";
 import {createDriverLedger, getdriverLedger } from "@/app/services/driverLedgerService";
-import { getDrivers } from "@/app/services/driverService";
+import { getDriverAll } from "@/app/services/driverService";
 
 interface FieldOptions {
   value: number;
   label: string;
+  transportTypeId: string;
 }
+
+const getTodayDate = () => new Date().toLocaleDateString('en-CA');
 
 const _driverLedgerFormData : DriverLedgerFormData =
 {
 id: 0,
-transactionDate: Date.now().toString(),
-paymentType: '',
+transactionDate: '',
+paymentType: 'Payment',
 driverId: 0,
 amount: 0,
 balance: 0,
@@ -35,18 +38,21 @@ remarks: '',
 driver : null
 }
 ]
-type ProcessType = "Advance" | "Salary";
+type ProcessType = "Payment" | "Receipt";
 type BalanceLabel = "Payable" | "Receivable" | "Balance";
-export default function DriverLedgerEdit({closeModal } : { closeModal: () => void }) {
+export default function DriverLedgerEdit({closeModal, onSaved } : { closeModal: () => void, onSaved?: () => void }) {
 const drivers : FieldOptions[]=[];
 const[driverList,setDriverList] = useState<FieldOptions[]>(drivers);
 const[driverLedger,setDriverLedger] = useState<DriverLedgerActualData[]>(_driverLedgerActualData);
-const [formData, setFormData] = useState<DriverLedgerFormData>(_driverLedgerFormData);
-const [processType, setProcessType] = useState<ProcessType>("Advance");
+const [formData, setFormData] = useState<DriverLedgerFormData>(() => ({
+  ..._driverLedgerFormData,
+  transactionDate: getTodayDate(),
+}));
+const [processType, setProcessType] = useState<ProcessType>("Payment");
 const [balanceLabel, setBalanceLabel] = useState<BalanceLabel>("Balance");
 
 useEffect(() => {
-  getDrivers()
+  getDriverAll(1, 1000)
     .then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
@@ -57,10 +63,14 @@ useEffect(() => {
     .then((data) => {
       console.log("Driver data:", data);
 
-      const drivers = data.map((driver: any) => ({
-        value: driver.value,
-        label: driver.label,
-      }));
+      const drivers = data.map((driver: any) => {
+        const transportTypeId = String(driver.transportTypeId);
+        return {
+          value: driver.id,
+          label: transportTypeId === "2" ? `${driver.name} (Thirdparty)` : driver.name,
+          transportTypeId,
+        };
+      });
 
       setDriverList(drivers);
     })
@@ -181,6 +191,7 @@ setFormData(prevData => ({
       if (response.ok) {
         const message = await response.text();
         alert(message);
+        onSaved?.();
         closeModal();
       }
     } catch (error) {
@@ -193,52 +204,11 @@ setFormData(prevData => ({
      <div className={styles.overlay}>
         <div className={styles.modal}>
   <form onSubmit={handleSave}  className="driver-ledger-form">
-            <h2>Driver Entry Form</h2>
+            <h2>Driver Ledger Form</h2>
 
              <div className="form-grid">
- <div>
- <label>
-        <input
-          type="radio"
-          name="paymentType"
-          value="Advance"
-          onChange={handleChange}
-        />
-        Advance Wage
-      </label>
-
-      <label>
-        <input
-          type="radio"
-          name="paymentType"
-          value="Salary"
-          onChange={handleChange}
-        />
-        Salary
-      </label>
-</div>
-
-
-
-  
-     <div>
-
-
-
-        <label>Tr.Date:</label>
-        <input
-          type="date"
-          name="transactionDate"
-          value={formData.transactionDate}
-          onChange={handleChange}
-          required
-        />
-      </div>
-
-    
-
       <div>
-        <label>Driver</label>
+        <label>Driver(Transporter)</label>
         <select
           name="driverId"
           value={formData.driverId}
@@ -254,19 +224,45 @@ setFormData(prevData => ({
     ))}
 </select>
       </div>
-    
 
       <div>
-        <label>{balanceLabel}</label>
+        <label>Payment Type</label>
+        <div className="radio-group">
+          <label className="radio-option">
+            <input
+              type="radio"
+              name="paymentType"
+              value="Payment"
+              checked={processType === "Payment"}
+              onChange={handleChange}
+            />
+            Payment
+          </label>
+
+          <label className="radio-option">
+            <input
+              type="radio"
+              name="paymentType"
+              value="Receipt"
+              checked={processType === "Receipt"}
+              onChange={handleChange}
+            />
+            Receipt
+          </label>
+        </div>
+      </div>
+
+     <div>
+        <label>Tr.Date:</label>
         <input
-          type="text"
-          name="balance"
-          value={formData.balance}
+          type="date"
+          name="transactionDate"
+          value={formData.transactionDate}
           onChange={handleChange}
           required
         />
-        
       </div>
+
      <div>
         <label>{processType}</label>
         <input
@@ -276,10 +272,20 @@ setFormData(prevData => ({
           onChange={handleChange}
           required
         />
-
-        
       </div>
-     
+
+      <div>
+        <label>{balanceLabel}</label>
+        <input
+          type="text"
+          name="balance"
+          value={formData.balance}
+          onChange={handleChange}
+          readOnly
+          className="readonly-field"
+        />
+
+      </div>
 
       
       <div className="form-actions">

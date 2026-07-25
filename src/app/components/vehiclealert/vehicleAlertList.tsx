@@ -11,6 +11,40 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import button from "../../css/button.module.css";
 
 
+type AlertLevel = "none" | "yellow" | "orange" | "red";
+
+function daysUntil(dateStr?: string): number | null {
+  if (!dateStr) return null;
+  const target = new Date(dateStr);
+  if (isNaN(target.getTime())) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  target.setHours(0, 0, 0, 0);
+  return Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+// Expiry dates (insurance/pollution): yellow within a month, orange within 2 weeks, red within a week (or overdue).
+function getExpiryAlertLevel(dateStr?: string): AlertLevel {
+  const daysLeft = daysUntil(dateStr);
+  if (daysLeft === null) return "none";
+  if (daysLeft <= 7) return "red";
+  if (daysLeft <= 14) return "orange";
+  if (daysLeft <= 30) return "yellow";
+  return "none";
+}
+
+// EMI due date: yellow within 7 days, orange within 3 days, red once overdue.
+function getEmiAlertLevel(dateStr?: string): AlertLevel {
+  const daysLeft = daysUntil(dateStr);
+  if (daysLeft === null) return "none";
+  if (daysLeft < 0) return "red";
+  if (daysLeft <= 3) return "orange";
+  if (daysLeft <= 7) return "yellow";
+  return "none";
+}
+
+const alertClass = (level: AlertLevel) => (level === "none" ? undefined : styles[`alert${level.charAt(0).toUpperCase()}${level.slice(1)}`]);
+
 export default function VehicleAlertsList() {
   const [alertsList, setAlertsList] = useState<any[]>([]);
   const [alertsFilteredList,setAlertsFilteredList] = useState<any[]>([])
@@ -82,6 +116,11 @@ export default function VehicleAlertsList() {
     setSelectedAlert(alert);
     setOperationMode('Edit');
     setIsModalOpen(true);
+  };
+
+  const getVehicleRegistration = (vehicleId: any) => {
+    const vehicle = vehicleSelectList.find(v => String(v.value) === String(vehicleId));
+    return vehicle ? vehicle.label : vehicleId;
   };
 
   const closeModal = () => {
@@ -167,14 +206,14 @@ export default function VehicleAlertsList() {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Vehicle ID</th>
-              <th>EMI</th>
+              <th>Vehicle No</th>
+              <th style={{ textAlign: "right" }}>EMI</th>
               <th>EMI Due Date</th>
               <th>Insurance Expiry</th>
               <th>Pollution Expiry</th>
               <th>Fuel Station</th>
               <th>Remarks</th>
-              <th>Actions</th>
+              <th style={{ textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
 
@@ -189,15 +228,27 @@ export default function VehicleAlertsList() {
               alertsFilteredList.map(alert => (
                 <tr key={alert.id}>
                   <td>{alert.id}</td>
-                  <td>{alert.vehicleId}</td>
-                  <td>{alert.emi}</td>
-                  <td>{alert.emiDueDate}</td>
-                  <td>{alert.insuranceExpiry}</td>
-                  <td>{alert.pollutionExpiry}</td>
+                  <td>{getVehicleRegistration(alert.vehicleId)}</td>
+                  <td style={{ textAlign: "right" }}>{alert.emi}</td>
+                  <td>
+                    <span className={clsx(styles.alertHighlight, alertClass(getEmiAlertLevel(alert.emiDueDate)))}>
+                      {alert.emiDueDate}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={clsx(styles.alertHighlight, alertClass(getExpiryAlertLevel(alert.insuranceExpiry)))}>
+                      {alert.insuranceExpiry}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={clsx(styles.alertHighlight, alertClass(getExpiryAlertLevel(alert.pollutionExpiry)))}>
+                      {alert.pollutionExpiry}
+                    </span>
+                  </td>
                   <td>{alert.fuelStationName || "-"}</td>
                   <td>{alert.remarks || "-"}</td>
-                  <td>
-                    <div className={button.actionIcons}>
+                  <td style={{ textAlign: "right" }}>
+                    <div className={button.actionIcons} style={{ justifyContent: "flex-end" }}>
                       <button className={button.actionEdit} onClick={() => handleEdit(alert)}>
                         <FaEdit />
                       </button>

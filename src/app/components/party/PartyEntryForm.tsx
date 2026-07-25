@@ -56,7 +56,7 @@ export default function PartyEntryForm({party,closeModal}:{party : PartyFormData
     return () => { isMounted = false; };
   }, []);
 
-  
+
   const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     console.log("Form data---->>>",formData);
@@ -83,7 +83,7 @@ const handleSelectChange = (name: string) => (selected: any) => {
   setFormData((prev: any) => ({
     ...prev,
     [name]: selected?.value ?? null,
-      
+
   }));
 };
 
@@ -135,7 +135,7 @@ const handleSave = async () => {
           required
         />
       </div>
-    
+
 
 
       <div>
@@ -145,11 +145,10 @@ const handleSave = async () => {
           name="gstNo"
           value={formData.gstNo}
           onChange={handleChange}
-          required
         />
       </div>
 
-      
+
 
       <div>
         <label>Address Line 1</label>
@@ -161,7 +160,7 @@ const handleSave = async () => {
           required
         />
 
-        
+
       </div>
 
       <div>
@@ -171,10 +170,9 @@ const handleSave = async () => {
           name="addressLine2"
           value={formData.addressLine2}
           onChange={handleChange}
-          required
         />
 
-        
+
       </div>
             <div>
         <label>Pincode</label>
@@ -183,7 +181,6 @@ const handleSave = async () => {
           name="pincode"
           value={formData.pincode}
           onChange={handleChange}
-          required
         />
 
 
@@ -242,10 +239,10 @@ const handleSave = async () => {
     required
   >
 
-  
+
   </Select>
       </div>
-      
+
       <div className="form-actions">
           <button type="button" onClick={handleClose}>
             Cancel
@@ -260,5 +257,4 @@ const handleSave = async () => {
     </div>
   );
 }
-
 

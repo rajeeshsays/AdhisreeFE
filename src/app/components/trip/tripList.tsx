@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getTripAll,deleteTrip} from "@/app/services/tripService";
+import { getTripAll,getTrip,deleteTrip} from "@/app/services/tripService";
 import styles from "@/app/components/trip/triptList.module.css";
 import TripEntryForm from "@/app/components/trip/tripEntryForm";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,7 @@ import button from "../../css/button.module.css"
 import clsx from "clsx"
 import { FaEdit,FaTrash } from "react-icons/fa";
 import {getDrivers} from "@/app/services/driverService";
+import { TripEntryFormData } from "@/app/types/types";
 
 export default function TripList() {
   const [tripList, setTripList] = useState<any[]>([]);
@@ -18,7 +19,7 @@ export default function TripList() {
   const [toDate, setToDate] = useState('');
   const [selectedDriverId, setSelectedDriverId] = useState('');
   const [driverList, setDriverList] = useState<any[]>([]);
-  const [selectedTrip, setSelectedTrip] = useState<any | null>(null);
+  const [selectedTrip, setSelectedTrip] = useState<TripEntryFormData | null>(null);
   const router = useRouter();
   useEffect(() => {
     async function fetchTripList() {
@@ -60,10 +61,61 @@ useEffect(() => {
 
   fetchDriverList();
 }, []);
-const handleEdit = (trip: any) => {
+const handleEdit = async (trip: any) => {
   console.log('Editing trip:', trip);
-  setSelectedTrip(trip);
-  setIsModalOpen(true);
+  try {
+    const response = await getTrip(trip.id);
+    if (!response.ok) {
+      alert("Failed to load trip details");
+      return;
+    }
+    const data = await response.json();
+
+    const rent = data.rent != null ? String(data.rent) : "";
+    const commission = data.commission != null ? String(data.commission) : "";
+    const payabletoThirdParty =
+      data.rent != null ? String(Number(data.rent) - Number(data.commission ?? 0)) : "";
+
+    const mappedTrip: TripEntryFormData = {
+      id: data.id,
+      date: data.date ? String(data.date).substring(0, 10) : "",
+      vehicleId: data.vehicleId != null ? String(data.vehicleId) : "",
+      vehicleTypeId: data.vehicleTypeId != null ? String(data.vehicleTypeId) : "",
+      driverId: data.driverId != null ? String(data.driverId) : "",
+      party1: data.party1 != null ? String(data.party1) : "",
+      destinationGroup: (data.destinationGroups ?? []).map((d: number) => String(d)),
+      from: data.from != null ? String(data.from) : "",
+      to: data.to != null ? String(data.to) : "",
+      fromText: "",
+      toText: "",
+      startKM: data.startKM != null ? String(data.startKM) : "",
+      closeKM: data.closeKM != null ? String(data.closeKM) : "",
+      total: data.total != null ? String(data.total) : "",
+      rent,
+      payabletoThirdParty,
+      commission,
+      invoiceDetails: (data.invoices ?? []).map((inv: any) => ({
+        invoiceNo: inv.invoiceNo,
+        date: inv.date,
+        amount: String(inv.amount),
+      })),
+      unloadingCharges: (data.unloadingCharges ?? []).map((uc: any) => ({
+        tripId: String(uc.tripId),
+        destinationId: String(uc.destinationId),
+        amount: uc.amount,
+      })),
+      returnTrip: data.returnTrip ?? "",
+      haltDays: data.haltDays != null ? String(data.haltDays) : "",
+      remark: data.remark ?? "",
+      voucherId: data.voucherId ?? null,
+    };
+
+    setSelectedTrip(mappedTrip);
+    setIsModalOpen(true);
+  } catch (error) {
+    console.error(error);
+    alert("Failed to load trip details");
+  }
 };
   const closeModal = ()=>
   {
@@ -136,7 +188,7 @@ const handleClearFilter = () => {
 
       <div className={styles.tableWrapper}>
         <button className={clsx(styles.addBtn,button.primaryBtn)} onClick={handleAdd}>
-  + Add Location
+  + Add Trip
 </button>
   <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
   Home

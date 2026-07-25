@@ -59,6 +59,14 @@
   font-weight: 600;
   color: #16a34a;
 }
+.balanceReceivable {
+  font-weight: 600;
+  color: #16a34a;
+}
+.balancePayable {
+  font-weight: 600;
+  color: #dc2626;
+}
 .empty {
   padding: 20px;
   text-align: center;

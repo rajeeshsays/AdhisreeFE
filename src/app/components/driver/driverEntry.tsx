@@ -17,9 +17,22 @@ const _transportTypes : FieldOption[] = [
   },
     {
     value : "2",
-    label : "Thirdparty"
+    label : "Third Party"
   }
 ]
+
+const calcAge = (dobStr?: string): string => {
+  if (!dobStr) return "";
+  const dob = new Date(dobStr);
+  if (isNaN(dob.getTime())) return "";
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const monthDiff = today.getMonth() - dob.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+    age--;
+  }
+  return age >= 0 ? String(age) : "";
+};
 export default function DriverEntryForm({driver,closeModal}:{driver:DriverFormData | undefined,closeModal:()=>void})  {
   const driverData : DriverFormData= {
     id: 0,
@@ -52,6 +65,11 @@ useEffect(()=>{
 console.log(formData);
 
 },[formData])
+
+useEffect(() => {
+  const age = calcAge(formData.dob);
+  setFormData((prevData) => (prevData.age === age ? prevData : { ...prevData, age }));
+}, [formData.dob]);
   
 const actives = [
     { value: true, label: 'Active' },
@@ -131,6 +149,16 @@ if(parseInt(formData["transportTypeId"]) > 5)
         />
       </div>
       <div>
+        <label>Age</label>
+        <input
+          type="text"
+          name="age"
+          value={formData.age}
+          readOnly
+          className="readonly-field"
+        />
+      </div>
+      <div>
         <label>Adhaar no</label>
         <input
           type="text"
@@ -163,7 +191,6 @@ if(parseInt(formData["transportTypeId"]) > 5)
           name="addressLine2"
           value={formData.addressLine2}
           onChange={handleChange}
-          required
         />
 
         
@@ -185,7 +212,6 @@ if(parseInt(formData["transportTypeId"]) > 5)
           name="mobile2"
           value={formData.mobile2}
           onChange={handleChange}
-          required
         />
       </div>
       <div>
@@ -204,7 +230,7 @@ if(parseInt(formData["transportTypeId"]) > 5)
                     name="transportTypeId"
                     onChange={handleChange}
                     value={formData["transportTypeId"]}
-                  
+                    required
                   >
                   {_transportTypes.map((op)=>
                    <option key={op.value} value={op.value}>{op.label}</option>

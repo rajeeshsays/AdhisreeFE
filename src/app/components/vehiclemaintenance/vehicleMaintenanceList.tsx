@@ -87,6 +87,7 @@ const handleDelete = async (id: number) => {
   try{
   await remove(id);
   setVehicleMaintenanceList(prev => prev.filter(t => t.id !== id));
+  setVehicleMaintenanceFilteredList(prev => prev.filter(t => t.id !== id));
   }
   catch(error : unknown)
   {
@@ -173,11 +174,11 @@ const handleClearFilter = () => {
               <th>Vehicle No</th>
               <th>Driver</th>
               <th>Maintenance Date</th>
-              <th>Kilometers</th>
-              <th>Cost</th>
+              <th style={{ textAlign: "right" }}>Kilometers</th>
+              <th style={{ textAlign: "right" }}>Cost</th>
               <th>Discription</th>
               <th>Status</th>
-              <th>Actions</th>
+              <th style={{ textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
 
@@ -198,15 +199,15 @@ const handleClearFilter = () => {
                    <td>{vehicleMaintenance.vehicle.registration}</td>
                    <td>{vehicleMaintenance.driver.name}</td>
                    <td>{vehicleMaintenance.maintenanceDate}</td>
-                   <td>{vehicleMaintenance.kilometers}</td>
-                   <td>{vehicleMaintenance.cost}</td>
+                   <td style={{ textAlign: "right" }}>{Number(vehicleMaintenance.kilometers).toFixed(2)}</td>
+                   <td style={{ textAlign: "right" }}>{Number(vehicleMaintenance.cost).toFixed(2)}</td>
                    <td>{vehicleMaintenance.description}</td>
                    <td className={vehicleMaintenance.isActive === "1" ? styles.active : styles.inactive}>
                      {vehicleMaintenance.isActive ? "Active" : "Inactive"}                    
                    
                     </td>
-                    <td>
-    <div className={button.actionIcons}>
+                    <td style={{ textAlign: "right" }}>
+    <div className={button.actionIcons} style={{ justifyContent: "flex-end" }}>
      <button className={button.actionEdit} onClick={() => handleEdit(vehicleMaintenance)}>
         <FaEdit />
       </button>
@@ -223,7 +224,6 @@ const handleClearFilter = () => {
  </tbody>
              
         </table>
- <pre>{isModalOpen ? "Modal is open" : "Modal is closed"}</pre>
  {isModalOpen && (
    <VehicleMaintenanceEntry
      vehicleMaintenance={selectedVehicleMaintenance}

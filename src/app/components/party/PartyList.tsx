@@ -138,14 +138,13 @@ return (
             <tr>
               <th>ID</th>
               <th>Name</th>
-              <th>Age</th>
-              <th>Adhaar No</th>
-              <th>Mobile 1</th>
-              <th>Mobile 2</th>
-              <th>License No</th>
+              <th>Code</th>
               <th>Location</th>
+              <th>Mobile</th>
+              <th>Office Phone</th>
+              <th>Contact Person</th>
               <th>Is Active</th>
-              <th>Actions</th>
+              <th style={{ textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
 
@@ -153,29 +152,28 @@ return (
             {
             partyList.length === 0 ? (
               <tr>
-                <td colSpan={10} className={styles.empty}>
+                <td colSpan={9} className={styles.empty}>
                   No party records found
                 </td>
               </tr>
            ) : ( partyFilteredList &&
-             partyFilteredList.map((party) => ( 
+             partyFilteredList.map((party) => (
 
                  <tr key={party.id}>
-                     
+
                   <td>{party.id}</td>
                    <td>{party.name}</td>
-                   <td>{party.age}</td>
-                   <td>{party.adhaarNo}</td>
-                   <td>{party.mobile1}</td>
-                   <td>{party.mobile2}</td>
-                   <td>{party.licenseNo}</td>
+                   <td>{party.code}</td>
                    <td>{party.location?.name || "-"}</td>
+                   <td>{party.mobile}</td>
+                   <td>{party.officePhone}</td>
+                   <td>{party.contactPerson}</td>
                    <td className={party.isActive === "1" ? styles.active : styles.inactive}>
-                     {party.isActive ? "Active" : "Inactive"}                    
-                   
+                     {party.isActive ? "Active" : "Inactive"}
+
                     </td>
-                    <td>
-    <div className={button.actionIcons}>
+                    <td style={{ textAlign: "right" }}>
+    <div className={button.actionIcons} style={{ justifyContent: "flex-end" }}>
      <button className={button.actionEdit} onClick={() => handleEdit(party)}>
         <FaEdit />
       </button>
@@ -184,7 +182,7 @@ return (
         <FaTrash />
       </button>
       </div></td>
-  
+
   </tr>
   )))}
    

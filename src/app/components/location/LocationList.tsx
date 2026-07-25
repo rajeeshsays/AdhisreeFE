@@ -101,7 +101,7 @@ const handleClearFilter = () => {
   Home
 </button>
 <label className={clsx(styles.label)}>Location</label>
-<input type="text" name="locationName" value={searchedLocation} className={clsx(styles.textInput)} onChange={handleChange} />
+<input type="text" name="locationName" value={searchedLocation} className={clsx(styles.textInput)} onChange={handleChange}  />
 <label className={clsx(styles.label)}>From Date</label><input type="date" name="fromDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
 <label className={clsx(styles.label)}>To Date</label><input type="date" name="toDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
 <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
@@ -166,9 +166,9 @@ const handleClearFilter = () => {
  </tbody>
              
         </table>
- {
+ {/* {
    <pre>{JSON.stringify(selectedLocation, null, 2)}</pre>
- }
+ } */}
  {isModalOpen && (
  
    <LocationEntryForm

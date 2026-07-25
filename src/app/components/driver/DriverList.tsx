@@ -8,6 +8,20 @@ import {useRouter} from 'next/navigation'
 import { DriverFormData } from "@/app/types/types";
 import { FaEdit,FaTrash } from "react-icons/fa";
 import button from "../../css/button.module.css"
+
+const calcAge = (dobStr?: string): string => {
+  if (!dobStr) return "";
+  const dob = new Date(dobStr);
+  if (isNaN(dob.getTime())) return "";
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const monthDiff = today.getMonth() - dob.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+    age--;
+  }
+  return age >= 0 ? String(age) : "";
+};
+
 export default function DriverList() {
   const [driverList, setDriverList] = useState<any[]>([]);
   const [driverFilteredList, setDriverFilteredList] = useState<any[]>([]);
@@ -26,6 +40,7 @@ console.log("NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
         if (response.ok) {
           const data = await response.json();
           setDriverList(data);
+          setDriverFilteredList(data);
         }
       } catch (error) {
         console.error(error);
@@ -55,11 +70,11 @@ const closeModal = ()=>
   setSearchedDriver('');
 }
 useEffect(()=>{
-if(operationMode=='Edit' && searchedDriver)
+if(operationMode=='Edit' && selectedDriver)
 {
  setIsModalOpen(true);
 }
-},[searchedDriver,operationMode])
+},[selectedDriver,operationMode])
 
 
 const handleDelete = async (id: number) => {
@@ -156,7 +171,7 @@ console.log("Handle filter is clicked")
               <th>Mobile 2</th>
               <th>License No</th>
               <th>Is Active</th>
-              <th>Actions</th>
+              <th style={{ textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
 
@@ -175,17 +190,17 @@ console.log("Handle filter is clicked")
                      
                   <td>{driver.id}</td>
                    <td>{driver.name}</td>
-                   <td>{driver.age}</td>
+                   <td>{calcAge(driver.dob)}</td>
                    <td>{driver.adhaarNo}</td>
                    <td>{driver.mobile1}</td>
                    <td>{driver.mobile2}</td>
-                   <td>{driver.licenseNo}</td>
+                   <td>{driver.licenceNo}</td>
                    <td className={driver.isActive === "1" ? styles.active : styles.inactive}>
                      {driver.isActive ? "Active" : "Inactive"}                    
                    
                     </td>
-                    <td>
-    <div className={button.actionIcons}>
+                    <td style={{ textAlign: "right" }}>
+    <div className={button.actionIcons} style={{ justifyContent: "flex-end" }}>
      <button className={button.actionEdit} onClick={() => handleEdit(driver)}>
         <FaEdit />
       </button>

@@ -105,7 +105,7 @@ export default function UnloadingChargeList() {
     let filteredList = unloadingChargeList;
 
     if (selectedDriverId) {
-      filteredList = filteredList.filter(x => x.tripEntry?.driverId === parseInt(selectedDriverId));
+      filteredList = filteredList.filter(x => x.driverId === parseInt(selectedDriverId));
     }
 
     if (selectedPartyId) {
@@ -113,11 +113,11 @@ export default function UnloadingChargeList() {
     }
 
     if (fromDate) {
-      filteredList = filteredList.filter(x => x.tripEntry?.date && new Date(x.tripEntry.date) >= new Date(fromDate));
+      filteredList = filteredList.filter(x => x.tripDate && new Date(x.tripDate) >= new Date(fromDate));
     }
 
     if (toDate) {
-      filteredList = filteredList.filter(x => x.tripEntry?.date && new Date(x.tripEntry.date) <= new Date(toDate));
+      filteredList = filteredList.filter(x => x.tripDate && new Date(x.tripDate) <= new Date(toDate));
     }
 
     setUnloadingChargeFilteredList(filteredList);
@@ -206,7 +206,7 @@ export default function UnloadingChargeList() {
           <tbody>
             {unloadingChargeFilteredList.length === 0 ? (
               <tr>
-                <td colSpan={6} className={styles.empty}>
+                <td colSpan={6} className={styles.empty}>N
                   No unloading charge records found
                 </td>
               </tr>
@@ -214,14 +214,14 @@ export default function UnloadingChargeList() {
               unloadingChargeFilteredList.map((unloadingCharge) => (
                 <tr key={unloadingCharge.id}>
                   <td>{unloadingCharge.id}</td>
-                  <td>{unloadingCharge.tripEntry?.date ? new Date(unloadingCharge.tripEntry.date).toLocaleDateString() : '-'}</td>
+                  <td>{unloadingCharge.tripDate ? new Date(unloadingCharge.tripDate).toLocaleDateString() : '-'}</td>
                   <td>
                     <span className={styles.badge}>
-                      {unloadingCharge.tripEntry?.vehicle?.registration || '-'}
+                      {unloadingCharge.vehicleRegistration || '-'}
                     </span>
                   </td>
-                  <td>{unloadingCharge.tripEntry?.driver?.name || '-'}</td>
-                  <td>{unloadingCharge.destination?.name || '-'}</td>
+                  <td>{unloadingCharge.driverName || '-'}</td>
+                  <td>{unloadingCharge.destinationName || '-'}</td>
                   <td className={styles.amount}>₹ {unloadingCharge.amount}</td>
                 </tr>
               ))

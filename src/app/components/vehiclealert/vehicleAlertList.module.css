@@ -86,3 +86,27 @@
   font-weight: 500;
   color: #01060f;
 }
+.alertHighlight {
+  display: inline-block;
+}
+.alertYellow {
+  background-color: #fef9c3;
+  color: #854d0e;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.alertOrange {
+  background-color: #fed7aa;
+  color: #9a3412;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.alertRed {
+  background-color: #fecaca;
+  color: #991b1b;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+}

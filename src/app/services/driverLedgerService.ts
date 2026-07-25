@@ -44,8 +44,8 @@ export async function createDriverLedger(driverFormData : DriverLedgerFormData) 
   const driverLedgerActualData : DriverLedgerActualData = {
     driverId: driverFormData.driverId,
     transactionDate: driverFormData.transactionDate,
-    debit: driverFormData.paymentType === 'Advance' ? driverFormData.amount : 0,
-    credit: driverFormData.paymentType === 'Salary' ? driverFormData.amount : 0,
+    debit: driverFormData.paymentType === 'Payment' ? driverFormData.amount : 0,
+    credit: (driverFormData.paymentType === 'Receipt' || driverFormData.paymentType === 'Salary') ? driverFormData.amount : 0,
     remarks: driverFormData.remarks,
     driver : null
   };

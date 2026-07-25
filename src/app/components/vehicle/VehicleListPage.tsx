@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./vehicleList.module.css";
 import {  deleteVehicle, getVehicleAll, getVehicles} from "@/app/services/vehicleService";
+import { getVehicleTypes } from "@/app/services/vehicleTypeService";
 import VehicleEntryForm from "@/app/components/vehicle/VehicleEntryForm";
 import {clsx} from 'clsx'
 import button from "../../css/button.module.css"
@@ -10,7 +11,8 @@ import { useRouter } from "next/navigation";
 import { FaEdit,FaTrash } from "react-icons/fa";
 export default function VehicleList() {
   const [vehicleList, setVehicleList] = useState<any[]>([]);
-  const [vehicleSelectList,setVehicleSelectList] = useState<any[]>([]); 
+  const [vehicleSelectList,setVehicleSelectList] = useState<any[]>([]);
+  const [vehicleTypeList,setVehicleTypeList] = useState<any[]>([]);
   const [vehicleFilteredList, setVehicleFilteredList] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<any | null>(null);
@@ -61,6 +63,26 @@ export default function VehicleList() {
     }
     fetchVehicleList();
   },[])
+
+  useEffect(() => {
+    async function fetchVehicleTypeList() {
+      try {
+        const response = await getVehicleTypes();
+        if (response.ok) {
+          const data = await response.json();
+          setVehicleTypeList(data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchVehicleTypeList();
+  }, []);
+
+  const getVehicleTypeName = (typeId: any) => {
+    const vehicleType = vehicleTypeList.find(t => String(t.value) === String(typeId));
+    return vehicleType ? vehicleType.label : "-";
+  };
 
 const handleAdd = () => {
   setSelectedVehicle(null);
@@ -178,9 +200,9 @@ return (
               <th>ID</th>
               <th>Registration</th>
               <th>Model</th>
-           
+              <th>Vehicle Type</th>
               <th>Is Active</th>
-              <th>Actions</th>
+              <th style={{ textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
 
@@ -200,13 +222,13 @@ return (
                   <td>{vehicle.id}</td>
                    <td>{vehicle.registration}</td>
                    <td>{vehicle.model}</td>
-                
+                   <td>{getVehicleTypeName(vehicle.typeId)}</td>
                    <td className={vehicle.isActive === "1" ? styles.active : styles.inactive}>
                      {vehicle.isActive ? "Active" : "Inactive"}                    
                    
                     </td>
-                    <td>
-    <div className={button.actionIcons}>
+                    <td style={{ textAlign: "right" }}>
+    <div className={button.actionIcons} style={{ justifyContent: "flex-end" }}>
      <button className={button.actionEdit} onClick={() => handleEdit(vehicle)}>
         <FaEdit />
       </button>

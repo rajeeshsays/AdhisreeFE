@@ -1,9 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { create,update } from "../../services/vehicleMaintenanceService";
+import { create,update,getAll } from "../../services/vehicleMaintenanceService";
 import { getVehicles } from "../../services/vehicleService";
-import { getDrivers } from "@/app/services/driverService";
+import { getDriverAll } from "@/app/services/driverService";
 import "./vehicleMaintenanceEntry.css";
 import styles from "./vehicleMaintenance.module.css";
 import { VehicleMaintenanceFormData } from "@/app/types/types";
@@ -34,6 +34,7 @@ const  VehicleMaintenanceEntry = ({vehicleMaintenance,closeModal}:{vehicleMainte
 const [formData, setFormData] = useState<VehicleMaintenanceFormData>(vehicleMaintenance ?? vehiclealertData);
 const [vehicleOptions, setVehicleOptions] = useState<FieldOption[]>([]);
 const [driverOptions, setDriverOptions] = useState<FieldOption[]>([]);
+const [maintenanceRecords, setMaintenanceRecords] = useState<VehicleMaintenanceFormData[]>([]);
 
 
 //const [loading, setLoading] = useState(true);
@@ -50,13 +51,21 @@ const [driverOptions, setDriverOptions] = useState<FieldOption[]>([]);
   { name: "maintenanceDate", type: "date", label:"Maintenance Date"},
   { name: "kilometers", type: "number", label: "Kilometers"},
   { name: "cost", type: "number", label: "Cost"},
-  { name: "description", type: "text", label: "Description"},
+  { name: "description", type: "textarea", label: "Description"},
 ];
 
+const getLastKilometers = (vehicleId: number) => {
+  const records = maintenanceRecords.filter(
+    (r) => Number(r.vehicleId) === vehicleId && r.id !== formData.id
+  );
+  if (records.length === 0) return undefined;
+  return Math.max(...records.map((r) => Number(r.kilometers)));
+};
 
 
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
   };
@@ -72,12 +81,29 @@ useEffect(() => {
 }, [vehicleMaintenance]);
 
 
-const handleSave = async () => {
-  
+const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+
+  const kilometers = Number(formData.kilometers);
+  const cost = Number(formData.cost);
+
+  if (!(kilometers > 1)) {
+    alert("Kilometers should be greater than 1");
+    return;
+  }
+
+  if (!(cost > 1)) {
+    alert("Cost should be greater than 1");
+    return;
+  }
+
+  const lastKilometers = getLastKilometers(Number(formData.vehicleId));
+  if (lastKilometers !== undefined && kilometers <= lastKilometers) {
+    alert("Last maintenance kilometer is greater than now");
+    return;
+  }
+
   try {
-  alert("Saving vehicle maintenance record...");  
-
-
     console.log("formdata te list " +formData)
 
     //const response =  await createTransport(formData);
@@ -88,6 +114,7 @@ const handleSave = async () => {
     if (response.ok) {
       const resText = await response.json();
       alert(resText)
+      closeModal();
     }
   } catch (error) {
     console.error(error);
@@ -103,20 +130,24 @@ useEffect(() => {
     try {
       //setLoading(true);
 
-      const [vehicleRes, driverRes] = await Promise.all([
+      const [vehicleRes, driverRes, maintenanceRes] = await Promise.all([
 
         getVehicles(),
-        getDrivers(),
+        getDriverAll(1, 1000),
+        getAll(),
       ]);
 
-      if (!vehicleRes.ok) {
+      if (!vehicleRes.ok || !maintenanceRes.ok) {
         throw new Error("One or more API calls failed");
       }
 
-      const [vehicles,drivers] = await Promise.all([
+      const [vehicles,drivers,maintenance] = await Promise.all([
         vehicleRes.json(),
         driverRes.json(),
+        maintenanceRes.json(),
        ]);
+
+      setMaintenanceRecords(maintenance);
 
       setVehicleOptions(
         vehicles.map((v: any) => ({
@@ -125,10 +156,12 @@ useEffect(() => {
         }))
       );
       setDriverOptions(
-        drivers.map((d: any) => ({
-          value: d.value,
-          label: d.label,
-        }))
+        drivers
+          .filter((d: any) => String(d.transportTypeId) !== "2")
+          .map((d: any) => ({
+            value: d.id,
+            label: d.name,
+          }))
       );
     
     } catch (err) {
@@ -174,7 +207,7 @@ return (
             if (name === "id") return null;
 
             return (
-              <div key={name}>
+              <div key={name} className={type === "textarea" ? "full-width-field" : undefined}>
                 <label htmlFor={name}>{label}</label>
                  {/* {<pre>{type}</pre>}
                 {<pre>options={type === "multiselect" ? JSON.stringify(options?.length) : "not multiselect"}</pre>} */}
@@ -189,6 +222,7 @@ return (
                     value={options?.find(
                       o => o.value == formData[name]
                     )}
+                    required
                   />
                 ) : type === "multiselect" && options  ? (
                   <Select
@@ -201,7 +235,16 @@ return (
                     // value={options?.filter(o =>
                     //   formData[name]?.includes(o.value)
                     // )}
-                   
+
+                  />
+                ) : type === "textarea" ? (
+                  <textarea
+                    id={name}
+                    name={name}
+                    value={formData[name] ?? ""}
+                    onChange={handleInputChange}
+                    required
+                    rows={5}
                   />
                 ) : (
                   <input
@@ -210,6 +253,7 @@ return (
                     type={type}
                     value={formData[name] ?? ""}
                     onChange={handleInputChange}
+                    required
                   />
                 )}
               </div>

@@ -2,12 +2,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { createTrip,updateTrip } from "../../services/tripService";
+import { createDriverLedger, deleteDriverLedger } from "../../services/driverLedgerService";
 import "./tripEdit.css";
 import { getDriverAll } from "../../services/driverService";
 import { getLocations } from "../../services/locationService";
 import { getVehicles } from "../../services/vehicleService";
 import { getVehicleTypes} from "../../services/vehicleTypeService";
 import { getParties } from "../../services/partyService";
+
+
 import styles from "./trip.module.css";
 import { InvoiceDetail, TripEntryFormData, TripEntryPayload, UnLoadingCharge } from "@/app/types/types";
 import { FaTrash } from "react-icons/fa";
@@ -21,11 +24,13 @@ interface FieldOption {
 interface DriverOption extends FieldOption {
   transportTypeId: string;
 }
-const TripEntryForm = ({trip,closeModal}:{trip:TripEntryFormData | undefined,closeModal:()=>void}) => {
+const getTodayDate = () => new Date().toLocaleDateString('en-CA');
+
+const TripEntryForm = ({trip,closeModal}:{trip:TripEntryFormData | null | undefined,closeModal:()=>void}) => {
 
 const tripData : TripEntryFormData = {
       id: 0,
-      date: "",
+      date: getTodayDate(),
       vehicleId: "",
       vehicleTypeId: "",
       driverId: "",
@@ -45,12 +50,15 @@ const tripData : TripEntryFormData = {
       unloadingCharges: [],
       returnTrip : "",
       haltDays:"",
-      remark : ""
+      remark : "",
+      voucherId: null
     };
   
 const [formData, setFormData] = useState<TripEntryFormData>(trip ?? tripData);
 const [invoiceForm, setInvoiceForm] = useState({ invoiceNo: "", date: "", amount: "" });
-const [destinationCharges, setDestinationCharges] = useState<UnLoadingCharge[]>(trip?.unloadingCharges ?? []);
+const [destinationCharges, setDestinationCharges] = useState<Record<string, string>>(
+  Object.fromEntries((trip?.unloadingCharges ?? []).map((uc) => [uc.destinationId, String(uc.amount)]))
+);
 const [invoiceRows, setInvoiceRows] = useState<InvoiceDetail[]>(trip?.invoiceDetails ?? []);
 const [driverOptions, setDriverOptions] = useState<DriverOption[]>([]);
 const [selectedDriverTransportTypeId, setSelectedDriverTransportTypeId] = useState("");
@@ -73,7 +81,7 @@ const [partyOptions, setPartyOptions] = useState<FieldOption[]>([]);
   { name: "date", type: "date", label: "Date" },
   { name: "vehicleId", type: "select", label: "Vehicle No" , options: vehicleOptions },
   { name: "vehicleTypeId", type: "select", label: "Vehicle Type" , options: vehicleTypeOptions },
-  { name: "driverId", type: "select", label: "Driver ID", options: driverOptions },
+  { name: "driverId", type: "select", label: "Driver (Transporter)", options: driverOptions },
   { name: "party1", type: "select", label: "Party 1" , options: partyOptions },
   {
     name: "destinationGroup",
@@ -99,7 +107,7 @@ const totalInvoiceAmount = useMemo(
 );
 
 const selectedDestinationOptions = useMemo(
-  () => party2GroupOptions.filter((option) => formData.destinationGroup.includes(option.value)),
+  () => party2GroupOptions.filter((option) => formData.destinationGroup.includes(String(option.value))),
   [party2GroupOptions, formData.destinationGroup]
 );
 
@@ -109,7 +117,17 @@ useEffect(() => {
   if (!formData.driverId) return;
   const currentDriver = driverOptions.find((o) => o.value === String(formData.driverId));
   if (currentDriver) setSelectedDriverTransportTypeId(currentDriver.transportTypeId);
-}, [driverOptions]);
+}, [formData.driverId, driverOptions]);
+
+useEffect(() => {
+  if (!formData.party1) {
+    setParty2GroupOptions(party2GroupOriginalOptions);
+    return;
+  }
+  setParty2GroupOptions(
+    party2GroupOriginalOptions.filter((x) => String(x.value) !== String(formData.party1))
+  );
+}, [party2GroupOriginalOptions, formData.party1]);
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -273,12 +291,58 @@ const handleDeleteInvoice = (indexToRemove: number) => {
 const handleDestinationChargeChange = (destinationValue: string, value: string) => {
   const nextCharges = { ...destinationCharges, [destinationValue]: value };
   setDestinationCharges(nextCharges);
-  setFormData((prev) => ({ ...prev, unloadCharges: nextCharges }));
+
+  const unloadingCharges: UnLoadingCharge[] = Object.entries(nextCharges)
+    .filter(([, amount]) => amount !== "")
+    .map(([destinationId, amount]) => ({
+      tripId: String(formData.id ?? ""),
+      destinationId,
+      amount: Number(amount),
+    }));
+
+  setFormData((prev) => ({ ...prev, unloadingCharges }));
 };
 
 const handleSave = async (e: React.FormEvent) => {
   e.preventDefault();
   try {
+      // Third-party driver payments are tracked as driver-ledger entries. Since a ledger
+      // entry has no tripId of its own, we replace it wholesale on every save (delete the
+      // previous one referenced by voucherId, create a fresh one) rather than trying to
+      // patch it in place, and store the new entry's id back on the trip as voucherId.
+      let voucherId: number | null = formData.voucherId ?? null;
+
+      if (isThirdPartyDriver) {
+        if (voucherId) {
+          try {
+            await deleteDriverLedger(voucherId);
+          } catch (err) {
+            console.error(err);
+          }
+        }
+        const ledgerRes = await createDriverLedger({
+          transactionDate: formData.date,
+          paymentType: "Salary",
+          driverId: Number(formData.driverId),
+          amount: Number(formData.payabletoThirdParty || 0),
+          originalBalance: 0,
+          balance: 0,
+          remarks: `Third-party payment for trip dated ${formData.date}`,
+        });
+        if (!ledgerRes.ok) {
+          throw new Error("Failed to record third-party driver payment");
+        }
+        const ledgerBody = await ledgerRes.json();
+        voucherId = ledgerBody?.id ?? null;
+      } else if (voucherId) {
+        try {
+          await deleteDriverLedger(voucherId);
+        } catch (err) {
+          console.error(err);
+        }
+        voucherId = null;
+      }
+
       const payload:  TripEntryPayload = {
         id: formData.id || undefined,
         date: formData.date,
@@ -296,13 +360,8 @@ const handleSave = async (e: React.FormEvent) => {
         haltDays: formData.haltDays,
         rent: formData.rent,
         remark: formData.remark,
-       destinationGroup: formData.destinationGroup.map((destinationId: string) => ({
-  id: "",
-  destinationId,
-  tripId: "" // or the appropriate tripId value
-})),
-        invoiceDetails: formData.invoiceDetails.map((row) => ({
-          id: "",
+        destinationGroups: formData.destinationGroup.map((destinationId: string) => Number(destinationId)),
+        invoices: formData.invoiceDetails.map((row) => ({
           invoiceNo: row.invoiceNo,
           date: row.date,
           amount: row.amount
@@ -313,22 +372,18 @@ const handleSave = async (e: React.FormEvent) => {
           destinationId: row.destinationId,
           amount: row.amount
         })),
-        payabletoThirdParty: ""
+        payabletoThirdParty: "",
+        voucherId,
       }
 console.log(payload);
-    const response = formData.id
+    const resBody = formData.id
       ? await updateTrip(formData.id, payload)
       : await createTrip(payload);
-
-    if (response.ok) {
-      const resBody = await response.json();
-      alert(JSON.stringify(resBody));
-    } else {
-      const errText = await response.text();
-      alert(errText || "Failed to save trip");
-    }
+    setFormData((prev) => ({ ...prev, voucherId }));
+    alert(JSON.stringify(resBody));
   } catch (error) {
     console.error(error);
+    alert(error instanceof Error ? error.message : "Failed to save trip");
   }
 };
 
@@ -362,11 +417,14 @@ useEffect(() => {
       ]);
 
       setDriverOptions(
-        drivers.map((d: any) => ({
-          value: String(d.id),
-          label: d.name,
-          transportTypeId: String(d.transportTypeId),
-        }))
+        drivers.map((d: any) => {
+          const transportTypeId = String(d.transportTypeId);
+          return {
+            value: String(d.id),
+            label: transportTypeId === "2" ? `${d.name} (Thirdparty)` : d.name,
+            transportTypeId,
+          };
+        })
       );
 
       setLocationOptions(
@@ -426,18 +484,24 @@ const handleSelectChange = (name: string, isMulti = false) => (selected: any) =>
     return;
   }
 
-  if (name === "destinationGroups") {
-const selectedValues = selected?.map((item: any) => item.value) || [];
+  if (name === "destinationGroup") {
+    const selectedValues = selected?.map((item: any) => String(item.value)) || [];
     const nextCharges = Object.fromEntries(
       Object.entries(destinationCharges).filter(([key]) => selectedValues.includes(key))
     );
+    const unloadingCharges: UnLoadingCharge[] = Object.entries(nextCharges)
+      .filter(([, amount]) => amount !== "")
+      .map(([destinationId, amount]) => ({
+        tripId: String(formData.id ?? ""),
+        destinationId,
+        amount: Number(amount),
+      }));
 
     setDestinationCharges(nextCharges);
     setFormData((prev: any) => ({
       ...prev,
-      destinationGroups: selectedValues,
-
-      unloadCharges: nextCharges,
+      destinationGroup: selectedValues,
+      unloadingCharges,
     }));
     return;
   }
@@ -447,14 +511,6 @@ const selectedValues = selected?.map((item: any) => item.value) || [];
       ? selected?.map((item: any) => item.value) || []
       : selected?.value ?? null,
   }));
- if(name=="party1")
-  {
-    alert("Party one is selected "+ selected?.value);
-    setParty2GroupOptions(party2GroupOriginalOptions.filter(x=>x.value!== selected?.value));
-
-    
-   }
-
 };
 
 
@@ -496,7 +552,7 @@ return (
                     options={options}
                     onChange={handleSelectChange(name, false)}
                     value={options?.find(
-                      (o) => o.value === String(formData[name] ?? "")
+                      (o) => String(o.value) === String(formData[name] ?? "")
                     )}
                   />
                 ) : type === "multiselect" && options  ? (
@@ -508,7 +564,7 @@ return (
                     options={options}
                     onChange={handleSelectChange(name, true)}
                     value={options?.filter((o) =>
-                      (formData[name] as string[] | undefined)?.includes(o.value)
+                      (formData[name] as string[] | undefined)?.includes(String(o.value))
                     )}
                   />
                 ) : (

@@ -1,5 +1,5 @@
 import { baseUrl } from '../configs/apiConfig';
-import { TripEntryPayload, TripSavePayload } from '../types/types';
+import { TripEntryPayload } from '../types/types';
 
 
 
@@ -51,17 +51,31 @@ export async function createTrip(payload: TripEntryPayload) {
       body: JSON.stringify(payload),
     });
 
-    return res; // <-- FIX
+    const contentType = res.headers.get('content-type');
+    const responseBody = contentType?.includes('application/json')
+      ? await res.json()
+      : await res.text();
+    console.log(JSON.stringify(responseBody))
+
+    if (!res.ok) {
+      if (responseBody?.error) {
+        throw new Error(responseBody?.error + '. Request failed!');
+      }
+      throw new Error('Request failed! for unknown reason, need investigation');
+    }
+
+    console.log('Success response:', responseBody);
+    return responseBody; //return parsed response
   }
-  catch (ex: any) {
-    console.log(JSON.stringify(ex));
-    throw ex; // optional
+  catch (err: any) {
+    console.error('Error from service ', err.message);
+    throw err; // re-throw for component to handle
   }
 }
 export async function deleteTrip(id: number) {
   
 
-  return await fetch(`${baseUrl}/api/trips/${id}`, {
+  return await fetch(`${baseUrl}/api/TripEntryApi/${id}`, {
     method: 'DELETE'
   });
   console.log('Trip deleted:', id);

@@ -49,6 +49,27 @@
   outline: none;
 }
 
+.form-grid textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-grid textarea:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.4);
+  outline: none;
+}
+
+.form-grid .full-width-field {
+  grid-column: 1 / -1;
+}
+
 /* ================= React Select ================= */
 .form-grid .react-select__control {
   border-radius: 6px;
