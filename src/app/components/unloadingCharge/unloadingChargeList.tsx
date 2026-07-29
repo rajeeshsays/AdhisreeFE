@@ -184,7 +184,7 @@ export default function UnloadingChargeList() {
           Filter
         </button>
         <button className={clsx(styles.addBtn, button.secondaryBtn)} onClick={handleClearFilter}>
-          Clear Filter
+          Clear
         </button>
         <button className={clsx(styles.addBtn, button.primaryBtn)} onClick={handlePrint}>
           Print

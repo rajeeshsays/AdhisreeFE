@@ -16,24 +16,14 @@ interface FieldOption {
 }
 
 const insuranceStatusOptions: FieldOption[] = [
-  { value: "Active", label: "Active" },
-  { value: "Expired", label: "Expired" },
+  { value: "1", label: "Active" },
+  { value: "2", label: "Expired" },
 ];
 
 const pollutionStatusOptions: FieldOption[] = [
-  { value: "Tested", label: "Tested" },
-  { value: "Expired", label: "Expired" },
+  { value: "1", label: "Active" },
+  { value: "2", label: "Expired" },
 ];
-
-const isExpired = (dateStr?: string) => {
-  if (!dateStr) return false;
-  const expiry = new Date(dateStr);
-  if (isNaN(expiry.getTime())) return false;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  expiry.setHours(0, 0, 0, 0);
-  return expiry < today;
-};
 
 const calcDaysLeft = (dateStr?: string): number => {
   if (!dateStr) return 0;
@@ -45,15 +35,17 @@ const calcDaysLeft = (dateStr?: string): number => {
   return Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 };
 
-const  VehicleAlertEntry = ({vehicleAlert,closeModal}:{vehicleAlert:VehicleAlertFormData | undefined,closeModal:()=>void}) => {
+const  VehicleAlertEntry = ({vehicleAlert,closeModal,onSaved,existingVehicleIds}:{vehicleAlert:VehicleAlertFormData | undefined,closeModal:()=>void,onSaved?:()=>void,existingVehicleIds?:(string|number)[]}) => {
+
+    const isEditMode = !!vehicleAlert;
 
 
     const vehiclealertData : VehicleAlertFormData = {
         id: 0,                // optional for new entries
         vehicleId: 0,           // reference to Vehicle
-        emi: 0,                 // decimal → number
-        emiDueDate: "",          // DateOnly → string YYYY-MM-DD
-        emiDaysLeft: 0,
+        emi: null,                 // decimal → number
+        emiDueDate: null,          // DateOnly → string YYYY-MM-DD
+        emiDaysLeft: null,
         insuranceExpiry: "",     // DateOnly → string
         insuranceDaysLeft: 0,
         insuranceStatus: "",
@@ -78,10 +70,19 @@ const [vehicleOptions, setVehicleOptions] = useState<FieldOption[]>([]);
   options?: FieldOption[];
 }[] = [
   { name: "id", type: "number", label: "ID" },
-  { name: "vehicleId", type: "select", label: "Vehicle No" , options: vehicleOptions },
+  {
+    name: "vehicleId",
+    type: "select",
+    label: "Vehicle No",
+    options: vehicleOptions.filter(
+      o =>
+        !existingVehicleIds?.some(id => String(id) === String(o.value)) ||
+        String(o.value) === String(formData.vehicleId)
+    ),
+  },
   { name: "emi", type: "number", label: "EMI" },
   { name: "emiDueDate", type: "date", label:"EMI Due Date"},
-  { name: "emiDaysLeft", type: "number", label: "Overdue Days For EMI"},
+  { name: "emiDaysLeft", type: "number", label: "Overdue in days"},
   { name: "insuranceExpiry", type: "date", label: "Insurance Expiry"},
   { name: "insuranceDaysLeft", type: "number", label: "Days Left For Ins Renewal"},
   { name: "insuranceStatus", type: "select", label: "Insurance Status", options: insuranceStatusOptions},
@@ -112,8 +113,16 @@ useEffect(() => {
 }, [vehicleAlert]);
 
 useEffect(() => {
-  const emiDaysLeft = calcDaysLeft(formData.emiDueDate);
-  setFormData((p) => (p.emiDaysLeft === emiDaysLeft ? p : { ...p, emiDaysLeft }));
+  const emiDaysLeft = formData.emiDueDate ? calcDaysLeft(formData.emiDueDate) : null;
+  if(emiDaysLeft == null)
+  {
+setFormData((p) =>  ({ ...p , emiDaysLeft :  0 } ));
+  }
+  else
+  {
+  setFormData((p) => (p.emiDaysLeft === emiDaysLeft  ? p:  { ...p, emiDaysLeft } ));
+  }
+
 }, [formData.emiDueDate]);
 
 useEffect(() => {
@@ -121,7 +130,7 @@ useEffect(() => {
   setFormData((p) => ({
     ...p,
     insuranceDaysLeft,
-    insuranceStatus: isExpired(formData.insuranceExpiry) ? "Expired" : "Active",
+    insuranceStatus: insuranceDaysLeft < 0 ? "2" : "1",
   }));
 }, [formData.insuranceExpiry]);
 
@@ -130,13 +139,19 @@ useEffect(() => {
   setFormData((p) => ({
     ...p,
     pollutionDaysLeft,
-    pollutionStatus: isExpired(formData.pollutionExpiry) ? "Expired" : p.pollutionStatus,
+    pollutionStatus: pollutionDaysLeft < 0 ? "2" : "1",
   }));
 }, [formData.pollutionExpiry]);
 
 
-const handleSave = async () => {
+const handleSave = async (e: React.FormEvent) => {
+  e.preventDefault();
   try {
+
+  if (formData.emiDueDate && Number(formData.emi) <= 0) {
+    alert("EMI must be greater than 0 when an EMI due date is selected.");
+    return;
+  }
 
   console.log("formdata te list " +formData)
 
@@ -146,8 +161,11 @@ const handleSave = async () => {
       : await createVehicleAlert(formData);
 
     if (response.ok) {
-      const resText = await response.json();
-      alert(resText)
+      alert(formData.id ? "Vehicle alert updated successfully." : "Vehicle alert saved successfully.");
+      onSaved?.();
+      closeModal();
+    } else {
+      alert("Failed to save vehicle alert.");
     }
   } catch (error) {
     console.error(error);
@@ -238,6 +256,7 @@ return (
                     value={options?.find(
                       o => o.value == formData[name]
                     )}
+                    isDisabled={name === "vehicleId" && isEditMode}
                   />
                 ) : type === "multiselect" && options  ? (
                   <Select
@@ -268,6 +287,7 @@ return (
                     value={formData[name] ?? ""}
                     onChange={handleInputChange}
                     readOnly={name === "emiDaysLeft" || name === "insuranceDaysLeft" || name === "pollutionDaysLeft"}
+                    required={name === "emiDueDate" && (formData.emi ?? 0) > 0 }
                   />
                 )}
               </div>

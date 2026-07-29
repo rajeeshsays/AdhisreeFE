@@ -56,11 +56,13 @@ export async function updateDieselLog(id: number, dieselLogData: DieselLogFormDa
 
     const contentType = res.headers.get('content-type');
     const responseBody = contentType?.includes('application/json')
-      ? await res.json()
-      : await res.text();
+      ? await res
+      : await res;
+
 
     if (!res.ok) {
-      const errorMessage = responseBody?.error ?? 'Unknown error';
+       const responseBody = await res.json();
+      const errorMessage = responseBody.error ?? 'Unknown error';
       throw new Error(errorMessage);
     }
 

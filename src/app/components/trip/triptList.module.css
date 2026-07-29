@@ -60,7 +60,7 @@
 
 .amount {
   font-weight: 600;
-  color: #16a34a;
+  color: #000000;
 }
 
 .empty {
@@ -89,4 +89,55 @@
   margin-left: 8px;
   font-weight: 500;
   color: #01060f;
+}
+
+.filterBar {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 5px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+
+.compactBtn {
+  padding: 7px 13px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.compactPrimary {
+  background-color: #434484;
+  color: #ffffff;
+}
+
+.compactSecondary {
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.compactLabel {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 3px 0 8px;
+  color: #01060f;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.compactSelect,
+.compactDate {
+  padding: 5px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 16px;
+  flex-shrink: 1;
+  min-width: 0;
+  max-width: 169px;
 }

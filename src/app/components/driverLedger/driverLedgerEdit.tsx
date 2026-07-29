@@ -159,8 +159,6 @@ setFormData(prevData => ({
   }
   
   else if(name === "amount") {
-    //alert("Amount: " + value);
-    //alert("Form data: " + JSON.stringify(formData));
      const newBalance = formData.originalBalance + (parseFloat(value) || 0);
       const amount = parseFloat(value);
       setFormData(prevData => ({
@@ -189,10 +187,11 @@ setFormData(prevData => ({
       console.log("formdata te list " + JSON.stringify(formData));
       const response = await createDriverLedger(formData);
       if (response.ok) {
-        const message = await response.text();
-        alert(message);
+        alert("Driver ledger entry saved successfully.");
         onSaved?.();
         closeModal();
+      } else {
+        alert("Failed to save driver ledger entry.");
       }
     } catch (error) {
       console.error(error);

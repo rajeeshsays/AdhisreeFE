@@ -57,7 +57,7 @@
 }
 .amount {
   font-weight: 600;
-  color: #16a34a;
+  text-align: right;
 }
 .empty {
   padding: 20px;

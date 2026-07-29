@@ -17,7 +17,7 @@ interface FieldOption {
   value: string;
   label: string;
 }
-const  VehicleMaintenanceEntry = ({vehicleMaintenance,closeModal}:{vehicleMaintenance:VehicleMaintenanceFormData | undefined,closeModal:()=>void}) => {
+const  VehicleMaintenanceEntry = ({vehicleMaintenance,closeModal,onSaved}:{vehicleMaintenance:VehicleMaintenanceFormData | undefined,closeModal:()=>void,onSaved?:()=>void}) => {
 
   
     const vehiclealertData : VehicleMaintenanceFormData = {
@@ -110,11 +110,13 @@ const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     const response = formData.id
       ? await update(formData.id, formData)
       : await create(formData);
-
+    
     if (response.ok) {
-      const resText = await response.json();
-      alert(resText)
+      alert(formData.id ? "Vehicle maintenance record updated successfully." : "Vehicle maintenance record saved successfully.");
+      onSaved?.();
       closeModal();
+    } else {
+      alert("Failed to save vehicle maintenance record.");
     }
   } catch (error) {
     console.error(error);

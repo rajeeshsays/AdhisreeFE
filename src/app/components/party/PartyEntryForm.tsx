@@ -98,11 +98,12 @@ const handleSave = async () => {
       : await createParty(formData);
 
     if (response.ok) {
-      const resText = await response.text();
-      alert(resText);
+      alert(formData.id ? "Party updated successfully." : "Party saved successfully.");
+    } else {
+      alert("Failed to save party.");
     }
   } catch (error) {
-    alert(error);
+    alert(error instanceof Error ? error.message : "Failed to save party.");
     console.error(error);
   }
 };
@@ -204,6 +205,7 @@ const handleSave = async () => {
           name="mobile"
           value={formData.mobile}
           onChange={handleChange}
+          minLength={10}
           required
         />
       </div>
@@ -214,6 +216,7 @@ const handleSave = async () => {
           name="officePhone"
           value={formData.officePhone}
           onChange={handleChange}
+          minLength={10}
           required
         />
       </div>

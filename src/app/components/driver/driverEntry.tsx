@@ -105,10 +105,10 @@ if(parseInt(formData["transportTypeId"]) > 5)
       : await createDriver(formData);
 
     if (response.ok) {
-      const message = await response.text();
-      alert(message)
+      alert(formData?.id ? "Driver updated successfully." : "Driver saved successfully.");
       closeModal();
-      
+    } else {
+      alert("Failed to save driver.");
     }
   } catch (error) {
     console.error(error);
@@ -202,6 +202,7 @@ if(parseInt(formData["transportTypeId"]) > 5)
           name="mobile1"
           value={formData.mobile1}
           onChange={handleChange}
+          minLength={10}
           required
         />
       </div>
@@ -212,6 +213,7 @@ if(parseInt(formData["transportTypeId"]) > 5)
           name="mobile2"
           value={formData.mobile2}
           onChange={handleChange}
+          minLength={10}
         />
       </div>
       <div>

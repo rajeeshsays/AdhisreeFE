@@ -122,7 +122,7 @@ const handleClearFilter = () => {
 </button>
 <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
 
-  Clear Filter
+  Clear
 </button>
 {/* <pre>{JSON.stringify(driverList, null, 2) }</pre> */}
         <table className={styles.table}>

@@ -71,9 +71,10 @@ const handleSave = async () => {
       : await createLocation(formData);
 
     if (response.ok) {
-      const resText = await response.text();
-      alert(resText);
-  } 
+      alert(formData?.id ? "Location updated successfully." : "Location saved successfully.");
+  } else {
+    alert("Failed to save location.");
+  }
 }
 catch(error) {
     console.error(error);

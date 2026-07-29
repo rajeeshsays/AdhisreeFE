@@ -103,10 +103,11 @@ const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     const response = formData.id
       ? await updateDieselLog(formData.id, formData)
       : await createDieselLog(formData);
-
     if (response.ok) {
-      const resText = await response.json();
-      alert(resText)
+      alert(formData.id ? "Diesel log updated successfully." : "Diesel log saved successfully.");
+      closeModal();
+    } else {
+      alert("Failed to save diesel log entry.");
     }
   } catch (error) {
     console.error(error);

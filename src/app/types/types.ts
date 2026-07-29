@@ -125,9 +125,9 @@ export type DieselLogFormData = {
 export type VehicleAlertFormData = {
   id?: number;                 // optional for new entries
   vehicleId: number;           // reference to Vehicle
-  emi: number;                 // decimal → number
-  emiDueDate: string;          // DateOnly → string YYYY-MM-DD
-  emiDaysLeft: number;
+  emi: number | null;                 // decimal → number
+  emiDueDate: string | null;          // DateOnly → string YYYY-MM-DD
+  emiDaysLeft: number | null;
   insuranceExpiry: string;     // DateOnly → string
   insuranceDaysLeft: number;
   insuranceStatus: string;
@@ -222,17 +222,41 @@ export type VehicleMaintenanceFormData ={
 
   export type InvoiceData = {
     id?: number,
-    destinationId: number,
     tripId: number,
     invoiceNo: string,
     date: string,
     amount: number,
-    tripEntry?: {
-      id: number,
-      date: string,
-      driverId?: number,
-      driver?: { id?: number, name: string } | null,
-      vehicle?: { model?: string, registration?: string } | null,
-    } | null,
-    destination?: { id?: number, name: string } | null,
+    vehicleId?: number,
+    vehicleRegistration?: string,
+    partyId?: number,
+    partyName?: string,
   }
+
+  export type AuthUser = {
+    username: string;
+    role: string;
+    token: string;
+    expiresAt: string;
+  };
+
+  export const USER_ROLES = [
+    { value: 1, label: "Admin" },
+    { value: 2, label: "Manager" },
+    { value: 3, label: "Staff" },
+  ];
+
+  export type UserAccountFormData = {
+    username: string;
+    password: string;
+    fullName: string;
+    role: number;
+  };
+
+  export type UserAccountData = {
+    id: number;
+    username: string;
+    fullName: string | null;
+    role: string;
+    isActive: boolean;
+    createdAt: string;
+  };

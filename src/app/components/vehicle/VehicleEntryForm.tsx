@@ -83,9 +83,10 @@ const handleSave = async () => {
       : await createVehicle(formData);
 
     if (response.ok) {
-      const resText = await response.text();
-      alert(resText)
-  } 
+      alert(formData.id ? "Vehicle updated successfully." : "Vehicle saved successfully.");
+  } else {
+    alert("Failed to save vehicle.");
+  }
 }catch(error:unknown) {
     if(error instanceof Error)
     alert(error.message);

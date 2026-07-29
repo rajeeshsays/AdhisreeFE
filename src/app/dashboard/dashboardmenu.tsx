@@ -1,10 +1,12 @@
 "use client";
 
-import { FaTruck, FaList, FaRoute, FaUser } from "react-icons/fa";
+import { FaTruck, FaList, FaRoute, FaUser, FaUserShield } from "react-icons/fa";
 import "../dashboard/dashboardmenu.css";
 import Link from "next/link";
+import { useAuth } from "@/app/context/AuthContext";
 
 export default function DashboardMenu() {
+  const { user } = useAuth();
 
     const s = 30;
   const menuItems = [
@@ -20,6 +22,9 @@ export default function DashboardMenu() {
     { key:"driverLedger",name: "Driver Ledger", path: "/driverLedger", icon: <FaList size={40} /> },
     { key:"unloadingCharges",name: "Unloading Charges", path: "/unloadingcharges", icon: <FaList size={40} /> },
     { key:"invoiceRegister",name: "Invoice Issue Register", path: "/invoiceregister", icon: <FaList size={40} /> },
+    ...(user?.role === "Admin"
+      ? [{ key:"users", name: "Users", path: "/users", icon: <FaUserShield size={40} /> }]
+      : []),
   ];
 
   return (

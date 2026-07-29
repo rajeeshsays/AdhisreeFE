@@ -56,21 +56,10 @@ export async function updateVehicleAlert(id: number, vehicleAlertData: VehicleAl
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(vehicleAlertData),
     });
-
-    const contentType = res.headers.get('content-type');
-    const responseBody = contentType?.includes('application/json')
-      ? await res.json()
-      : await res.text();
-
-    if (!res.ok) {
-      const errorMessage = responseBody?.error ?? 'Unknown error';
-      throw new Error(errorMessage);
-    }
-
-    return responseBody;
-  } catch (err: any) {
-    console.error('Error updating VehicleAlert:', err.message);
-    throw err;
+    return res;
+  } catch (ex: any) {
+    console.error('Error updating VehicleAlert:', ex);
+    throw ex;
   }
 }
 

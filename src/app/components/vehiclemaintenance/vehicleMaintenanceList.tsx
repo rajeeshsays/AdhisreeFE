@@ -18,19 +18,20 @@ export default function VehicleMaintenanceList() {
   const [operationMode , setOperationMode] = useState('');
   const [selectedVehicleId,setSelectedVehicleId] = useState<number|null>(null)
   const router = useRouter();
-  useEffect(() => {
-    async function fetchVehicleMaintenanceList() {
-      try {
-        const response = await getAll();
-        if (response.ok) {
-          const data = await response.json();
-          setVehicleMaintenanceList(data);
-          setVehicleMaintenanceFilteredList(data);
-        }
-      } catch (error) {
-        console.error(error);
+  const fetchVehicleMaintenanceList = async () => {
+    try {
+      const response = await getAll();
+      if (response.ok) {
+        const data = await response.json();
+        setVehicleMaintenanceList(data);
+        setVehicleMaintenanceFilteredList(data);
       }
+    } catch (error) {
+      console.error(error);
     }
+  };
+
+  useEffect(() => {
     fetchVehicleMaintenanceList();
   }, []);
 
@@ -75,6 +76,11 @@ const closeModal = ()=>
   setIsModalOpen(false)
   setSelectedVehicleMaintenance(undefined);
 }
+
+const handleSaved = async () => {
+  await fetchVehicleMaintenanceList();
+  closeModal();
+};
 useEffect(()=>{
 if(operationMode=='Edit' && selectedVehicleMaintenance)
 {
@@ -164,7 +170,7 @@ const handleClearFilter = () => {
 </button>
 <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
 
-  Clear Filter
+  Clear
 </button>
 {/* <pre>{JSON.stringify(vehicleMaintenanceList, null, 2) }</pre> */}
         <table className={styles.table}>
@@ -228,7 +234,7 @@ const handleClearFilter = () => {
    <VehicleMaintenanceEntry
      vehicleMaintenance={selectedVehicleMaintenance}
      closeModal = {closeModal}
-  
+     onSaved={handleSaved}
    />
 )}
       </div>

@@ -9,6 +9,8 @@ import button from "../../css/button.module.css"
 import clsx from "clsx"
 import { FaEdit,FaTrash } from "react-icons/fa";
 import {getDrivers} from "@/app/services/driverService";
+import { getVehicles } from "@/app/services/vehicleService";
+import { getParties } from "@/app/services/partyService";
 import { TripEntryFormData } from "@/app/types/types";
 
 export default function TripList() {
@@ -18,7 +20,11 @@ export default function TripList() {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [selectedDriverId, setSelectedDriverId] = useState('');
+  const [selectedVehicleId, setSelectedVehicleId] = useState('');
+  const [selectedPartyId, setSelectedPartyId] = useState('');
   const [driverList, setDriverList] = useState<any[]>([]);
+  const [vehicleSelectList, setVehicleSelectList] = useState<any[]>([]);
+  const [partyList, setPartyList] = useState<any[]>([]);
   const [selectedTrip, setSelectedTrip] = useState<TripEntryFormData | null>(null);
   const router = useRouter();
   useEffect(() => {
@@ -61,6 +67,47 @@ useEffect(() => {
 
   fetchDriverList();
 }, []);
+useEffect(() => {
+  const fetchVehicleList = async () => {
+    try {
+      const response = await getVehicles();
+      if (response.ok) {
+        const data = await response.json();
+        setVehicleSelectList(data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  fetchVehicleList();
+}, []);
+useEffect(() => {
+  const fetchPartyList = async () => {
+    try {
+      const response = await getParties();
+      if (response.ok) {
+        const data = await response.json();
+        setPartyList(data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  fetchPartyList();
+}, []);
+
+const getPartyName = (partyId: any) => {
+  const party = partyList.find(p => String(p.value) === String(partyId));
+  return party ? party.label : partyId;
+};
+
+const getDriverName = (driverId: any) => {
+  const driver = driverList.find(d => String(d.value) === String(driverId));
+  return driver ? driver.label : driverId;
+};
+
 const handleEdit = async (trip: any) => {
   console.log('Editing trip:', trip);
   try {
@@ -149,21 +196,35 @@ const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
   else if(name === 'driverId' && value !== '') {
     setSelectedDriverId(value);
   }
+  else if(name === 'vehicleId' && value !== '') {
+    setSelectedVehicleId(value);
+  }
+  else if(name === 'partyId' && value !== '') {
+    setSelectedPartyId(value);
+  }
  };
 
 const handleFilter = () => {
   let filteredList = tripList;
-console.log('Filtering trip list with selectedDriverId:', selectedDriverId, 'fromDate:', fromDate, 'toDate:', toDate);
+console.log('Filtering trip list with selectedDriverId:', selectedDriverId, 'selectedVehicleId:', selectedVehicleId, 'selectedPartyId:', selectedPartyId, 'fromDate:', fromDate, 'toDate:', toDate);
   if (selectedDriverId) {
     filteredList = filteredList.filter(x => x.driverId === parseInt(selectedDriverId));
   }
 
+  if (selectedVehicleId) {
+    filteredList = filteredList.filter(x => String(x.vehicleId) === String(selectedVehicleId));
+  }
+
+  if (selectedPartyId) {
+    filteredList = filteredList.filter(x => String(x.party1) === String(selectedPartyId));
+  }
+
   if (fromDate) {
-    filteredList = filteredList.filter(x => new Date(x.transactionDate) >= new Date(fromDate));
+    filteredList = filteredList.filter(x => String(x.date).slice(0, 10) >= fromDate);
   }
 
   if (toDate) {
-    filteredList = filteredList.filter(x => new Date(x.transactionDate) <= new Date(toDate));
+    filteredList = filteredList.filter(x => String(x.date).slice(0, 10) <= toDate);
   }
 
   setTripFilteredList(filteredList);
@@ -173,10 +234,12 @@ console.log('Filtering trip list with selectedDriverId:', selectedDriverId, 'fro
 
 const handleClearFilter = () => {
   setSelectedDriverId('');
+  setSelectedVehicleId('');
+  setSelectedPartyId('');
   setFromDate('');
   setToDate('');
   setTripFilteredList(tripList);
-};              
+};
 
 
 
@@ -187,19 +250,20 @@ const handleClearFilter = () => {
       <h1 className={styles.title}>🚚 Trip List</h1>
 
       <div className={styles.tableWrapper}>
-        <button className={clsx(styles.addBtn,button.primaryBtn)} onClick={handleAdd}>
+        <div className={styles.filterBar}>
+        <button className={clsx(styles.compactBtn,styles.compactPrimary)} onClick={handleAdd}>
   + Add Trip
 </button>
-  <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
+  <button className={clsx(styles.compactBtn,styles.compactSecondary)} onClick={()=>router.push("/")}>
   Home
 </button>
-   <label className={clsx(styles.label)}>Driver</label>
+   <label className={clsx(styles.compactLabel)}>Driver</label>
         <select
           name="driverId"
           value={selectedDriverId}
           onChange={handleChange}
           required
-          className={clsx(styles.selectInput)}
+          className={clsx(styles.compactSelect)}
         >
         <option value="">-- Select Driver --</option>
 
@@ -210,15 +274,47 @@ const handleClearFilter = () => {
     ))}
 </select>
 
-<label className={clsx(styles.label)}>From Date</label><input type="date" name="fromDate" value={fromDate} className={clsx(styles.dateInput)} onChange={handleChange} />
-<label className={clsx(styles.label)}>To Date</label><input type="date" name="toDate" value={toDate} className={clsx(styles.dateInput)} onChange={handleChange} />
-<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
+<label className={clsx(styles.compactLabel)}>Vehicle</label>
+        <select
+          name="vehicleId"
+          value={selectedVehicleId}
+          onChange={handleChange}
+          className={clsx(styles.compactSelect)}
+        >
+        <option value="">-- Select Vehicle --</option>
+
+    {vehicleSelectList.map((vehicle) => (
+      <option key={vehicle.value} value={vehicle.value}>
+        {vehicle.label}
+      </option>
+    ))}
+</select>
+
+<label className={clsx(styles.compactLabel)}>Party</label>
+        <select
+          name="partyId"
+          value={selectedPartyId}
+          onChange={handleChange}
+          className={clsx(styles.compactSelect)}
+        >
+        <option value="">-- Select Party --</option>
+
+    {partyList.map((party) => (
+      <option key={party.value} value={party.value}>
+        {party.label}
+      </option>
+    ))}
+</select>
+
+<label className={clsx(styles.compactLabel)}>From</label><input type="date" name="fromDate" value={fromDate} className={clsx(styles.compactDate)} onChange={handleChange} />
+<label className={clsx(styles.compactLabel)}>To</label><input type="date" name="toDate" value={toDate} className={clsx(styles.compactDate)} onChange={handleChange} />
+<button className={clsx(styles.compactBtn,styles.compactSecondary)} onClick={handleFilter}>
   Filter
 </button>
-<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
-
-  Clear Filter
+<button className={clsx(styles.compactBtn,styles.compactSecondary)} onClick={handleClearFilter}>
+Clear
 </button>
+        </div>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -226,18 +322,20 @@ const handleClearFilter = () => {
               <th>Date</th>
               <th>Vehicle</th>
               <th>Registration</th>
+              <th>Driver</th>
+              <th>Party</th>
               <th>From</th>
               <th>To</th>
-              <th>Total KM</th>
-              <th>Rent</th>
-              <th>Actions</th>
+              <th style={{ textAlign: "right" }}>Total KM</th>
+              <th style={{ textAlign: "right" }}>Rent</th>
+              <th style={{ textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
 
           <tbody>
             {tripFilteredList.length === 0 ? (
               <tr>
-                <td colSpan={8} className={styles.empty}>
+                <td colSpan={11} className={styles.empty}>
                   No trip records found
                 </td>
               </tr>
@@ -252,13 +350,15 @@ const handleClearFilter = () => {
                       {trip.vehicle?.registration}
                     </span>
                   </td>
-                  <td>{trip.fromText}</td>
-                  <td>{trip.toText}</td>
-                  <td>{trip.total}</td>
-                  <td className={styles.amount}>₹ {trip.rent}</td>
-                  <td>
-     
-    <div className={button.actionIcons}>
+                  <td>{getDriverName(trip.driverId)}</td>
+                  <td>{getPartyName(trip.party1)}</td>
+                  <td>{trip.locationFrom?.name}</td>
+                  <td>{trip.locationTo?.name}</td>
+                  <td style={{ textAlign: "right" }}>{Number(trip.total).toFixed(2)}</td>
+                  <td className={styles.amount} style={{ textAlign: "right" }}>{Number(trip.rent).toFixed(2)}</td>
+                  <td style={{ textAlign: "right" }}>
+
+    <div className={button.actionIcons} style={{ justifyContent: "flex-end" }}>
      <button className={button.actionEdit} onClick={() => handleEdit(trip)}>
         <FaEdit />
       </button>

@@ -78,7 +78,7 @@ export default function InvoiceIssueRegisterList() {
     let filteredList = invoiceList;
 
     if (selectedPartyId) {
-      filteredList = filteredList.filter(x => x.destinationId === parseInt(selectedPartyId));
+      filteredList = filteredList.filter(x => x.partyId === parseInt(selectedPartyId));
     }
 
     if (fromDate) {
@@ -132,7 +132,7 @@ export default function InvoiceIssueRegisterList() {
           Filter
         </button>
         <button className={clsx(styles.addBtn, button.secondaryBtn)} onClick={handleClearFilter}>
-          Clear Filter
+          Clear
         </button>
 
         <table className={styles.table}>
@@ -162,11 +162,11 @@ export default function InvoiceIssueRegisterList() {
                   <td>{invoice.date ? new Date(invoice.date).toLocaleDateString() : '-'}</td>
                   <td>
                     <span className={styles.badge}>
-                      {invoice.tripEntry?.vehicle?.registration || '-'}
+                      {invoice.vehicleRegistration || '-'}
                     </span>
                   </td>
-                  <td>{invoice.destination?.name || '-'}</td>
-                  <td className={styles.amount}>₹ {invoice.amount}</td>
+                  <td>{invoice.partyName || '-'}</td>
+                  <td className={styles.amount}>{invoice.amount}</td>
                 </tr>
               ))
             )}

@@ -56,11 +56,12 @@ const handleSave = async () => {
       : await createVehicleType(formData);
 
     if (response.ok) {
-      const resText  = await response.text();
-      alert(resText);
+      alert(formData.id ? "Vehicle type updated successfully." : "Vehicle type saved successfully.");
+    } else {
+      alert("Failed to save vehicle type.");
     }
   } catch (error) {
-    alert(error);
+    alert(error instanceof Error ? error.message : "Failed to save vehicle type.");
     console.error(error);
   }
 };

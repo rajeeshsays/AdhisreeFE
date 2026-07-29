@@ -143,12 +143,13 @@ const handleDelete = async (id: number | undefined) => {
   }
 };
 
+
 const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
   const { name, value } = e.target;
-  if(name === 'fromDate' && value !== '') {
+  if(name === 'fromDate') {
     setFromDate(value);
   }
-  else if(name === 'toDate' && value !== '') {
+  else if(name === 'toDate') {
     setToDate(value);
   }
   else if(name === 'driverId' && value !== '') {
@@ -232,14 +233,14 @@ const handleClearFilter = () => {
         <option value="2">Thirdparty</option>
 </select>
 
-<label className={clsx(styles.label)}>From Date</label><input type="date" name="fromDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
-<label className={clsx(styles.label)}>To Date</label><input type="date" name="toDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
+<label className={clsx(styles.label)}>From Date</label><input type="date" name="fromDate" value={fromDate} className={clsx(styles.dateInput)} onChange={handleChange} />
+<label className={clsx(styles.label)}>To Date</label><input type="date" name="toDate" value={toDate} className={clsx(styles.dateInput)} onChange={handleChange} />
 <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
   Filter
 </button>
 <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
 
-  Clear Filter
+  Clear
 </button>
       </div>
 {/* <pre>{JSON.stringify(driverList, null, 2) }</pre> */}

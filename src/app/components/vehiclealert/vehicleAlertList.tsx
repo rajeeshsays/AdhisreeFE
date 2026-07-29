@@ -63,19 +63,20 @@ export default function VehicleAlertsList() {
   }
   },[selectedAlert,operationMode])
 
-  useEffect(() => {
-    async function fetchAlerts() {
-      try {
-        const response = await getVehicleAlerts();
-        if (response.ok) {
-          const data = await response.json();
-          setAlertsList(data);
-          setAlertsFilteredList(data);
-        }
-      } catch (error) {
-        console.error(error);
+  const fetchAlerts = async () => {
+    try {
+      const response = await getVehicleAlerts();
+      if (response.ok) {
+        const data = await response.json();
+        setAlertsList(data);
+        setAlertsFilteredList(data);
       }
+    } catch (error) {
+      console.error(error);
     }
+  };
+
+  useEffect(() => {
     fetchAlerts();
   }, []);
 
@@ -128,11 +129,18 @@ export default function VehicleAlertsList() {
     setSelectedAlert(undefined);
   };
 
+  const handleSaved = async () => {
+    await fetchAlerts();
+    
+    closeModal();
+  };
+
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this vehicle alert?")) return;
     try {
       await deleteVehicleAlert(id);
       setAlertsList(prev => prev.filter(t => t.id !== id));
+      setAlertsFilteredList(prev => prev.filter(t => t.id !== id));
     } catch (error: unknown) {
       if (error instanceof Error) alert(error.message);
     }
@@ -150,12 +158,10 @@ export default function VehicleAlertsList() {
 
   const handleFilter =  ()=>
   {
- 
    let filteredList = alertsList;
-   alert(selectedVehicleId);
    if(selectedVehicleId)
    {
-    filteredList = filteredList.filter(x => x.vehicleId === selectedVehicleId)
+    filteredList = filteredList.filter(x => String(x.vehicleId) === String(selectedVehicleId))
    }
    setAlertsFilteredList(filteredList);
   }
@@ -200,7 +206,7 @@ export default function VehicleAlertsList() {
 </button>
 <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
 
-  Clear Filter
+  Clear
 </button>
         <table className={styles.table}>
           <thead>
@@ -267,6 +273,10 @@ export default function VehicleAlertsList() {
           <VehicleAlertsEntry
             vehicleAlert={selectedAlert}
             closeModal={closeModal}
+            onSaved={handleSaved}
+            existingVehicleIds={alertsList
+              .filter(a => a.id !== selectedAlert?.id)
+              .map(a => a.vehicleId)}
           />
         )}
       </div>

@@ -53,6 +53,7 @@ const handleDelete = async (id: number) => {
   try { 
   await deleteLocation(id);
   setLocationList(prev => prev.filter(t => t.id !== id));
+  setLocationFilteredList(prev => prev.filter(t => t.id !== id));
 }
   catch (error :unknown) {
     if(error instanceof Error)
@@ -109,7 +110,7 @@ const handleClearFilter = () => {
 </button>
 <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
 
-  Clear Filter
+  Clear
 </button>
 
 {/* <pre>{JSON.stringify(driverList, null, 2) }</pre> */}

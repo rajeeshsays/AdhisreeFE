@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { createTrip,updateTrip } from "../../services/tripService";
 import { createDriverLedger, deleteDriverLedger } from "../../services/driverLedgerService";
@@ -62,11 +62,13 @@ const [destinationCharges, setDestinationCharges] = useState<Record<string, stri
 const [invoiceRows, setInvoiceRows] = useState<InvoiceDetail[]>(trip?.invoiceDetails ?? []);
 const [driverOptions, setDriverOptions] = useState<DriverOption[]>([]);
 const [selectedDriverTransportTypeId, setSelectedDriverTransportTypeId] = useState("");
+
 const [locationOptions, setLocationOptions] = useState<FieldOption[]>([]);
 const [vehicleOptions, setVehicleOptions] = useState<FieldOption[]>([]);
 const [vehicleTypeOptions, setVehicleTypeOptions] = useState<FieldOption[]>([]);
 const [party2GroupOriginalOptions, setParty2GroupOriginalOptions] = useState<FieldOption[]>([]);
 const [party2GroupOptions, setParty2GroupOptions] = useState<FieldOption[]>([]);
+const [partyOriginalOptions, setPartyOriginalOptions] = useState<FieldOption[]>([]);
 const [partyOptions, setPartyOptions] = useState<FieldOption[]>([]);
 
 //const [loading, setLoading] = useState(true);
@@ -128,6 +130,12 @@ useEffect(() => {
     party2GroupOriginalOptions.filter((x) => String(x.value) !== String(formData.party1))
   );
 }, [party2GroupOriginalOptions, formData.party1]);
+
+useEffect(() => {
+  setPartyOptions(
+    partyOriginalOptions.filter((x) => !formData.destinationGroup.includes(String(x.value)))
+  );
+}, [partyOriginalOptions, formData.destinationGroup]);
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -176,18 +184,33 @@ const handleClose = () => {
   closeModal();
 }
 
+const invoiceNoRef = useRef<HTMLInputElement>(null);
+const invoiceDateRef = useRef<HTMLInputElement>(null);
+const invoiceAmountRef = useRef<HTMLInputElement>(null);
+
 const handleInvoiceInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const { name, value } = e.target;
+  e.target.setCustomValidity("");
   setInvoiceForm((prev) => ({ ...prev, [name]: value }));
 };
 
 const handleAddInvoice = () => {
-  if (!invoiceForm.invoiceNo.trim() || !invoiceForm.date || !invoiceForm.amount.trim()) {
+  if (!invoiceForm.invoiceNo.trim()) {
+    invoiceNoRef.current?.setCustomValidity("Invoice No is required");
+    invoiceNoRef.current?.reportValidity();
+    return;
+  }
+
+  if (!invoiceForm.date) {
+    invoiceDateRef.current?.setCustomValidity("Date is required");
+    invoiceDateRef.current?.reportValidity();
     return;
   }
 
   const parsedAmount = Number(invoiceForm.amount);
-  if (!Number.isFinite(parsedAmount) || parsedAmount < 0) {
+  if (!invoiceForm.amount.trim() || !Number.isFinite(parsedAmount) || parsedAmount < 0) {
+    invoiceAmountRef.current?.setCustomValidity("Enter a valid amount");
+    invoiceAmountRef.current?.reportValidity();
     return;
   }
 
@@ -375,12 +398,14 @@ const handleSave = async (e: React.FormEvent) => {
         payabletoThirdParty: "",
         voucherId,
       }
-console.log(payload);
-    const resBody = formData.id
-      ? await updateTrip(formData.id, payload)
-      : await createTrip(payload);
+    if (formData.id) {
+      await updateTrip(formData.id, payload);
+    } else {
+      await createTrip(payload);
+    }
     setFormData((prev) => ({ ...prev, voucherId }));
-    alert(JSON.stringify(resBody));
+    alert(formData.id ? "Trip updated successfully." : "Trip saved successfully.");
+    closeModal();
   } catch (error) {
     console.error(error);
     alert(error instanceof Error ? error.message : "Failed to save trip");
@@ -457,7 +482,7 @@ useEffect(() => {
           label: v.label,
         })));
 
-      setPartyOptions(
+      setPartyOriginalOptions(
         parties.map((v: any) => ({
           value: v.value,
           label: v.label,
@@ -628,6 +653,7 @@ return (
               <input
                 id="invoiceNo"
                 name="invoiceNo"
+                ref={invoiceNoRef}
                 value={invoiceForm.invoiceNo}
                 onChange={handleInvoiceInputChange}
                 placeholder="Enter invoice no"
@@ -641,6 +667,7 @@ return (
                 id="invoiceDate"
                 name="date"
                 type="date"
+                ref={invoiceDateRef}
                 value={invoiceForm.date}
                 onChange={handleInvoiceInputChange}
                 style={{ width: "100%", padding: 8 }}
@@ -655,6 +682,7 @@ return (
                 type="number"
                 min="0"
                 step="0.01"
+                ref={invoiceAmountRef}
                 value={invoiceForm.amount}
                 onChange={handleInvoiceInputChange}
                 placeholder="0.00"
@@ -719,8 +747,8 @@ return (
                 id="remark"
                 name="remark"
                 type="text"
-                value={invoiceForm.amount}
-                onChange={handleInvoiceInputChange}
+                value={formData.remark}
+                onChange={handleInputChange}
                 placeholder="Enter remark if any"
                 style={{ width: "100%", padding: 8,height:"100px" }}
               />

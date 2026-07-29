@@ -1,0 +1,29 @@
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 8px 24px;
+  background-color: #1f2937;
+  color: #f9fafb;
+  font-size: 13px;
+}
+
+.userInfo {
+  font-weight: 500;
+}
+
+.logoutBtn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid #4b5563;
+  background-color: transparent;
+  color: #f9fafb;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.logoutBtn:hover {
+  background-color: #374151;
+}
