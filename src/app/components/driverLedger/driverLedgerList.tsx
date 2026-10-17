@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {getDriverAll} from "@/app/services/driverService";
 import {getDriverLedgerAll, deleteDriverLedger} from "@/app/services/driverLedgerService";
-import styles from "./driverLedgerList.module.css";
+import styles from "../../css/list.module.css";
 import { DriverLedgerActualData, } from "@/app/types/types";
 import {clsx} from 'clsx'
 import {useRouter} from 'next/navigation'
@@ -194,56 +194,72 @@ const handleClearFilter = () => {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>🚚 Driver Ledger List</h1>
-
-    <div className={styles.tableWrapper}>
-        <button className={clsx(styles.addBtn,button.primaryBtn)} onClick={handleAdd}>
-  + Add Driver Ledger
-</button>
-  <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
-  Home
-</button>
-
-        <label className={clsx(styles.label)}>Driver</label>
-        <select
-          name="driverId"
-          value={selectedDriverId}
-          onChange={handleChange}
-          required
-          className={clsx(styles.selectInput)}
-        >
-        <option value="">-- Select Driver --</option>
-
-    {driverList.map((driver) => (
-      <option key={driver.value} value={driver.value}>
-        {driver.label}
-      </option>
-    ))}
-</select>
-
-        <label className={clsx(styles.label)}>Type</label>
-        <select
-          name="driverType"
-          value={selectedDriverType}
-          onChange={handleChange}
-          className={clsx(styles.selectInput)}
-        >
-        <option value="">-- All --</option>
-        <option value="1">Own</option>
-        <option value="2">Thirdparty</option>
-</select>
-
-<label className={clsx(styles.label)}>From Date</label><input type="date" name="fromDate" value={fromDate} className={clsx(styles.dateInput)} onChange={handleChange} />
-<label className={clsx(styles.label)}>To Date</label><input type="date" name="toDate" value={toDate} className={clsx(styles.dateInput)} onChange={handleChange} />
-<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
-  Filter
-</button>
-<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
-
-  Clear
-</button>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.title}>🚚 Driver Ledger List</h1>
+        <div className={styles.headerActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleAdd}>
+            + Add Driver Ledger
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={() => router.push("/")}>
+            Home
+          </button>
+        </div>
       </div>
-{/* <pre>{JSON.stringify(driverList, null, 2) }</pre> */}
+
+      <div className={styles.filterBar}>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>Driver</label>
+          <select
+            name="driverId"
+            value={selectedDriverId}
+            onChange={handleChange}
+            required
+            className={styles.selectInput}
+          >
+            <option value="">-- Select Driver --</option>
+
+            {driverList.map((driver) => (
+              <option key={driver.value} value={driver.value}>
+                {driver.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>Type</label>
+          <select
+            name="driverType"
+            value={selectedDriverType}
+            onChange={handleChange}
+            className={styles.selectInput}
+          >
+            <option value="">-- All --</option>
+            <option value="1">Own</option>
+            <option value="2">Thirdparty</option>
+          </select>
+        </div>
+
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>From Date</label>
+          <input type="date" name="fromDate" value={fromDate} className={styles.dateInput} onChange={handleChange} />
+        </div>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>To Date</label>
+          <input type="date" name="toDate" value={toDate} className={styles.dateInput} onChange={handleChange} />
+        </div>
+
+        <div className={styles.filterActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleFilter}>
+            Filter
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={handleClearFilter}>
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.tableWrapper}>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -307,7 +323,7 @@ const handleClearFilter = () => {
    />
 )}
       </div>
-    
+    </div>
   );
 }
 

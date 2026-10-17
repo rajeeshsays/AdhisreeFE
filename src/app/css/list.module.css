@@ -1,0 +1,151 @@
+.page {
+  padding: 24px;
+  background-color: #f7f9fc;
+  min-height: 100vh;
+  font-family: "Segoe UI", Roboto, sans-serif;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #1f2937;
+}
+
+.tableWrapper {
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background-color: #3f4863;
+  color: white;
+}
+.table th,
+.table td {
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.table th {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table tbody tr:hover {
+  background-color: #f1f5f9;
+}
+.badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  background-color: #e0f2fe;
+  color: #0369a1;
+  font-weight: 500;
+  font-size: 12px;
+}
+.amount {
+  font-weight: 600;
+  color: #16a34a;
+}
+.empty {
+  padding: 20px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1px;
+  margin-bottom: 16px;
+}
+
+.pageHeader .title {
+  margin-bottom: 0;
+}
+
+.headerActions {
+  display: flex;
+  gap: 1px;
+}
+
+.filterBar {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.filterField {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.filterActions {
+  display: flex;
+  gap: 0;
+  margin-left: auto;
+}
+
+.dateInput,
+.selectInput,
+.textInput {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #1f2937;
+  background-color: #fff;
+  min-width: 170px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dateInput:focus,
+.selectInput:focus,
+.textInput:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.label,
+.filterLabel {
+  font-weight: 700;
+  font-size: 13px;
+  color: #111827;
+  text-align: center;
+}
+
+.active,
+.balanceReceivable {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.inactive,
+.balancePayable {
+  color: #dc2626;
+  font-weight: 600;
+}

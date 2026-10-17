@@ -1,6 +1,6 @@
 "use client";
 
-import { FaTruck, FaList, FaRoute, FaUser, FaUserShield } from "react-icons/fa";
+import { FaTruck, FaList, FaRoute, FaUser, FaUserShield, FaDatabase } from "react-icons/fa";
 import "../dashboard/dashboardmenu.css";
 import Link from "next/link";
 import { useAuth } from "@/app/context/AuthContext";
@@ -12,7 +12,7 @@ export default function DashboardMenu() {
   const menuItems = [
     { key:"vehicle", name: "Vehicle", path: "/vehicle", icon: <FaTruck size={s} /> },
     { key:"vehicleType", name: "Vehicle Type", path: "/vehicletype", icon: <FaList size={40} /> },
-    { key:"transport",name: "Trip", path: "/transport", icon: <FaRoute size={40} /> },
+    { key:"trip",name: "Trip", path: "/trip", icon: <FaRoute size={40} /> },
     { key:"driver",name: "Driver", path: "/driver", icon: <FaUser size={40} /> },
     { key:"party",name: "Party", path: "/party", icon: <FaTruck size={40} /> },
     { key:"location", name: "Location", path: "/location", icon: <FaRoute size={40} /> },
@@ -24,6 +24,9 @@ export default function DashboardMenu() {
     { key:"invoiceRegister",name: "Invoice Issue Register", path: "/invoiceregister", icon: <FaList size={40} /> },
     ...(user?.role === "Admin"
       ? [{ key:"users", name: "Users", path: "/users", icon: <FaUserShield size={40} /> }]
+      : []),
+    ...(user?.role === "Admin" || user?.role === "Manager"
+      ? [{ key:"backupRestore", name: "Backup & Restore", path: "/backuprestore", icon: <FaDatabase size={40} /> }]
       : []),
   ];
 

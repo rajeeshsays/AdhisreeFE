@@ -28,14 +28,15 @@
    Primary Button (Add)
 ================================= */
 .primaryBtn {
-  background-color:#434484;
+  background-color:#3f4863;
   color: #ffffff;
 
 }
 
 .primaryBtn:hover {
+  background-color: #333a52;
   transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(79, 70, 229, 0.4);
+  box-shadow: 0 6px 14px rgba(63, 72, 99, 0.4);
 }
 
 .primaryBtn:active {

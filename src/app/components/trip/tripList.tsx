@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { getTripAll,getTrip,deleteTrip} from "@/app/services/tripService";
-import styles from "@/app/components/trip/triptList.module.css";
+import styles from "@/app/css/list.module.css";
 import TripEntryForm from "@/app/components/trip/tripEntryForm";
 import { useRouter } from "next/navigation";
 import button from "../../css/button.module.css"
@@ -99,6 +99,7 @@ useEffect(() => {
 }, []);
 
 const getPartyName = (partyId: any) => {
+  if (Number(partyId) === -1) return "-";
   const party = partyList.find(p => String(p.value) === String(partyId));
   return party ? party.label : partyId;
 };
@@ -125,6 +126,7 @@ const handleEdit = async (trip: any) => {
 
     const mappedTrip: TripEntryFormData = {
       id: data.id,
+      tripCode: data.tripCode ?? "",
       date: data.date ? String(data.date).substring(0, 10) : "",
       vehicleId: data.vehicleId != null ? String(data.vehicleId) : "",
       vehicleTypeId: data.vehicleTypeId != null ? String(data.vehicleTypeId) : "",
@@ -145,11 +147,13 @@ const handleEdit = async (trip: any) => {
         invoiceNo: inv.invoiceNo,
         date: inv.date,
         amount: String(inv.amount),
+        received: inv.received ?? true,
       })),
       unloadingCharges: (data.unloadingCharges ?? []).map((uc: any) => ({
         tripId: String(uc.tripId),
         destinationId: String(uc.destinationId),
         amount: uc.amount,
+        received: uc.received ?? true,
       })),
       returnTrip: data.returnTrip ?? "",
       haltDays: data.haltDays != null ? String(data.haltDays) : "",
@@ -247,78 +251,99 @@ const handleClearFilter = () => {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>🚚 Trip List</h1>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.title}>🚚 Trip List</h1>
+        <div className={styles.headerActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleAdd}>
+            + Add Trip
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={() => router.push("/")}>
+            Home
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.filterBar}>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>Driver</label>
+          <select
+            name="driverId"
+            value={selectedDriverId}
+            onChange={handleChange}
+            required
+            className={styles.selectInput}
+          >
+            <option value="">-- Select Driver --</option>
+
+            {driverList.map((driver) => (
+              <option key={driver.value} value={driver.value}>
+                {driver.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>Vehicle</label>
+          <select
+            name="vehicleId"
+            value={selectedVehicleId}
+            onChange={handleChange}
+            className={styles.selectInput}
+          >
+            <option value="">-- Select Vehicle --</option>
+
+            {vehicleSelectList.map((vehicle) => (
+              <option key={vehicle.value} value={vehicle.value}>
+                {vehicle.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>Party</label>
+          <select
+            name="partyId"
+            value={selectedPartyId}
+            onChange={handleChange}
+            className={styles.selectInput}
+          >
+            <option value="">-- Select Party --</option>
+
+            {partyList.filter((party) => Number(party.value) !== -1).map((party) => (
+              <option key={party.value} value={party.value}>
+                {party.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>From</label>
+          <input type="date" name="fromDate" value={fromDate} className={styles.dateInput} onChange={handleChange} />
+        </div>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>To</label>
+          <input type="date" name="toDate" value={toDate} className={styles.dateInput} onChange={handleChange} />
+        </div>
+
+        <div className={styles.filterActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleFilter}>
+            Filter
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={handleClearFilter}>
+            Clear
+          </button>
+        </div>
+      </div>
 
       <div className={styles.tableWrapper}>
-        <div className={styles.filterBar}>
-        <button className={clsx(styles.compactBtn,styles.compactPrimary)} onClick={handleAdd}>
-  + Add Trip
-</button>
-  <button className={clsx(styles.compactBtn,styles.compactSecondary)} onClick={()=>router.push("/")}>
-  Home
-</button>
-   <label className={clsx(styles.compactLabel)}>Driver</label>
-        <select
-          name="driverId"
-          value={selectedDriverId}
-          onChange={handleChange}
-          required
-          className={clsx(styles.compactSelect)}
-        >
-        <option value="">-- Select Driver --</option>
-
-    {driverList.map((driver) => (
-      <option key={driver.value} value={driver.value}>
-        {driver.label}
-      </option>
-    ))}
-</select>
-
-<label className={clsx(styles.compactLabel)}>Vehicle</label>
-        <select
-          name="vehicleId"
-          value={selectedVehicleId}
-          onChange={handleChange}
-          className={clsx(styles.compactSelect)}
-        >
-        <option value="">-- Select Vehicle --</option>
-
-    {vehicleSelectList.map((vehicle) => (
-      <option key={vehicle.value} value={vehicle.value}>
-        {vehicle.label}
-      </option>
-    ))}
-</select>
-
-<label className={clsx(styles.compactLabel)}>Party</label>
-        <select
-          name="partyId"
-          value={selectedPartyId}
-          onChange={handleChange}
-          className={clsx(styles.compactSelect)}
-        >
-        <option value="">-- Select Party --</option>
-
-    {partyList.map((party) => (
-      <option key={party.value} value={party.value}>
-        {party.label}
-      </option>
-    ))}
-</select>
-
-<label className={clsx(styles.compactLabel)}>From</label><input type="date" name="fromDate" value={fromDate} className={clsx(styles.compactDate)} onChange={handleChange} />
-<label className={clsx(styles.compactLabel)}>To</label><input type="date" name="toDate" value={toDate} className={clsx(styles.compactDate)} onChange={handleChange} />
-<button className={clsx(styles.compactBtn,styles.compactSecondary)} onClick={handleFilter}>
-  Filter
-</button>
-<button className={clsx(styles.compactBtn,styles.compactSecondary)} onClick={handleClearFilter}>
-Clear
-</button>
-        </div>
         <table className={styles.table}>
           <thead>
             <tr>
               <th>ID</th>
+              <th>Trip Code</th>
               <th>Date</th>
               <th>Vehicle</th>
               <th>Registration</th>
@@ -335,7 +360,7 @@ Clear
           <tbody>
             {tripFilteredList.length === 0 ? (
               <tr>
-                <td colSpan={11} className={styles.empty}>
+                <td colSpan={12} className={styles.empty}>
                   No trip records found
                 </td>
               </tr>
@@ -343,6 +368,7 @@ Clear
               tripFilteredList.map((trip) => (
                 <tr key={trip.id}>
                   <td>{trip.id}</td>
+                  <td>{trip.tripCode || '-'}</td>
                   <td>{new Date(trip.date).toLocaleDateString()}</td>
                   <td>{trip.vehicle?.model}</td>
                   <td>

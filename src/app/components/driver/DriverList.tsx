@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from "react";
 import { getDriverAll, deleteDriver} from "@/app/services/driverService";
-import styles from "./driverList.module.css";
+import styles from "../../css/list.module.css";
 import DriverEntryForm from "@/app/components/driver/driverEntry";
 import {clsx} from 'clsx'
 import {useRouter} from 'next/navigation'
@@ -139,27 +139,42 @@ console.log("Handle filter is clicked")
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>🚚 Driver List</h1>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.title}>🚚 Driver List</h1>
+        <div className={styles.headerActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleAdd}>
+            + Add Driver
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={() => router.push("/")}>
+            Home
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.filterBar}>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>Driver</label>
+          <input type="text" name="driverName" value={searchedDriver} className={styles.textInput} onChange={handleChange} />
+        </div>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>From Date</label>
+          <input type="date" name="fromDate" value={''} className={styles.dateInput} onChange={handleChange} />
+        </div>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>To Date</label>
+          <input type="date" name="toDate" value={''} className={styles.dateInput} onChange={handleChange} />
+        </div>
+        <div className={styles.filterActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleFilter}>
+            Filter
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={handleClearFilter}>
+            Clear
+          </button>
+        </div>
+      </div>
 
     <div className={styles.tableWrapper}>
-        <button className={clsx(styles.addBtn,button.primaryBtn)} onClick={handleAdd}>
-  + Add Driver
-</button>
-  <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
-  Home
-</button>
-<label className={clsx(styles.label)}>Driver</label>
-<input type="text" name="driverName" value={searchedDriver} className={clsx(styles.textInput)} onChange={handleChange} />
-<label className={clsx(styles.label)}>From Date</label><input type="date" name="fromDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
-<label className={clsx(styles.label)}>To Date</label><input type="date" name="toDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
-<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
-  Filter
-</button>
-<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
-
-  Clear
-</button>
-{/* <pre>{JSON.stringify(driverList, null, 2) }</pre> */}
         <table className={styles.table}>
           <thead>
             <tr>

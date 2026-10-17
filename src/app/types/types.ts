@@ -4,11 +4,13 @@ export type InvoiceDetail = {
   invoiceNo: string;
   date: string;
   amount: string;
+  received?: boolean;
 };
 export type UnLoadingCharge = {
   tripId : string,
   destinationId : string,
   amount : number,
+  received?: boolean,
 
 }
 export type TripEntryPayload = {
@@ -38,12 +40,13 @@ export type TripEntryPayload = {
 export type TripSavePayload = {
   tripEntry: TripEntryPayload;
   destinationGroup: { destinationIds: number[] };
-  invoices: { invoiceNo: string; date: string; amount: number }[];
-  unloadingCharges: { destinationId: number; amount: number }[];
+  invoices: { invoiceNo: string; date: string; amount: number; received?: boolean }[];
+  unloadingCharges: { destinationId: number; amount: number; received?: boolean }[];
 };
 
 export type TripEntryFormData = {
   id?: number;
+  tripCode?: string;
   date: string;
   vehicleId: string;
   vehicleTypeId: string;
@@ -212,17 +215,22 @@ export type VehicleMaintenanceFormData ={
     id?: number,
     destinationId: number,
     tripId: number,
+    tripCode?: string,
     tripDate : string,
+    partyId :number,
+    partyName :string,
     driverId :number,
     driverName :string,
     amount: number,
     vehicleRegistration: string,
     destinationName:string,
+    received?: boolean,
   }
 
   export type InvoiceData = {
     id?: number,
     tripId: number,
+    tripCode?: string,
     invoiceNo: string,
     date: string,
     amount: number,
@@ -230,6 +238,7 @@ export type VehicleMaintenanceFormData ={
     vehicleRegistration?: string,
     partyId?: number,
     partyName?: string,
+    received?: boolean,
   }
 
   export type AuthUser = {

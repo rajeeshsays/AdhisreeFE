@@ -34,7 +34,7 @@ const tripData : TripEntryFormData = {
       vehicleId: "",
       vehicleTypeId: "",
       driverId: "",
-      party1: "",
+      party1: "-1",
       destinationGroup: [],
       from: "",
       to: "",
@@ -58,6 +58,9 @@ const [formData, setFormData] = useState<TripEntryFormData>(trip ?? tripData);
 const [invoiceForm, setInvoiceForm] = useState({ invoiceNo: "", date: "", amount: "" });
 const [destinationCharges, setDestinationCharges] = useState<Record<string, string>>(
   Object.fromEntries((trip?.unloadingCharges ?? []).map((uc) => [uc.destinationId, String(uc.amount)]))
+);
+const [destinationReceived, setDestinationReceived] = useState<Record<string, boolean>>(
+  Object.fromEntries((trip?.unloadingCharges ?? []).map((uc) => [uc.destinationId, uc.received ?? true]))
 );
 const [invoiceRows, setInvoiceRows] = useState<InvoiceDetail[]>(trip?.invoiceDetails ?? []);
 const [driverOptions, setDriverOptions] = useState<DriverOption[]>([]);
@@ -218,12 +221,21 @@ const handleAddInvoice = () => {
     invoiceNo: invoiceForm.invoiceNo.trim(),
     date: invoiceForm.date,
     amount: parsedAmount.toFixed(2),
+    received: true,
   };
 
   const nextRows = [...invoiceRows, newRow];
   setInvoiceRows(nextRows);
   setFormData((prev) => ({ ...prev, invoiceDetails: nextRows }));
   setInvoiceForm({ invoiceNo: "", date: "", amount: "" });
+};
+
+const handleToggleInvoiceReceived = (indexToToggle: number, checked: boolean) => {
+  const nextRows = invoiceRows.map((row, index) =>
+    index === indexToToggle ? { ...row, received: checked } : row
+  );
+  setInvoiceRows(nextRows);
+  setFormData((prev) => ({ ...prev, invoiceDetails: nextRows }));
 };
 
 const handleDeleteInvoice = (indexToRemove: number) => {
@@ -311,23 +323,58 @@ const handleDeleteInvoice = (indexToRemove: number) => {
 //}, [trip]);
 
 
-const handleDestinationChargeChange = (destinationValue: string, value: string) => {
-  const nextCharges = { ...destinationCharges, [destinationValue]: value };
-  setDestinationCharges(nextCharges);
-
-  const unloadingCharges: UnLoadingCharge[] = Object.entries(nextCharges)
+const buildUnloadingCharges = (
+  charges: Record<string, string>,
+  received: Record<string, boolean>
+): UnLoadingCharge[] =>
+  Object.entries(charges)
     .filter(([, amount]) => amount !== "")
     .map(([destinationId, amount]) => ({
       tripId: String(formData.id ?? ""),
       destinationId,
       amount: Number(amount),
+      received: received[destinationId] ?? true,
     }));
+
+const handleDestinationChargeChange = (destinationValue: string, value: string) => {
+  const nextCharges = { ...destinationCharges, [destinationValue]: value };
+  setDestinationCharges(nextCharges);
+
+  const unloadingCharges = buildUnloadingCharges(nextCharges, destinationReceived);
 
   setFormData((prev) => ({ ...prev, unloadingCharges }));
 };
 
+const handleDestinationReceivedChange = (destinationValue: string, checked: boolean) => {
+  const nextReceived = { ...destinationReceived, [destinationValue]: checked };
+  setDestinationReceived(nextReceived);
+
+  const unloadingCharges = buildUnloadingCharges(destinationCharges, nextReceived);
+
+  setFormData((prev) => ({ ...prev, unloadingCharges }));
+};
+
+// Party1 and destinationGroup ("Party 2") are optional: -1 is the sentinel "no party
+// selected" value backed by a seeded Party row, so they're excluded from this check.
+const requiredReferenceFields: { name: keyof TripEntryFormData; label: string }[] = [
+  { name: "vehicleId", label: "Vehicle No" },
+  { name: "vehicleTypeId", label: "Vehicle Type" },
+  { name: "driverId", label: "Driver (Transporter)" },
+  { name: "from", label: "From" },
+  { name: "to", label: "To" },
+];
+
 const handleSave = async (e: React.FormEvent) => {
   e.preventDefault();
+
+  const missingField = requiredReferenceFields.find(
+    ({ name }) => !formData[name] || Number(formData[name]) <= 0
+  );
+  if (missingField) {
+    alert(`Please select ${missingField.label}.`);
+    return;
+  }
+
   try {
       // Third-party driver payments are tracked as driver-ledger entries. Since a ledger
       // entry has no tripId of its own, we replace it wholesale on every save (delete the
@@ -383,17 +430,21 @@ const handleSave = async (e: React.FormEvent) => {
         haltDays: formData.haltDays,
         rent: formData.rent,
         remark: formData.remark,
-        destinationGroups: formData.destinationGroup.map((destinationId: string) => Number(destinationId)),
+        destinationGroups: formData.destinationGroup.length > 0
+          ? formData.destinationGroup.map((destinationId: string) => Number(destinationId))
+          : [-1],
         invoices: formData.invoiceDetails.map((row) => ({
           invoiceNo: row.invoiceNo,
           date: row.date,
-          amount: row.amount
+          amount: row.amount,
+          received: row.received ?? true
         })),
         unloadingCharges: formData.unloadingCharges.map((row) => ({
           id: "",
           tripId: row.tripId,
           destinationId: row.destinationId,
-          amount: row.amount
+          amount: row.amount,
+          received: row.received ?? true
         })),
         payabletoThirdParty: "",
         voucherId,
@@ -470,20 +521,22 @@ useEffect(() => {
           label: v.label,
         })));
 
+      const realParties = parties.filter((v: any) => Number(v.value) !== -1);
+
       setParty2GroupOriginalOptions(
-        parties.map((v: any) => ({
+        realParties.map((v: any) => ({
           value: v.value,
           label: v.label,
         })));
 
       setParty2GroupOptions(
-        parties.map((v: any) => ({
+        realParties.map((v: any) => ({
           value: v.value,
           label: v.label,
         })));
 
       setPartyOriginalOptions(
-        parties.map((v: any) => ({
+        realParties.map((v: any) => ({
           value: v.value,
           label: v.label,
         }))
@@ -514,15 +567,13 @@ const handleSelectChange = (name: string, isMulti = false) => (selected: any) =>
     const nextCharges = Object.fromEntries(
       Object.entries(destinationCharges).filter(([key]) => selectedValues.includes(key))
     );
-    const unloadingCharges: UnLoadingCharge[] = Object.entries(nextCharges)
-      .filter(([, amount]) => amount !== "")
-      .map(([destinationId, amount]) => ({
-        tripId: String(formData.id ?? ""),
-        destinationId,
-        amount: Number(amount),
-      }));
+    const nextReceived = Object.fromEntries(
+      Object.entries(destinationReceived).filter(([key]) => selectedValues.includes(key))
+    );
+    const unloadingCharges = buildUnloadingCharges(nextCharges, nextReceived);
 
     setDestinationCharges(nextCharges);
+    setDestinationReceived(nextReceived);
     setFormData((prev: any) => ({
       ...prev,
       destinationGroup: selectedValues,
@@ -546,6 +597,18 @@ return (
         <h2>Trip Entry Form</h2>
 
         <div className="form-grid">
+          {trip && (
+            <div>
+              <label htmlFor="tripCode">Trip Code</label>
+              <input
+                id="tripCode"
+                name="tripCode"
+                type="text"
+                value={formData.tripCode ?? ""}
+                readOnly
+              />
+            </div>
+          )}
           {fields
             .filter(({ name }) =>
               ["rent", "commission", "payabletoThirdParty"].includes(name) ? isThirdPartyDriver : true
@@ -616,16 +679,30 @@ return (
                   <label htmlFor={`destination-charge-${option.value}`} style={{ display: "block", marginBottom: 4 }}>
                     {option.label}
                   </label>
-                  <input
-                    id={`destination-charge-${option.value}`}
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={destinationCharges[option.value] ?? ""}
-                    onChange={(e) => handleDestinationChargeChange(option.value, e.target.value)}
-                    placeholder="0.00"
-                    style={{ width: "100%", padding: 8 }}
-                  />
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <input
+                      id={`destination-charge-${option.value}`}
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={destinationCharges[option.value] ?? ""}
+                      onChange={(e) => handleDestinationChargeChange(option.value, e.target.value)}
+                      placeholder="0.00"
+                      style={{ width: "100%", padding: 8 }}
+                    />
+                    <label
+                      htmlFor={`destination-received-${option.value}`}
+                      style={{ display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap", fontSize: 13 }}
+                    >
+                      <input
+                        id={`destination-received-${option.value}`}
+                        type="checkbox"
+                        checked={destinationReceived[option.value] ?? true}
+                        onChange={(e) => handleDestinationReceivedChange(option.value, e.target.checked)}
+                      />
+                      Received
+                    </label>
+                  </div>
                 </div>
               ))}
             </div>
@@ -706,6 +783,7 @@ return (
                   <th style={{ border: "1px solid #ddd", padding: 8, textAlign: "left" }}>Invoice No</th>
                   <th style={{ border: "1px solid #ddd", padding: 8, textAlign: "left" }}>Date</th>
                   <th style={{ border: "1px solid #ddd", padding: 8, textAlign: "right" }}>Amount</th>
+                  <th style={{ border: "1px solid #ddd", padding: 8, textAlign: "center" }}>Received</th>
                   <th style={{ border: "1px solid #ddd", padding: 8, textAlign: "center" }}>Action</th>
                 </tr>
               </thead>
@@ -716,6 +794,14 @@ return (
                     <td style={{ border: "1px solid #ddd", padding: 8 }}>{row.date}</td>
                     <td style={{ border: "1px solid #ddd", padding: 8, textAlign: "right" }}>
                       {Number(row.amount).toFixed(2)}
+                    </td>
+                    <td style={{ border: "1px solid #ddd", padding: 8, textAlign: "center" }}>
+                      <input
+                        type="checkbox"
+                        checked={row.received ?? true}
+                        onChange={(e) => handleToggleInvoiceReceived(index, e.target.checked)}
+                        aria-label={`Mark invoice ${row.invoiceNo} as received`}
+                      />
                     </td>
                     <td style={{ border: "1px solid #ddd", padding: 8, textAlign: "center" }}>
                       <button
@@ -736,6 +822,7 @@ return (
                   <td style={{ border: "1px solid #ddd", padding: 8, textAlign: "right", fontWeight: 600 }}>
                     {totalInvoiceAmount.toFixed(2)}
                   </td>
+                  <td style={{ border: "1px solid #ddd", padding: 8 }} colSpan={2}></td>
                 </tr>
               </tfoot>
             </table>

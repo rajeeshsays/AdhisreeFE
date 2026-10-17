@@ -18,6 +18,7 @@ export default function VehicleList() {
   const [selectedVehicle, setSelectedVehicle] = useState<any | null>(null);
   const [searchedModel, setSearchedModel] = useState<string>('');
   const [selectedVehicleId,setSelectedVehicleId] = useState<number|null>(null)
+  const [selectedTypeId,setSelectedTypeId] = useState<string>('')
   const router = useRouter();
   useEffect(() => {
     async function fetchVehicleList() {
@@ -133,6 +134,10 @@ const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
   {
     setSearchedModel(value);
   }
+  else if(name === 'typeId')
+  {
+    setSelectedTypeId(value);
+  }
 };
 
 const handleFilter = () => {
@@ -146,54 +151,104 @@ const handleFilter = () => {
   {
      filteredList = filteredList.filter(x => x.model.includes(searchedModel));
   }
-  
+  if(selectedTypeId)
+  {
+     filteredList = filteredList.filter(x => String(x.typeId) === String(selectedTypeId));
+  }
+
   setVehicleFilteredList(filteredList);
 };
 
 
 const handleClearFilter = () => {
-  setVehicleList(vehicleList);
+  setSelectedVehicleId(null);
+  setSearchedModel('');
+  setSelectedTypeId('');
   setVehicleFilteredList(vehicleList);
-};     
+};
 
 return (
     <div className={styles.page}>
-      <h1 className={styles.title}>🚚 Vehicle List</h1>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.title}>🚚 Vehicle List</h1>
+        <div className={styles.headerActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleAdd}>
+            + Add Vehicle
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={()=>router.push("/")}>
+            Home
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.filterBar}>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>Vehicle</label>
+          <select
+            name="vehicleId"
+            value={selectedVehicleId?.toString() ?? ""}
+            onChange={handleChange}
+            className={styles.selectInput}
+          >
+            <option value="">-- Select Vehicle --</option>
+            {vehicleSelectList.map((driver) => (
+              <option key={driver.value} value={driver.value}>
+                {driver.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>Vehicle Type</label>
+          <select
+            name="typeId"
+            value={selectedTypeId}
+            onChange={handleChange}
+            className={styles.selectInput}
+          >
+            <option value="">-- Select Vehicle Type --</option>
+            {vehicleTypeList.map((type) => (
+              <option key={type.value} value={type.value}>
+                {type.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>Model</label>
+          <input
+            type="text"
+            name="model"
+            value={searchedModel}
+            onChange={handleChange}
+            placeholder="Search model"
+            className={styles.textInput}
+          />
+        </div>
+
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>From Date</label>
+          <input type="date" name="fromDate" value={''} className={styles.dateInput} onChange={handleChange} />
+        </div>
+
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>To Date</label>
+          <input type="date" name="toDate" value={''} className={styles.dateInput} onChange={handleChange} />
+        </div>
+
+        <div className={styles.filterActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleFilter}>
+            Filter
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={handleClearFilter}>
+            Clear
+          </button>
+        </div>
+      </div>
 
       <div className={styles.tableWrapper}>
-        <button className={clsx(styles.addBtn,button.primaryBtn)} onClick={handleAdd}>
-  + Add Vehicle
-</button>
- <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
-  Home
-</button>
-
-        <label className={clsx(styles.label)}>Vehicle</label>
-        <select
-          name="vehicleId"
-          value={selectedVehicleId?.toString()}
-          onChange={handleChange}
-          required
-          className={clsx(styles.selectInput)}
-        >
-        <option value="">-- Select Vehicle --</option>
-
-    {vehicleSelectList.map((driver) => (
-      <option key={driver.value} value={driver.value}>
-        {driver.label}
-      </option>
-    ))}
-</select>
-<label className={clsx(styles.label)}>From Date</label><input type="date" name="fromDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
-<label className={clsx(styles.label)}>To Date</label><input type="date" name="toDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
-<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
-  Filter
-</button>
-<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
-
-  Clear
-</button>
-{/* <pre>{JSON.stringify(driverList, null, 2) }</pre> */}
         <table className={styles.table}>
           <thead>
             <tr>

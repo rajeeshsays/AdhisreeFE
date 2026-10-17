@@ -98,8 +98,9 @@ const [vehicleOptions, setVehicleOptions] = useState<FieldOption[]>([]);
 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((p) => ({ ...p, [name]: value }));
+    const { name, value, type } = e.target;
+    const normalized = type === "date" && value === "" ? null : value;
+    setFormData((p) => ({ ...p, [name]: normalized }));
   };
 const handleClose = () => {
   console.log("Closing form...");

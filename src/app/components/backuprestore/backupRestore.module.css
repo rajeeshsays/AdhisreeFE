@@ -1,0 +1,50 @@
+.page {
+  padding: 24px;
+  background-color: #f7f9fc;
+  min-height: 100vh;
+  font-family: "Segoe UI", Roboto, sans-serif;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #1f2937;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+}
+
+.description {
+  color: #6b7280;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.message {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.success {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.error {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.denied {
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 18px;
+}

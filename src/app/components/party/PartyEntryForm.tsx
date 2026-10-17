@@ -74,9 +74,8 @@ export default function PartyEntryForm({party,closeModal}:{party : PartyFormData
 
 
   const handleClose = () => {
-  console.log("Closing form...");
-  closeModal();
-}
+    closeModal();
+  }
 
 
 const handleSelectChange = (name: string) => (selected: any) => {
@@ -88,19 +87,24 @@ const handleSelectChange = (name: string) => (selected: any) => {
 };
 
 
-const handleSave = async () => {
+const handleSave = async (e: React.FormEvent) => {
+  e.preventDefault();
   try {
-  console.log("formdata te list " +formData)
+    console.log("formdata te list " +formData)
 
-   //const response =  await createTransport(formData);
-    const response = formData.id
-      ? await updateParty(formData.id, formData)
-      : await createParty(formData);
-
-    if (response.ok) {
-      alert(formData.id ? "Party updated successfully." : "Party saved successfully.");
+    if (formData.id) {
+      // updateParty resolves with the parsed body on success and throws on failure
+      await updateParty(formData.id, formData);
+      alert("Party updated successfully.");
+      closeModal();
     } else {
-      alert("Failed to save party.");
+      const response = await createParty(formData);
+      if (response.ok) {
+        alert("Party saved successfully.");
+        closeModal();
+      } else {
+        alert("Failed to save party.");
+      }
     }
   } catch (error) {
     alert(error instanceof Error ? error.message : "Failed to save party.");

@@ -10,7 +10,8 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   const { user, loading, logout } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
-  const isPublicPath = PUBLIC_PATHS.includes(pathname);
+  const normalizedPathname = pathname.length > 1 ? pathname.replace(/\/$/, "") : pathname;
+  const isPublicPath = PUBLIC_PATHS.includes(normalizedPathname);
 
   useEffect(() => {
     if (loading) return;

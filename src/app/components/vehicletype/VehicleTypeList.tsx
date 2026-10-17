@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import styles from "./vehicleTypeList.module.css";
+import styles from "../../css/list.module.css";
 import {deleteVehicleType, getVehicleTypeAll} from "@/app/services/vehicleTypeService";
 import VehicleTypeEntryForm from "@/app/components/vehicletype/VehicleTypeEntryForm";
 import {clsx} from 'clsx'
@@ -106,25 +106,34 @@ const handleClearFilter = () => {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>🚚 Vehicle Type List</h1>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.title}>🚚 Vehicle Type List</h1>
+        <div className={styles.headerActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleAdd}>
+            + Add Vehicle Type
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={() => router.push("/")}>
+            Home
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.filterBar}>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>Vehicle Type</label>
+          <input type="text" name="vehicleType" value={searchedVehicleType} className={styles.textInput} onChange={handleChange} />
+        </div>
+        <div className={styles.filterActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleFilter}>
+            Filter
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={handleClearFilter}>
+            Clear
+          </button>
+        </div>
+      </div>
 
       <div className={styles.tableWrapper}>
-        <button className={clsx(styles.addBtn,button.primaryBtn)} onClick={handleAdd}>
-  + Add Vehicle Type
-</button>
- <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
-  Home
-</button>
-<label className={clsx(styles.label)}>Vehicle Type</label>
-<input type="text" name="vehicleType" value={searchedVehicleType} className={clsx(styles.textInput)} onChange={handleChange} />
-<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
-  Filter
-</button>
-<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
-
-  Clear
-</button>
-{/* <pre>{JSON.stringify(driverList, null, 2) }</pre> */}
         <table className={styles.table}>
           <thead>
             <tr>

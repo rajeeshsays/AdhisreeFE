@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { getDieselLogs, deleteDieselLog } from "@/app/services/diesellogService";
 import { getVehicles } from "@/app/services/vehicleService";
-import styles from "./dieselLogList.module.css";
+import styles from "../../css/list.module.css";
 import DieselLogEntry from "@/app/components/diesellog/diesellogEntry";
 import { DieselLogFormData } from "@/app/types/types";
 import { clsx } from "clsx";
@@ -120,47 +120,48 @@ export default function DieselLogList() {
 
   return (
     <div className={styles.page}>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.title}>⛽ Diesel Log List</h1>
+        <div className={styles.headerActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleAdd}>
+            + Add Diesel Entry
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={() => router.push("/")}>
+            Home
+          </button>
+        </div>
+      </div>
 
-      <h1 className={styles.title}>⛽ Diesel Log List</h1>
+      <div className={styles.filterBar}>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>Vehicle</label>
+          <select
+            name="vehicleId"
+            value={selectedVehicleId?.toString() ?? ""}
+            onChange={handleChange}
+            className={styles.selectInput}
+          >
+            <option value="">-- Select Vehicle --</option>
+
+            {vehicleSelectList.map((vehicle) => (
+              <option key={vehicle.value} value={vehicle.value}>
+                {vehicle.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.filterActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleFilter}>
+            Filter
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={handleClearFilter}>
+            Clear
+          </button>
+        </div>
+      </div>
 
       <div className={styles.tableWrapper}>
-
-        <button
-          className={clsx(styles.addBtn, button.primaryBtn)}
-          onClick={handleAdd}
-        >
-          + Add Diesel Entry
-        </button>
-
-        <button
-          className={clsx(styles.addBtn, button.secondaryBtn)}
-          onClick={() => router.push("/")}
-        >
-          Home
-        </button>
-
-        <label className={clsx(styles.label)}>Vehicle</label>
-        <select
-          name="vehicleId"
-          value={selectedVehicleId?.toString() ?? ""}
-          onChange={handleChange}
-          className={clsx(styles.selectInput)}
-        >
-          <option value="">-- Select Vehicle --</option>
-
-          {vehicleSelectList.map((vehicle) => (
-            <option key={vehicle.value} value={vehicle.value}>
-              {vehicle.label}
-            </option>
-          ))}
-        </select>
-        <button className={clsx(styles.addBtn, button.secondaryBtn)} onClick={handleFilter}>
-          Filter
-        </button>
-        <button className={clsx(styles.addBtn, button.secondaryBtn)} onClick={handleClearFilter}>
-          Clear
-        </button>
-
         <table className={styles.table}>
 
           <thead>

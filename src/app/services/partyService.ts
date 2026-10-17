@@ -76,6 +76,7 @@ export async function createParty(partyFormData : PartyFormData) {
   } 
   catch (ex: any) {
     console.log(JSON.stringify(ex));
+    alert("Error from service "+ ex.message);
     throw ex; // optional
   }
 }

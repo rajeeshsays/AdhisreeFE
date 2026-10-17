@@ -165,7 +165,6 @@ if(parseInt(formData["transportTypeId"]) > 5)
           name="adhaarNo"
           value={formData.adhaarNo}
           onChange={handleChange}
-          required
         />
 
 
@@ -223,7 +222,6 @@ if(parseInt(formData["transportTypeId"]) > 5)
           name="licenceNo"
           value={formData.licenceNo}
           onChange={handleChange}
-          required
         />
       </div>
             <div>

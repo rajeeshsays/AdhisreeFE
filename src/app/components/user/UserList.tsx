@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import styles from "./userList.module.css";
+import styles from "../../css/list.module.css";
+import ownStyles from "./userList.module.css";
 import { getUsers } from "@/app/services/userService";
 import UserEntryForm from "@/app/components/user/UserEntryForm";
 import ChangePasswordForm from "@/app/components/user/ChangePasswordForm";
@@ -40,23 +41,26 @@ export default function UserList() {
   if (user?.role !== "Admin") {
     return (
       <div className={styles.page}>
-        <div className={styles.denied}>You must be an Admin to view this page.</div>
+        <div className={ownStyles.denied}>You must be an Admin to view this page.</div>
       </div>
     );
   }
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>🚚 Users</h1>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.title}>🚚 Users</h1>
+        <div className={styles.headerActions}>
+          <button className={clsx(button.primaryBtn)} onClick={() => setIsAddModalOpen(true)}>
+            + Add User
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={() => router.push("/")}>
+            Home
+          </button>
+        </div>
+      </div>
 
       <div className={styles.tableWrapper}>
-        <button className={clsx(styles.addBtn, button.primaryBtn)} onClick={() => setIsAddModalOpen(true)}>
-          + Add User
-        </button>
-        <button className={clsx(styles.addBtn, button.secondaryBtn)} onClick={() => router.push("/")}>
-          Home
-        </button>
-
         <table className={styles.table}>
           <thead>
             <tr>

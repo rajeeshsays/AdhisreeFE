@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import styles from "./partyList.module.css";
+import styles from "../../css/list.module.css";
 import {deleteParty, getPartyAll } from "@/app/services/partyService";
+import { getLocations } from "@/app/services/locationService";
 import PartyEntryForm from "@/app/components/party/PartyEntryForm";
 import {PartyFormData} from "@/app/types/types";
 import { useRouter } from "next/navigation";
@@ -10,7 +11,7 @@ import {clsx} from 'clsx'
 import button from "../../css/button.module.css"
 import { FaEdit,FaTrash } from "react-icons/fa";
 export default function PartyList() {
-  
+
 
   const [partyList, setPartyList] = useState<any[]>([]);
   const [partyFilteredList,setPartyFilteredList] = useState<any[]|null>([])
@@ -18,28 +19,43 @@ export default function PartyList() {
 
   const [selectedParty, setSelectedParty] = useState<PartyFormData | undefined>(undefined);
   const [searchedParty,setSearchedParty] = useState<string>('abc');
+  const [locationNameById, setLocationNameById] = useState<Record<number, string>>({});
   const router = useRouter();
 
   useEffect(() => {
-    async function fetchPartyList() {
-      let isMounted = true;
+    const fetchLocations = async () => {
       try {
-        const response = await getPartyAll(1,100);
+        const response = await getLocations();
         if (response.ok) {
           const data = await response.json();
-          if (isMounted) {
-            setPartyList(data);
-            setPartyFilteredList(data);
-          }
+          const map: Record<number, string> = {};
+          data.forEach((loc: { value: number; label: string }) => {
+            map[loc.value] = loc.label;
+          });
+          setLocationNameById(map);
         }
-
       } catch (error) {
         console.error(error);
       }
-      return () => {
-        isMounted = false;
+    };
+    fetchLocations();
+  }, []);
+
+  const fetchPartyList = async () => {
+    try {
+      const response = await getPartyAll(1,100);
+      if (response.ok) {
+        const data = await response.json();
+        const realParties = data.filter((party: any) => party.id !== -1);
+        setPartyList(realParties);
+        setPartyFilteredList(realParties);
       }
+    } catch (error) {
+      console.error(error);
     }
+  };
+
+  useEffect(() => {
     fetchPartyList();
   }, []);
 
@@ -61,6 +77,7 @@ const handleEdit = (party: any) => {
   {
   setIsModalOpen(false);
   setSelectedParty(undefined);
+  fetchPartyList();
   }
 const handleDelete = async (id: number) => {
   if (!confirm("Are you sure you want to delete this party?")) return;
@@ -112,27 +129,42 @@ const handleClearFilter = () => {
 
 return (
     <div className={styles.page}>
-      <h1 className={styles.title}>🚚 Party List</h1>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.title}>🚚 Party List</h1>
+        <div className={styles.headerActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleAdd}>
+            + Add Party
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={() => router.push("/")}>
+            Home
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.filterBar}>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>Party</label>
+          <input type="text" name="partyName" className={styles.textInput} value={searchedParty} onChange={handleChange} />
+        </div>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>From Date</label>
+          <input type="date" name="fromDate" value={''} className={styles.dateInput} onChange={handleChange} />
+        </div>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>To Date</label>
+          <input type="date" name="toDate" value={''} className={styles.dateInput} onChange={handleChange} />
+        </div>
+        <div className={styles.filterActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleFilter}>
+            Filter
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={handleClearFilter}>
+            Clear
+          </button>
+        </div>
+      </div>
 
       <div className={styles.tableWrapper}>
-        <button className={clsx(styles.addBtn,button.primaryBtn)} onClick={handleAdd}>
-  + Add Party
-</button>
-     <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
-  Home
-</button>
-<label className={clsx(styles.label)}>Party</label>
-<input type="text" name="partyName"  className={clsx(styles.textInput)} value={searchedParty} onChange={handleChange} />
-<label className={clsx(styles.label)}>From Date</label><input type="date" name="fromDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
-<label className={clsx(styles.label)}>To Date</label><input type="date" name="toDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
-<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
-  Filter
-</button>
-<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
-
-  Clear
-</button>
-{/* <pre>{JSON.stringify(driverList, null, 2) }</pre> */}
         <table className={styles.table}>
           <thead>
             <tr>
@@ -164,7 +196,7 @@ return (
                   <td>{party.id}</td>
                    <td>{party.name}</td>
                    <td>{party.code}</td>
-                   <td>{party.location?.name || "-"}</td>
+                   <td>{locationNameById[party.locationId] || "-"}</td>
                    <td>{party.mobile}</td>
                    <td>{party.officePhone}</td>
                    <td>{party.contactPerson}</td>

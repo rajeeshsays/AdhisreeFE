@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { getInvoiceAll } from "@/app/services/invoiceService";
 import { getPartyAll } from "@/app/services/partyService";
-import styles from "./invoiceIssueRegisterList.module.css";
+import styles from "../../css/list.module.css";
 import { InvoiceData } from "@/app/types/types";
 import { clsx } from 'clsx'
 import { useRouter } from 'next/navigation'
@@ -26,8 +26,9 @@ export default function InvoiceIssueRegisterList() {
           throw new Error(`HTTP ${response.status}`);
         }
         const data = await response.json();
-        setInvoiceList(data);
-        setInvoiceFilteredList(data);
+        const notReceived = data.filter((invoice: InvoiceData) => invoice.received === false);
+        setInvoiceList(notReceived);
+        setInvoiceFilteredList(notReceived);
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error("Error fetching invoice list:", error.message);
@@ -101,44 +102,58 @@ export default function InvoiceIssueRegisterList() {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>🚚 Invoice Issue Register</h1>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.title}>🚚 Invoice Issue Register</h1>
+        <div className={styles.headerActions}>
+          <button className={clsx(button.secondaryBtn)} onClick={() => router.push("/")}>
+            Home
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.filterBar}>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>Target Location</label>
+          <select
+            name="partyId"
+            value={selectedPartyId}
+            onChange={handleChange}
+            className={styles.selectInput}
+          >
+            <option value="">-- Select Target Location --</option>
+            {partyList.map((party) => (
+              <option key={party.id} value={party.id}>
+                {party.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>From Date</label>
+          <input type="date" name="fromDate" value={fromDate} className={styles.dateInput} onChange={handleChange} />
+        </div>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>To Date</label>
+          <input type="date" name="toDate" value={toDate} className={styles.dateInput} onChange={handleChange} />
+        </div>
+
+        <div className={styles.filterActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleFilter}>
+            Filter
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={handleClearFilter}>
+            Clear
+          </button>
+        </div>
+      </div>
 
       <div className={styles.tableWrapper}>
-        <button className={clsx(styles.addBtn, button.secondaryBtn)} onClick={() => router.push("/")}>
-          Home
-        </button>
-
-        <label className={clsx(styles.label)}>Target Location</label>
-        <select
-          name="partyId"
-          value={selectedPartyId}
-          onChange={handleChange}
-          className={clsx(styles.selectInput)}
-        >
-          <option value="">-- Select Target Location --</option>
-          {partyList.map((party) => (
-            <option key={party.id} value={party.id}>
-              {party.name}
-            </option>
-          ))}
-        </select>
-
-        <label className={clsx(styles.label)}>From Date</label>
-        <input type="date" name="fromDate" value={fromDate} className={clsx(styles.dateInput)} onChange={handleChange} />
-        <label className={clsx(styles.label)}>To Date</label>
-        <input type="date" name="toDate" value={toDate} className={clsx(styles.dateInput)} onChange={handleChange} />
-
-        <button className={clsx(styles.addBtn, button.secondaryBtn)} onClick={handleFilter}>
-          Filter
-        </button>
-        <button className={clsx(styles.addBtn, button.secondaryBtn)} onClick={handleClearFilter}>
-          Clear
-        </button>
-
         <table className={styles.table}>
           <thead>
             <tr>
               <th>ID</th>
+              <th>Trip Code</th>
               <th>Invoice No</th>
               <th>Date</th>
               <th>Vehicle</th>
@@ -150,7 +165,7 @@ export default function InvoiceIssueRegisterList() {
           <tbody>
             {invoiceFilteredList.length === 0 ? (
               <tr>
-                <td colSpan={6} className={styles.empty}>
+                <td colSpan={7} className={styles.empty}>
                   No invoice records found
                 </td>
               </tr>
@@ -158,6 +173,7 @@ export default function InvoiceIssueRegisterList() {
               invoiceFilteredList.map((invoice) => (
                 <tr key={invoice.id}>
                   <td>{invoice.id}</td>
+                  <td>{invoice.tripCode || '-'}</td>
                   <td>{invoice.invoiceNo}</td>
                   <td>{invoice.date ? new Date(invoice.date).toLocaleDateString() : '-'}</td>
                   <td>

@@ -158,12 +158,10 @@ useEffect(() => {
         }))
       );
       setDriverOptions(
-        drivers
-          .filter((d: any) => String(d.transportTypeId) !== "2")
-          .map((d: any) => ({
-            value: d.id,
-            label: d.name,
-          }))
+        drivers.map((d: any) => ({
+          value: d.id,
+          label: String(d.transportTypeId) === "2" ? `${d.name} (Thirdparty)` : d.name,
+        }))
       );
     
     } catch (err) {

@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { getVehicleAlerts, deleteVehicleAlert } from "@/app/services/vehicleAlertService";
 import {getVehicles} from "@/app/services/vehicleService";
-import styles from "./vehicleAlertList.module.css";
+import styles from "../../css/list.module.css";
+import ownStyles from "./vehicleAlertList.module.css";
 import VehicleAlertsEntry from "./vehicleAlertEntry";
 import { VehicleAlertFormData } from "@/app/types/types";
 import { clsx } from "clsx";
@@ -43,7 +44,7 @@ function getEmiAlertLevel(dateStr?: string): AlertLevel {
   return "none";
 }
 
-const alertClass = (level: AlertLevel) => (level === "none" ? undefined : styles[`alert${level.charAt(0).toUpperCase()}${level.slice(1)}`]);
+const alertClass = (level: AlertLevel) => (level === "none" ? undefined : ownStyles[`alert${level.charAt(0).toUpperCase()}${level.slice(1)}`]);
 
 export default function VehicleAlertsList() {
   const [alertsList, setAlertsList] = useState<any[]>([]);
@@ -175,39 +176,49 @@ export default function VehicleAlertsList() {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>🚨 Vehicle Alerts</h1>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.title}>🚨 Vehicle Alerts</h1>
+        <div className={styles.headerActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleAdd}>
+            + Add Alert
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={() => router.push("/")}>
+            Home
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.filterBar}>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>Vehicle</label>
+          <select
+            name="vehicleId"
+            value={selectedVehicleId?.toString()}
+            onChange={handleChange}
+            required
+            className={styles.selectInput}
+          >
+            <option value="">-- Select Vehicle --</option>
+
+            {vehicleSelectList.map((driver) => (
+              <option key={driver.value} value={driver.value}>
+                {driver.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.filterActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleFilter}>
+            Filter
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={handleClearFilter}>
+            Clear
+          </button>
+        </div>
+      </div>
 
       <div className={styles.tableWrapper}>
-        <button className={clsx(styles.addBtn, button.primaryBtn)} onClick={handleAdd}>
-          + Add Alert
-        </button>
-        <button className={clsx(styles.addBtn, button.secondaryBtn)} onClick={() => router.push("/")}>
-          Home
-        </button>
-
-        <label className={clsx(styles.label)}>Vehicle</label>
-        <select
-          name="vehicleId"
-          value={selectedVehicleId?.toString()}
-          onChange={handleChange}
-          required
-          className={clsx(styles.selectInput)}
-        >
-        <option value="">-- Select Vehicle --</option>
-
-    {vehicleSelectList.map((driver) => (
-      <option key={driver.value} value={driver.value}>
-        {driver.label}
-      </option>
-    ))}
-</select>
-<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
-  Filter
-</button>
-<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
-
-  Clear
-</button>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -237,17 +248,17 @@ export default function VehicleAlertsList() {
                   <td>{getVehicleRegistration(alert.vehicleId)}</td>
                   <td style={{ textAlign: "right" }}>{alert.emi}</td>
                   <td>
-                    <span className={clsx(styles.alertHighlight, alertClass(getEmiAlertLevel(alert.emiDueDate)))}>
+                    <span className={clsx(ownStyles.alertHighlight, alertClass(getEmiAlertLevel(alert.emiDueDate)))}>
                       {alert.emiDueDate}
                     </span>
                   </td>
                   <td>
-                    <span className={clsx(styles.alertHighlight, alertClass(getExpiryAlertLevel(alert.insuranceExpiry)))}>
+                    <span className={clsx(ownStyles.alertHighlight, alertClass(getExpiryAlertLevel(alert.insuranceExpiry)))}>
                       {alert.insuranceExpiry}
                     </span>
                   </td>
                   <td>
-                    <span className={clsx(styles.alertHighlight, alertClass(getExpiryAlertLevel(alert.pollutionExpiry)))}>
+                    <span className={clsx(ownStyles.alertHighlight, alertClass(getExpiryAlertLevel(alert.pollutionExpiry)))}>
                       {alert.pollutionExpiry}
                     </span>
                   </td>

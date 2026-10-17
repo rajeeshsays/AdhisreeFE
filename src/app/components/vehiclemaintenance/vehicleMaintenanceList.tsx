@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from "react";
-import styles from "./vehicleMaintenanceList.module.css";
+import styles from "../../css/list.module.css";
 import { VehicleMaintenanceFormData } from "@/app/types/types";
 import {clsx} from 'clsx'
 import {useRouter} from 'next/navigation'
@@ -139,40 +139,49 @@ const handleClearFilter = () => {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>🚚 Vehicle Maintenance List</h1>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.title}>🚚 Vehicle Maintenance List</h1>
+        <div className={styles.headerActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleAdd}>
+            + Add Vehicle Maintenance
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={() => router.push("/")}>
+            Home
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.filterBar}>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>Vehicle</label>
+          <select
+            name="vehicleId"
+            value={selectedVehicleId?.toString()}
+            onChange={handleChange}
+            required
+            className={styles.selectInput}
+          >
+            <option value="">-- Select Vehicle --</option>
+
+            {vehicleSelectList.map((driver) => (
+              <option key={driver.value} value={driver.value}>
+                {driver.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.filterActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleFilter}>
+            Filter
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={handleClearFilter}>
+            Clear
+          </button>
+        </div>
+      </div>
 
     <div className={styles.tableWrapper}>
-        <button className={clsx(styles.addBtn,button.primaryBtn)} onClick={handleAdd}>
-  + Add Vehicle Maintenance
-</button>
-  <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
-  Home
-</button>
-
- <label className={clsx(styles.label)}>Vehicle</label>
-        <select
-          name="vehicleId"
-          value={selectedVehicleId?.toString()}
-          onChange={handleChange}
-          required
-          className={clsx(styles.selectInput)}
-        >
-        <option value="">-- Select Vehicle --</option>
-
-    {vehicleSelectList.map((driver) => (
-      <option key={driver.value} value={driver.value}>
-        {driver.label}
-      </option>
-    ))}
-</select>
-<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
-  Filter
-</button>
-<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
-
-  Clear
-</button>
-{/* <pre>{JSON.stringify(vehicleMaintenanceList, null, 2) }</pre> */}
         <table className={styles.table}>
           <thead>
             <tr>

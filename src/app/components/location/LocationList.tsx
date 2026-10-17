@@ -2,7 +2,7 @@
 
 import React, { useEffect,useState } from "react";
 import { getLocationAll, deleteLocation} from "@/app/services/locationService";
-import styles from "./locationList.module.css";
+import styles from "../../css/list.module.css";
 import LocationEntryForm from "@/app/components/location/LocationEntryForm";
 import { useRouter } from "next/navigation";
 import {clsx} from 'clsx'
@@ -92,28 +92,42 @@ const handleClearFilter = () => {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>🚚 Location List</h1>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.title}>🚚 Location List</h1>
+        <div className={styles.headerActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleAdd}>
+            + Add Location
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={() => router.push("/")}>
+            Home
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.filterBar}>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>Location</label>
+          <input type="text" name="locationName" value={searchedLocation} className={styles.textInput} onChange={handleChange} />
+        </div>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>From Date</label>
+          <input type="date" name="fromDate" value={''} className={styles.dateInput} onChange={handleChange} />
+        </div>
+        <div className={styles.filterField}>
+          <label className={styles.filterLabel}>To Date</label>
+          <input type="date" name="toDate" value={''} className={styles.dateInput} onChange={handleChange} />
+        </div>
+        <div className={styles.filterActions}>
+          <button className={clsx(button.primaryBtn)} onClick={handleFilter}>
+            Filter
+          </button>
+          <button className={clsx(button.secondaryBtn)} onClick={handleClearFilter}>
+            Clear
+          </button>
+        </div>
+      </div>
 
       <div className={styles.tableWrapper}>
-        <button className={clsx(styles.addBtn,button.primaryBtn)} onClick={handleAdd}>
-  + Add Location
-</button>
-      <button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={()=>router.push("/")}>
-  Home
-</button>
-<label className={clsx(styles.label)}>Location</label>
-<input type="text" name="locationName" value={searchedLocation} className={clsx(styles.textInput)} onChange={handleChange}  />
-<label className={clsx(styles.label)}>From Date</label><input type="date" name="fromDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
-<label className={clsx(styles.label)}>To Date</label><input type="date" name="toDate" value={''} className={clsx(styles.dateInput)} onChange={handleChange} />
-<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleFilter}>
-  Filter
-</button>
-<button className={clsx(styles.addBtn,button.secondaryBtn)} onClick={handleClearFilter}>
-
-  Clear
-</button>
-
-{/* <pre>{JSON.stringify(driverList, null, 2) }</pre> */}
         <table className={styles.table}>
           <thead>
             <tr>

@@ -147,10 +147,12 @@ useEffect(() => {
         }))
       );
       setPartyOptions(
-        parties.map((v: any) => ({
-          value: v.value,
-          label: v.label,
-        }))
+        parties
+          .filter((v: any) => Number(v.value) !== -1)
+          .map((v: any) => ({
+            value: v.value,
+            label: v.label,
+          }))
       );
     } catch (err) {
       console.error("Dropdown load failed:", err);
